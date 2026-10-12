@@ -5,6 +5,7 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+from filtre import vis_filtre
 
 st.set_page_config(page_title="Turnover – HR-dashbord", layout="wide")
 
@@ -19,28 +20,12 @@ def hent_ansatte():
 ansatte = hent_ansatte()
 
 
-# --- Filtre (i sidemenyen) ------------------------------------------------------
-st.sidebar.header("Filter")
-
-# Liste med alle måneder i dataene: «2024-10», «2024-11» … «2026-09»
-alle_maaneder = [d.strftime("%Y-%m") for d in b.maanedsslutter(b.DATA_FRA, b.DATA_TIL)]
-fra_mnd, til_mnd = st.sidebar.select_slider(
-    "Periode", options=alle_maaneder, value=("2025-10", "2026-09")
-)
-valgte_team = st.sidebar.multiselect("Team", b.TEAM, default=b.TEAM)
-
-if not valgte_team:
-    st.info("Velg minst ett team i filteret til venstre.")
-    st.stop()  # Stopp siden her – resten gir ikke mening uten team
-
-# Gjør «2025-10» om til 1.10.2025, og «2026-09» om til 30.09.2026
-start = pd.Timestamp(f"{fra_mnd}-01")
-slutt = b.maanedsslutt(pd.Timestamp(f"{til_mnd}-01"))
+# --- Filtre (felles for alle sider, se filtre.py) ---------------------------------
+start, slutt, valgte_team, hele_selskapet = vis_filtre()
 antall_mnd = len(b.maanedsslutter(start, slutt))
 
 # Filtrer til valgte team – som autofilter på team-kolonnen
 utvalg = ansatte[ansatte["team"].isin(valgte_team)]
-hele_selskapet = len(valgte_team) == len(b.TEAM)
 
 
 # --- Overskrift og merking --------------------------------------------------------

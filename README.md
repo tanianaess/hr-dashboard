@@ -91,9 +91,10 @@ hver gang.
 
 ```
 app.py                    Startfil: meny og forside
-pages/1_Turnover.py       Turnoversiden
-pages/2_Sykefravaer.py    Sykefraværssiden
+sider/1_Turnover.py       Turnoversiden
+sider/2_Sykefravaer.py    Sykefraværssiden
 beregninger.py            Alle formler (brukes av alle sider)
+filtre.py                 Felles filtre for periode og team
 lag_syntetiske_data.py    Genererer de syntetiske dataene
 data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan
 kontroller_mot_excel.py   Sjekker Python-formlene mot en Excel-fasit

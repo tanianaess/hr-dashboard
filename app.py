@@ -34,7 +34,7 @@ def forside():
 # En side kan være en funksjon (forside) eller en egen fil (turnover).
 meny = st.navigation([
     st.Page(forside, title="Forside", icon="🏠", default=True),
-    st.Page("pages/1_Turnover.py", title="Turnover", icon="📉"),
-    st.Page("pages/2_Sykefravaer.py", title="Sykefravær", icon="🩺"),
+    st.Page("sider/1_Turnover.py", title="Turnover", icon="📉"),
+    st.Page("sider/2_Sykefravaer.py", title="Sykefravær", icon="🩺"),
 ])
 meny.run()  # viser siden brukeren har valgt
