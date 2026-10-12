@@ -1,0 +1,18 @@
+# Virtuelt miljø – kan lages på nytt fra requirements.txt
+.venv/
+
+# Filer Python lager automatisk når koden kjører
+__pycache__/
+*.pyc
+
+# Låsefiler Excel lager mens en fil er åpen (f.eks. ~$Datamodell.xlsx)
+~$*.xlsx
+
+# Skjulte systemfiler fra macOS
+.DS_Store
+
+# Hemmeligheter for Streamlit (passord, nøkler) – skal aldri i et repo
+.streamlit/secrets.toml
+
+# Lokale innstillinger for Claude Code
+.claude/settings.local.json
