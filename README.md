@@ -16,10 +16,10 @@ etterprøvbart og presenteres uten å eksponere enkeltpersoner.
 | Side | Viser |
 |---|---|
 | **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · kostnad ved uønsket turnover med justerbar antakelse · avganger per måned · tabell per team · filter for team og periode |
-| **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet (NAV, 2025) · fravær per måned · tabell per team · filter for team og periode |
+| **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned · tabell per team · filter for team og periode |
+| **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) per rekrutteringsmetode · andel strukturert per kvartal · tid til ansettelse per team |
 
-Planlagt: engasjement (eNPS), rekruttering og kvalitet på ansettelser,
-bemanning mot plan.
+Planlagt: bemanning mot plan, engasjement (eNPS).
 
 ## Personvern
 
@@ -45,6 +45,8 @@ Dashbordet er bygget som om dataene var ekte:
 | Turnover | Avganger i perioden / snitt ansatte, omregnet til helår. En avgang teller hvis stillingen må erstattes: frivillig, ufrivillig og pensjon – ikke utløpte midlertidige kontrakter |
 | Uønsket turnover | Frivillige avganger der vi ville beholdt personen |
 | Sykefravær | Tapte dagsverk / avtalte dagsverk. Avtalte dagsverk = hverdager × stillingsprosent, uten fradrag for ferie og helligdager – gir litt lavere tall enn NAVs metode |
+| Tid til ansettelse | Median antall dager fra utlysning til akseptert tilbud, for ansettelser i perioden |
+| Kvalitet på ansettelser | Per rekrutteringsmetode, for en kohort av faste ansatte som har vært ansatt lenge nok: tidlig turnover (slutter innen 12 mnd) og andel bestått prøvetid (6 mnd). Viser sammenheng, ikke nødvendigvis årsak |
 | Kostnad ved uønsket turnover | Sum årslønn for uønskede avganger × antatt kostnadsandel (standard 75 %, justerbar 50–200 %) |
 
 Alle definisjoner, med datamodell, står i [`CLAUDE.md`](CLAUDE.md).
@@ -93,6 +95,7 @@ hver gang.
 app.py                    Startfil: meny og forside
 sider/1_Turnover.py       Turnoversiden
 sider/2_Sykefravaer.py    Sykefraværssiden
+sider/3_Rekruttering.py   Rekrutteringssiden
 beregninger.py            Alle formler (brukes av alle sider)
 filtre.py                 Felles filtre for periode og team
 lag_syntetiske_data.py    Genererer de syntetiske dataene

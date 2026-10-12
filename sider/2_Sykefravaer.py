@@ -70,7 +70,8 @@ kort2.metric("Korttid (1–16 dager)", b.prosent(naa["korttid_rate"], 2),
 kort3.metric("Langtid (over 16 dager)", b.prosent(naa["langtid_rate"], 2),
              delta=endring("langtid_rate"), delta_color=b.pilfarge(endring("langtid_rate")))
 kort4.metric("Landssnitt 2025", b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2))
-kort4.caption(f"Kilde: {b.SYKEFRAVAER_KILDE}")
+# Markdown-lenke: [tekst](adresse)
+kort4.caption(f"Kilde: [{b.SYKEFRAVAER_KILDE}]({b.SYKEFRAVAER_KILDE_URL})")
 
 if har_fjor:
     st.caption(f"Pilene viser endring mot samme periode i fjor "

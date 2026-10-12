@@ -179,10 +179,12 @@ def endring_pp(ny, gammel):
     return f"{pp:+.1f} pp".replace(".", ",")
 
 
-def pilfarge(endring_tekst):
-    """Farge på pila i KPI-kort: rød når tallet øker (dårlig), grønn når det synker,
-    ingen farge når endringen er null."""
-    return "off" if endring_tekst and endring_tekst.startswith("±") else "inverse"
+def pilfarge(endring_tekst, hoyere_er_bedre=False):
+    """Farge på pila i KPI-kort. Vanligvis er økning dårlig (rød), f.eks. turnover.
+    Med hoyere_er_bedre=True er økning bra (grønn). Ingen farge når endringen er null."""
+    if endring_tekst and endring_tekst.startswith("±"):
+        return "off"
+    return "normal" if hoyere_er_bedre else "inverse"
 
 
 def kroner(belop):
@@ -194,7 +196,10 @@ def kroner(belop):
 
 # Benchmark: landssnitt for sykefravær 2025 (kilde: NAV)
 SYKEFRAVAER_LANDSSNITT = 0.0657
-SYKEFRAVAER_KILDE = "NAV, landssnitt 2025"
+SYKEFRAVAER_KILDE = "NAV, årsnotat sykefravær 2025"
+SYKEFRAVAER_KILDE_URL = (
+    "https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf"
+)
 
 
 def les_fravaer():
@@ -288,5 +293,107 @@ def sykefravaer_per_team(ansatte, fravaer, start, slutt, team_liste=TEAM):
             "langtid_rate": naa["langtid_rate"],
             "endring_pp": (naa["total_rate"] - fjor["total_rate"]) * 100 if fjor else None,
             "skjult": False,
+        })
+    return pd.DataFrame(rader)
+
+
+# --- Rekruttering ---------------------------------------------------------------
+
+# Rekrutteringsdata (metode, datoer, prøvetid) er registrert fra og med denne datoen
+REKRUTTERING_FRA = DATA_FRA
+
+KVALITET_MERKNAD = (
+    "**Sammenheng, ikke nødvendigvis årsak.** Utvalget er lite, og strukturert "
+    "rekruttering kan ha blitt brukt på andre typer stillinger."
+)
+
+
+def ansettelser_i_perioden(ansatte, start, slutt):
+    """Alle med registrerte rekrutteringsdata som startet i perioden (alle
+    ansettelsesformer), med en ny kolonne: dager fra utlysning til aksept."""
+    a = ansatte[
+        ansatte["rekrutteringsmetode"].notna()
+        & (ansatte["ansattdato"] >= start) & (ansatte["ansattdato"] <= slutt)
+    ].copy()  # .copy() = egen kopi, så vi kan legge til en kolonne trygt
+    a["dager_til_ansettelse"] = (a["aksept_dato"] - a["utlysningsdato"]).dt.days
+    return a
+
+
+def rekruttering(ansatte, start, slutt):
+    """Nøkkeltall for ansettelser i perioden."""
+    a = ansettelser_i_perioden(ansatte, start, slutt)
+    if len(a) == 0:
+        return {"antall": 0, "median_dager": None, "andel_strukturert": None, "strukturert": 0}
+    strukturert = int((a["rekrutteringsmetode"] == "strukturert").sum())
+    return {
+        "antall": len(a),
+        "median_dager": a["dager_til_ansettelse"].median(),
+        "andel_strukturert": strukturert / len(a),
+        "strukturert": strukturert,
+    }
+
+
+def tid_til_ansettelse_per_team(ansatte, start, slutt, team_liste=TEAM):
+    """Median dager fra utlysning til aksept per team, med antall ansettelser (n)."""
+    a = ansettelser_i_perioden(ansatte, start, slutt)
+    rader = []
+    for team in team_liste:
+        t = a[a["team"] == team]
+        rader.append({"team": team, "antall": len(t),
+                      "median_dager": t["dager_til_ansettelse"].median() if len(t) else None})
+    return pd.DataFrame(rader)
+
+
+def strukturert_per_kvartal(ansatte, start, slutt):
+    """Andel strukturerte ansettelser per kvartal, med antall ansettelser (n)."""
+    a = ansettelser_i_perioden(ansatte, start, slutt)
+    kvartal = a["ansattdato"].dt.year.astype(str) + "-K" + a["ansattdato"].dt.quarter.astype(str)
+    er_strukturert = a["rekrutteringsmetode"] == "strukturert"
+    tabell = pd.DataFrame({
+        "antall": er_strukturert.groupby(kvartal).size(),
+        "strukturert": er_strukturert.groupby(kvartal).sum(),
+    })
+    tabell["andel"] = tabell["strukturert"] / tabell["antall"]
+    return tabell.reset_index(names="kvartal")
+
+
+def kvalitet_kohorter(ansatte, slutt):
+    """Hvem som inngår i kvalitetstallene (kohortene), styrt av periodeslutt:
+    faste ansatte med registrerte rekrutteringsdata, som har vært ansatt lenge nok
+    til å kunne observeres – 12 mnd for tidlig turnover, 6 mnd for prøvetid."""
+    faste = ansatte[(ansatte["ansettelsesform"] == "fast") & ansatte["rekrutteringsmetode"].notna()]
+    siste_12 = slutt - pd.DateOffset(months=12)
+    siste_6 = slutt - pd.DateOffset(months=6)
+    return {
+        "tidlig": faste[faste["ansattdato"] <= siste_12],
+        "tidlig_til": siste_12,
+        "provetid": faste[(faste["ansattdato"] <= siste_6) & faste["prøvetid_bestått"].notna()],
+        "provetid_til": siste_6,
+    }
+
+
+def kvalitet_per_metode(ansatte, slutt):
+    """Tidlig turnover og prøvetid bestått per rekrutteringsmetode, med n.
+    Femregelen: grupper med færre enn 5 i kohorten får None (skjules)."""
+    k = kvalitet_kohorter(ansatte, slutt)
+    tidlig, provetid = k["tidlig"], k["provetid"]
+    # Sluttet innen 12 mnd, av en grunn som teller i turnover
+    sluttet_tidlig = (
+        tidlig["sluttdato"].notna()
+        & (tidlig["sluttdato"] < tidlig["ansattdato"] + pd.DateOffset(months=12))
+        & tidlig["sluttårsak"].isin(TELLER_I_TURNOVER)
+    )
+    rader = []
+    for metode in ["strukturert", "ustrukturert"]:
+        er_t = tidlig["rekrutteringsmetode"] == metode
+        er_p = provetid["rekrutteringsmetode"] == metode
+        n_t, n_p = int(er_t.sum()), int(er_p.sum())
+        rader.append({
+            "metode": metode,
+            "tidlig_n": n_t,
+            "tidlig_antall": int((sluttet_tidlig & er_t).sum()) if n_t >= MIN_GRUPPE else None,
+            "provetid_n": n_p,
+            "provetid_bestatt": int((provetid.loc[er_p, "prøvetid_bestått"] == "ja").sum())
+                                if n_p >= MIN_GRUPPE else None,
         })
     return pd.DataFrame(rader)
