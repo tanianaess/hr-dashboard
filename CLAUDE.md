@@ -47,12 +47,20 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
 - **Femregelen:** grupper med **færre enn 5** skjules for:
   - **sykefravær** – antall ansatte i gruppa
   - **eNPS** – `antall_svar` (ikke teamstørrelsen)
-  - **uønsket turnover og sluttårsak** – alle teamtall
+  - **turnover per team**:
+    - team med færre enn 5 ansatte (snitt i perioden): **alt** skjules
+    - totalt antall avganger og total turnover vises ellers alltid – at noen
+      har sluttet er ikke sensitivt
+    - fordeling på **uønsket og sluttårsak** (inkl. `kontrakt utløpt`) vises
+      bare når teamet har **minst 5 avganger** i perioden; ellers bare for hele
+      selskapet. Det sensitive er ledelsens vurdering av enkeltpersoner.
+    - Samme regel gjelder når filteret velger noen team, men ikke alle.
   - **kvalitet på ansettelser** – både per team og per rekrutteringsmetode
     (antall ansatte som inngår i beregningen)
   
   Dette gjelder også når filtre gjør en gruppe mindre enn 5.
-- **Lønn** vises aldri per team. Den brukes bare i kostnadsberegningen.
+- **Lønn** vises aldri per team. Den brukes bare i kostnadsberegningen, og
+  kostnaden vises bare for hele selskapet (ikke når filteret velger enkeltteam).
 - **Stilling** blir aldri et filter i dashbordet (stilling + team kan peke ut
   én person).
 - Selv om dataene er syntetiske, skal dashbordet bygges som om de var ekte.
