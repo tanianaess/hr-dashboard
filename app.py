@@ -1,5 +1,4 @@
-# Forsiden i dashbordet. Sidene i mappa pages/ dukker automatisk opp i menyen
-# til venstre.
+# Startfila for dashbordet: lager menyen og inneholder forsiden.
 #
 # Start dashbordet med:  streamlit run app.py
 
@@ -10,18 +9,30 @@ from beregninger import SYNTETISK_MERKNAD
 # Fanetittel og bred layout
 st.set_page_config(page_title="HR-dashbord", layout="wide")
 
-st.title("HR-dashbord")
-st.warning(SYNTETISK_MERKNAD, icon="⚠️")
 
-st.markdown(
-    """
-    People analytics-dashbord for et fiktivt norsk tech-selskap med ca. 230
-    ansatte i 7 team, okt 2024–sep 2026.
+def forside():
+    """Innholdet på forsiden."""
+    st.title("HR-dashbord")
+    st.warning(SYNTETISK_MERKNAD, icon="⚠️")
 
-    **Sider** (velg i menyen til venstre):
-    - **Turnover** – hvor mange slutter, hvem vi ville beholdt, og hva det koster
+    st.markdown(
+        """
+        People analytics-dashbord for et fiktivt norsk tech-selskap med ca. 230
+        ansatte i 7 team, okt 2024–sep 2026.
 
-    **Personvern:** Dashbordet viser aldri enkeltpersoner. Små grupper skjules
-    (femregelen), og antall (n) vises ved siden av prosenter.
-    """
-)
+        **Sider** (velg i menyen til venstre):
+        - **Turnover** – hvor mange slutter, hvem vi ville beholdt, og hva det koster
+
+        **Personvern:** Dashbordet viser aldri enkeltpersoner. Små grupper skjules
+        (femregelen), og antall (n) vises ved siden av prosenter.
+        """
+    )
+
+
+# Menyen: navn, ikon og rekkefølge bestemmes her – ikke av filnavnene.
+# En side kan være en funksjon (forside) eller en egen fil (turnover).
+meny = st.navigation([
+    st.Page(forside, title="Forside", icon="🏠", default=True),
+    st.Page("pages/1_Turnover.py", title="Turnover", icon="📉"),
+])
+meny.run()  # viser siden brukeren har valgt
