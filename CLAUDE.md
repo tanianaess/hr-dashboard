@@ -57,6 +57,15 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
   én person).
 - Selv om dataene er syntetiske, skal dashbordet bygges som om de var ekte.
 
+## Presentasjon i dashbordet (gjelder alltid)
+
+- **Vis alltid n ved siden av prosenter for små grupper**, f.eks.
+  «12,5 % (1 av 8)». Én person mer eller mindre kan flytte en liten gruppe
+  mange prosentpoeng, og leseren må kunne se det.
+- **Dataene er syntetiske – si det tydelig.** Både dashbordet og README skal
+  klart opplyse at dataene er oppdiktet og konstruert for å illustrere
+  metodikk, og at tallene **ikke er ekte funn** om noe selskap.
+
 ## Datamodell
 
 Gjelder alle ark:
@@ -113,6 +122,17 @@ også være uønsket.
 | `enps` | tall | −100 til 100 |
 | `antall_svar` | tall | Femregelen bruker dette tallet. |
 
+### Ark: Bemanningsplan (én rad per team per måned)
+
+| Kolonne | Type | Merknad |
+|---|---|---|
+| `team` | tekst | |
+| `måned` | tekst | ÅÅÅÅ-MM |
+| `planlagt_antall` | tall | Planlagt antall ansatte i teamet ved utgangen av måneden. |
+
+Brukes til å vise **faktisk mot plan over tid**. Planen vokser gradvis gjennom
+perioden.
+
 ### Ark: Definisjoner
 
 | Kolonne | Merknad |
@@ -134,6 +154,8 @@ også være uønsket.
     separat (antall).
   - Ratene **annualiseres** når perioden ikke er 12 måneder:
     rate × 12 / antall måneder i perioden.
+- **Bemanning mot plan** = faktisk antall ansatte ved månedsslutt (alle
+  ansettelsesformer) sammenlignet med `planlagt_antall`, per team og måned.
 - **Kostnad ved uønsket turnover** = sum årslønn for uønskede avganger × 75 %
   (antakelse).
 - **Sykefravær** = (tapte korttid + tapte langtid) / avtalte dagsverk.
@@ -147,6 +169,38 @@ også være uønsket.
   - **Prøvetid bestått** = andel med `prøvetid_bestått` = ja. Bare ansatte
     med `ansattdato` minst 6 måneder før periodeslutt tas med.
   - Ansatte uten registrert rekrutteringsmetode holdes utenfor.
+
+## Syntetiske data
+
+- Lages av `lag_syntetiske_data.py` med fast tilfeldighetsfrø (`FRO = 42`), så
+  dataene blir like hver gang. Lagres i `data/`: `ansatte.csv`, `fravaer.csv`,
+  `engasjement.csv`, `bemanningsplan.csv` (kolonner som i «Datamodell»).
+- Periode: okt 2024–sep 2026. Dataene er et øyeblikksbilde per **30.09.2026**
+  (ingen framtidige sluttdatoer, ingen som ikke har startet).
+- Rekrutteringsdata registreres fra **okt 2024**. Ansatt før det = tomme
+  rekrutteringsfelt.
+- Historien dataene skal vise (siste 12 mnd):
+  1. **Kundesuksess**: langtidsfraværet stiger siste halvår, eNPS faller fra ca.
+     +10 til −15. Har vikarer med `kontrakt utløpt`.
+  2. **Salg**: frivillig turnover ca. 20 %, mange slutter innen 12 mnd, flest
+     ansatt ustrukturert.
+  3. **Strukturert rekruttering**: tidlig turnover ca. 10 % mot ca. 30 % for
+     ustrukturert, høyere andel bestått prøvetid. Andelen strukturerte øker.
+  4. **Teknologi**: median tid til ansettelse ca. 60 dager, under bemanningsplanen.
+  5. **Totalt**: turnover ca. 14 %, sykefravær ca. 5,5 % – problemene synes bare
+     per team.
+  6. **Ledergruppen**: 4 personer.
+  7. **Pensjon**: 2 planlagte pensjoneringer (teknologi og økonomi og hr), så
+     regelen om at pensjon teller i total turnover blir testet.
+  8. **Prøvetid**: én strukturert ansettelse stryker, så strukturert ikke
+     ligger på 100 %.
+
+### Presiseringer av definisjonene
+- **Arbeidsdager** (for avtalte dagsverk) = mandag–fredag. Helligdager og ferie
+  er ikke trukket fra.
+- **Kvalitet på ansettelser** beregnes bare for **faste** ansatte.
+- **Tidlig turnover** teller de samme sluttårsakene som turnover (`kontrakt
+  utløpt` teller ikke).
 
 ## Om meg (brukeren)
 
