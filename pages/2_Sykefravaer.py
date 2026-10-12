@@ -1,0 +1,180 @@
+# Sykefraværssiden: totalt, korttid og langtid, sammenlignet med samme periode i
+# fjor og med landssnittet. Alle formler ligger i beregninger.py.
+
+import pandas as pd
+import streamlit as st
+
+import beregninger as b
+
+st.set_page_config(page_title="Sykefravær – HR-dashbord", layout="wide")
+
+
+# --- Data ---------------------------------------------------------------------
+# Avtalte dagsverk regnes ut fra ansatte – det tar et øyeblikk, så vi lagrer
+# resultatet (cache) og regner bare én gang.
+@st.cache_data
+def hent_data():
+    ansatte = b.les_ansatte()
+    fravaer = b.fravaer_med_avtalte(ansatte, b.les_fravaer())
+    return ansatte, fravaer
+
+
+ansatte, fravaer = hent_data()
+
+
+# --- Filtre (samme som på turnoversiden) ------------------------------------------
+st.sidebar.header("Filter")
+alle_maaneder = [d.strftime("%Y-%m") for d in b.maanedsslutter(b.DATA_FRA, b.DATA_TIL)]
+fra_mnd, til_mnd = st.sidebar.select_slider(
+    "Periode", options=alle_maaneder, value=("2025-10", "2026-09")
+)
+valgte_team = st.sidebar.multiselect("Team", b.TEAM, default=b.TEAM)
+
+if not valgte_team:
+    st.info("Velg minst ett team i filteret til venstre.")
+    st.stop()
+
+start = pd.Timestamp(f"{fra_mnd}-01")
+slutt = b.maanedsslutt(pd.Timestamp(f"{til_mnd}-01"))
+hele_selskapet = len(valgte_team) == len(b.TEAM)
+
+# Filtrer begge tabellene til valgte team
+utvalg_ansatte = ansatte[ansatte["team"].isin(valgte_team)]
+utvalg_fravaer = fravaer[fravaer["team"].isin(valgte_team)]
+
+
+# --- Overskrift og merking --------------------------------------------------------
+st.title("Sykefravær")
+st.warning(b.SYNTETISK_MERKNAD, icon="⚠️")
+st.caption(
+    f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y}. "
+    f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}."
+)
+
+# Femregelen: utvalg med færre enn 5 ansatte skjules
+snitt = b.snitt_ansatte(utvalg_ansatte, start, slutt)
+if snitt < b.MIN_GRUPPE:
+    st.warning("Utvalget har færre enn 5 ansatte. Sykefraværet skjules av personvernhensyn.")
+    st.stop()
+
+
+# --- Regn ut tallene ----------------------------------------------------------------
+naa = b.sykefravaer(utvalg_fravaer, start, slutt)
+fjor_start, fjor_slutt = b.samme_periode_i_fjor(start, slutt)
+har_fjor = fjor_start >= b.DATA_FRA
+fjor = b.sykefravaer(utvalg_fravaer, fjor_start, fjor_slutt) if har_fjor else None
+
+
+def endring(navn):
+    """Endring mot samme periode i fjor, i prosentpoeng."""
+    if not har_fjor:
+        return None
+    return b.endring_pp(naa[navn], fjor[navn])
+
+
+# --- KPI-kort -------------------------------------------------------------------------
+kort1, kort2, kort3, kort4 = st.columns(4)
+kort1.metric("Sykefravær totalt", b.prosent(naa["total_rate"], 2),
+             delta=endring("total_rate"), delta_color=b.pilfarge(endring("total_rate")))
+kort1.caption(f"Snitt {round(snitt)} ansatte")
+kort2.metric("Korttid (1–16 dager)", b.prosent(naa["korttid_rate"], 2),
+             delta=endring("korttid_rate"), delta_color=b.pilfarge(endring("korttid_rate")))
+kort3.metric("Langtid (over 16 dager)", b.prosent(naa["langtid_rate"], 2),
+             delta=endring("langtid_rate"), delta_color=b.pilfarge(endring("langtid_rate")))
+kort4.metric("Landssnitt 2025", b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2))
+kort4.caption(f"Kilde: {b.SYKEFRAVAER_KILDE}")
+
+if har_fjor:
+    st.caption(f"Pilene viser endring mot samme periode i fjor "
+               f"({fjor_start:%m.%Y}–{fjor_slutt:%m.%Y}), i prosentpoeng (pp).")
+else:
+    st.caption("Ingen sammenligning: samme periode i fjor ligger før datastart (okt 2024).")
+
+st.info(
+    "**Om sammenligningen med landssnittet:** Vi trekker ikke fra ferie og helligdager "
+    "fra avtalte dagsverk. Det gir flere avtalte dagsverk og derfor et litt lavere "
+    "sykefravær enn NAVs metode. Forskjellen mot landssnittet er altså litt "
+    "overdrevet i vår favør.",
+    icon="ℹ️",
+)
+
+
+# --- Graf: sykefravær per måned, med landssnitt -----------------------------------------
+st.subheader("Sykefravær per måned")
+
+per_maaned = b.sykefravaer_per_maaned(utvalg_fravaer, start, slutt)
+# Gjør tabellen «lang»: én rad per måned og fraværstype (som å «oppheve pivot» i Excel)
+graf_data = (per_maaned.reset_index()
+             .melt(id_vars="måned", var_name="type", value_name="prosent")
+             .rename(columns={"måned": "maaned"}))
+landssnitt = b.SYKEFRAVAER_LANDSSNITT * 100
+
+st.vega_lite_chart(
+    graf_data,
+    {
+        "height": 320,
+        "layer": [
+            {   # Stablede stolper: langtid nederst, korttid oppå
+                "mark": "bar",
+                "encoding": {
+                    "x": {"field": "maaned", "type": "ordinal", "title": None},
+                    "y": {"field": "prosent", "type": "quantitative", "stack": True,
+                          "title": "Sykefravær (%)"},
+                    "color": {"field": "type", "type": "nominal", "title": None,
+                              "scale": {"domain": ["Langtid", "Korttid"],
+                                        "range": ["#d1495b", "#f2a541"]}},
+                    "order": {"field": "type", "sort": "descending"},
+                    "tooltip": [{"field": "maaned", "title": "Måned"},
+                                {"field": "type", "title": "Type"},
+                                {"field": "prosent", "title": "Prosent", "format": ".1f"}],
+                },
+            },
+            {   # Stiplet linje for landssnittet
+                "mark": {"type": "rule", "strokeDash": [6, 4], "color": "#444"},
+                "encoding": {"y": {"datum": landssnitt}},
+            },
+            {   # Tekst ved linja
+                "mark": {"type": "text", "align": "left", "dx": 4, "dy": -8, "color": "#444"},
+                "encoding": {"y": {"datum": landssnitt}, "x": {"value": 0},
+                             "text": {"value": f"Landssnitt {b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2)}"}},
+            },
+        ],
+    },
+    width="stretch",
+)
+
+
+# --- Tabell per team --------------------------------------------------------------------
+st.subheader("Sykefravær per team")
+
+per_team = b.sykefravaer_per_team(ansatte, fravaer, start, slutt, valgte_team)
+SKJULT = "skjult"
+rader = []
+for _, r in per_team.iterrows():
+    if r["skjult"]:
+        rader.append({"Team": r["team"], "Snitt ansatte": "under 5", "Totalt": SKJULT,
+                      "Korttid": SKJULT, "Langtid": SKJULT, "Endring mot i fjor": SKJULT})
+        continue
+    endring_tekst = "–" if pd.isna(r["endring_pp"]) else b.endring_pp(r["endring_pp"] / 100, 0)
+    rader.append({
+        "Team": r["team"],
+        "Snitt ansatte": str(round(r["snitt_ansatte"])),  # n ved siden av prosentene
+        "Totalt": b.prosent(r["total_rate"], 2),
+        "Korttid": b.prosent(r["korttid_rate"], 2),
+        "Langtid": b.prosent(r["langtid_rate"], 2),
+        "Endring mot i fjor": endring_tekst,
+    })
+if hele_selskapet:
+    rader.append({
+        "Team": "Hele selskapet", "Snitt ansatte": str(round(snitt)),
+        "Totalt": b.prosent(naa["total_rate"], 2), "Korttid": b.prosent(naa["korttid_rate"], 2),
+        "Langtid": b.prosent(naa["langtid_rate"], 2),
+        "Endring mot i fjor": endring("total_rate") or "–",
+    })
+
+st.dataframe(pd.DataFrame(rader), hide_index=True, width="stretch")
+st.caption(
+    "Sykefravær = tapte dagsverk / avtalte dagsverk. Avtalte dagsverk = hverdager "
+    "(mandag–fredag) × stillingsprosent, uten fradrag for ferie og helligdager. "
+    "**Femregelen:** team med under 5 ansatte skjules."
+)

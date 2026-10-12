@@ -16,9 +16,10 @@ etterprøvbart og presenteres uten å eksponere enkeltpersoner.
 | Side | Viser |
 |---|---|
 | **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · kostnad ved uønsket turnover med justerbar antakelse · avganger per måned · tabell per team · filter for team og periode |
+| **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet (NAV, 2025) · fravær per måned · tabell per team · filter for team og periode |
 
-Planlagt: sykefravær, engasjement (eNPS), rekruttering og kvalitet på
-ansettelser, bemanning mot plan.
+Planlagt: engasjement (eNPS), rekruttering og kvalitet på ansettelser,
+bemanning mot plan.
 
 ## Personvern
 
@@ -43,6 +44,7 @@ Dashbordet er bygget som om dataene var ekte:
 | Snitt ansatte | Gjennomsnitt av antall ansatte ved hver månedsslutt i perioden |
 | Turnover | Avganger i perioden / snitt ansatte, omregnet til helår. En avgang teller hvis stillingen må erstattes: frivillig, ufrivillig og pensjon – ikke utløpte midlertidige kontrakter |
 | Uønsket turnover | Frivillige avganger der vi ville beholdt personen |
+| Sykefravær | Tapte dagsverk / avtalte dagsverk. Avtalte dagsverk = hverdager × stillingsprosent, uten fradrag for ferie og helligdager – gir litt lavere tall enn NAVs metode |
 | Kostnad ved uønsket turnover | Sum årslønn for uønskede avganger × antatt kostnadsandel (standard 75 %, justerbar 50–200 %) |
 
 Alle definisjoner, med datamodell, står i [`CLAUDE.md`](CLAUDE.md).
@@ -90,6 +92,7 @@ hver gang.
 ```
 app.py                    Startfil: meny og forside
 pages/1_Turnover.py       Turnoversiden
+pages/2_Sykefravaer.py    Sykefraværssiden
 beregninger.py            Alle formler (brukes av alle sider)
 lag_syntetiske_data.py    Genererer de syntetiske dataene
 data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan

@@ -75,8 +75,7 @@ def endring(navn, kan_vises=True):
     """Endring mot forrige periode i prosentpoeng, f.eks. «+3,1 pp»."""
     if not (har_forrige and kan_vises):
         return None
-    pp = (naa[navn] - forrige[navn]) * 100
-    return f"{pp:+.1f} pp".replace(".", ",")
+    return b.endring_pp(naa[navn], forrige[navn])
 
 
 snitt = round(naa["snitt_ansatte"])
@@ -86,16 +85,18 @@ kort1.metric(
     "Total turnover",
     b.prosent(naa["total_rate"]),
     delta=endring("total_rate"),
-    delta_color="inverse",  # høyere turnover = dårlig = rød pil
+    delta_color=b.pilfarge(endring("total_rate")),  # høyere turnover = dårlig = rød pil
 )
 kort1.caption(f"{naa['avganger']} avganger, snitt {snitt} ansatte")
 
 if vis_fordeling:
     kort2.metric("Frivillig turnover", b.prosent(naa["frivillig_rate"]),
-                 delta=endring("frivillig_rate", vis_fordeling_forrige), delta_color="inverse")
+                 delta=endring("frivillig_rate", vis_fordeling_forrige),
+                 delta_color=b.pilfarge(endring("frivillig_rate", vis_fordeling_forrige)))
     kort2.caption(f"{naa['frivillig']} sa opp selv")
     kort3.metric("Uønsket turnover", b.prosent(naa["uønsket_rate"]),
-                 delta=endring("uønsket_rate", vis_fordeling_forrige), delta_color="inverse")
+                 delta=endring("uønsket_rate", vis_fordeling_forrige),
+                 delta_color=b.pilfarge(endring("uønsket_rate", vis_fordeling_forrige)))
     kort3.caption(f"{naa['uønsket']} vi ville beholdt")
 else:
     kort2.metric("Frivillig turnover", "Skjult")

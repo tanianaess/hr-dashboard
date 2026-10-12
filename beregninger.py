@@ -170,6 +170,123 @@ def prosent_med_n(teller, nevner):
     return f"{prosent(teller / nevner)} ({teller} av {nevner})"
 
 
+def endring_pp(ny, gammel):
+    """Endring i prosentpoeng som tekst: «+3,1 pp», «−0,4 pp» eller «±0,0 pp»
+    når endringen rundes av til null."""
+    pp = round((ny - gammel) * 100, 1)
+    if pp == 0:
+        return "±0,0 pp"
+    return f"{pp:+.1f} pp".replace(".", ",")
+
+
+def pilfarge(endring_tekst):
+    """Farge på pila i KPI-kort: rød når tallet øker (dårlig), grønn når det synker,
+    ingen farge når endringen er null."""
+    return "off" if endring_tekst and endring_tekst.startswith("±") else "inverse"
+
+
 def kroner(belop):
     """2700000 → «2 700 000 kr»."""
     return f"{belop:,.0f} kr".replace(",", " ")
+
+
+# --- Sykefravær ---------------------------------------------------------------
+
+# Benchmark: landssnitt for sykefravær 2025 (kilde: NAV)
+SYKEFRAVAER_LANDSSNITT = 0.0657
+SYKEFRAVAER_KILDE = "NAV, landssnitt 2025"
+
+
+def les_fravaer():
+    """Leser fravaer.csv: tapte dagsverk per team og måned."""
+    return pd.read_csv(DATAMAPPE / "fravaer.csv")
+
+
+def avtalte_dagsverk(ansatte):
+    """Avtalte dagsverk per team og måned, regnet ut fra ansatte (se CLAUDE.md):
+    arbeidsdager (mandag–fredag) mens personen var ansatt × stillingsprosent.
+    Helligdager og ferie er ikke trukket fra."""
+    rader = []
+    for maaned_start in pd.date_range(DATA_FRA, DATA_TIL, freq="MS"):
+        maaned_slutt = maanedsslutt(maaned_start)
+        for _, p in ansatte.iterrows():  # én ansatt om gangen, som å gå nedover rader
+            fra = max(maaned_start, p["ansattdato"])
+            til = maaned_slutt if pd.isna(p["sluttdato"]) else min(maaned_slutt, p["sluttdato"])
+            if fra <= til:  # var ansatt minst én dag denne måneden
+                arbeidsdager = len(pd.bdate_range(fra, til))  # bdate = hverdager
+                rader.append({
+                    "team": p["team"],
+                    "måned": maaned_start.strftime("%Y-%m"),
+                    "avtalte_dagsverk": arbeidsdager * p["stillingsprosent"] / 100,
+                })
+    # Summer per team og måned – som en pivottabell
+    return pd.DataFrame(rader).groupby(["team", "måned"], as_index=False)["avtalte_dagsverk"].sum()
+
+
+def fravaer_med_avtalte(ansatte, fravaer):
+    """Legger avtalte dagsverk inn ved siden av tapte dagsverk.
+    merge = slå opp på team og måned, som XOPPSLAG med to kriterier."""
+    return fravaer.merge(avtalte_dagsverk(ansatte), on=["team", "måned"], how="left")
+
+
+def samme_periode_i_fjor(start, slutt):
+    """Samme måneder ett år tidligere (sykefravær varierer med årstiden)."""
+    return start - pd.DateOffset(years=1), maanedsslutt(slutt - pd.DateOffset(years=1))
+
+
+def fravaer_i_perioden(fravaer, start, slutt):
+    """Filtrer til måneder i perioden. «2025-10» som tekst kan sammenlignes direkte."""
+    return fravaer[(fravaer["måned"] >= f"{start:%Y-%m}") & (fravaer["måned"] <= f"{slutt:%Y-%m}")]
+
+
+def sykefravaer(fravaer, start, slutt):
+    """Sykefravær for perioden: tapte dagsverk / avtalte dagsverk."""
+    f = fravaer_i_perioden(fravaer, start, slutt)
+    avtalte = f["avtalte_dagsverk"].sum()
+    kort = f["tapte_dagsverk_korttid"].sum()
+    lang = f["tapte_dagsverk_langtid"].sum()
+    if avtalte == 0:
+        return None
+    return {
+        "avtalte": avtalte,
+        "total_rate": (kort + lang) / avtalte,
+        "korttid_rate": kort / avtalte,
+        "langtid_rate": lang / avtalte,
+    }
+
+
+def sykefravaer_per_maaned(fravaer, start, slutt):
+    """Sykefravær per måned i prosent, delt i korttid og langtid."""
+    f = fravaer_i_perioden(fravaer, start, slutt)
+    per_mnd = f.groupby("måned")[["tapte_dagsverk_korttid", "tapte_dagsverk_langtid",
+                                  "avtalte_dagsverk"]].sum()
+    return pd.DataFrame({
+        "Korttid": per_mnd["tapte_dagsverk_korttid"] / per_mnd["avtalte_dagsverk"] * 100,
+        "Langtid": per_mnd["tapte_dagsverk_langtid"] / per_mnd["avtalte_dagsverk"] * 100,
+    })
+
+
+def sykefravaer_per_team(ansatte, fravaer, start, slutt, team_liste=TEAM):
+    """Én rad per team, med samme periode i fjor til sammenligning.
+    Femregelen: team med færre enn 5 ansatte (snitt i perioden) skjules (None)."""
+    fjor_start, fjor_slutt = samme_periode_i_fjor(start, slutt)
+    har_fjor = fjor_start >= DATA_FRA
+    rader = []
+    for team in team_liste:
+        snitt = snitt_ansatte(ansatte[ansatte["team"] == team], start, slutt)
+        f_team = fravaer[fravaer["team"] == team]
+        if snitt < MIN_GRUPPE:
+            rader.append({"team": team, "snitt_ansatte": None, "skjult": True})
+            continue
+        naa = sykefravaer(f_team, start, slutt)
+        fjor = sykefravaer(f_team, fjor_start, fjor_slutt) if har_fjor else None
+        rader.append({
+            "team": team,
+            "snitt_ansatte": snitt,
+            "total_rate": naa["total_rate"],
+            "korttid_rate": naa["korttid_rate"],
+            "langtid_rate": naa["langtid_rate"],
+            "endring_pp": (naa["total_rate"] - fjor["total_rate"]) * 100 if fjor else None,
+            "skjult": False,
+        })
+    return pd.DataFrame(rader)

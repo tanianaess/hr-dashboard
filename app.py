@@ -22,6 +22,7 @@ def forside():
 
         **Sider** (velg i menyen til venstre):
         - **Turnover** – hvor mange slutter, hvem vi ville beholdt, og hva det koster
+        - **Sykefravær** – korttid og langtid, mot samme periode i fjor og landssnittet
 
         **Personvern:** Dashbordet viser aldri enkeltpersoner. Små grupper skjules
         (femregelen), og antall (n) vises ved siden av prosenter.
@@ -34,5 +35,6 @@ def forside():
 meny = st.navigation([
     st.Page(forside, title="Forside", icon="🏠", default=True),
     st.Page("pages/1_Turnover.py", title="Turnover", icon="📉"),
+    st.Page("pages/2_Sykefravaer.py", title="Sykefravær", icon="🩺"),
 ])
 meny.run()  # viser siden brukeren har valgt
