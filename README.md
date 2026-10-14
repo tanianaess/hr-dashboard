@@ -1,11 +1,11 @@
-# HR-dashbord – people analytics
+# HR-dashbord for people analytics
 
 > ⚠️ **Syntetiske data.** Alle tall i dette prosjektet er oppdiktet og
 > konstruert for å illustrere metodikk. Selskapet finnes ikke, og tallene er
 > **ikke ekte funn** om noe selskap. Mønstrene i dataene er lagt inn med vilje
 > (se [Historien i dataene](#historien-i-dataene)).
 
-Et people analytics-dashbord for et fiktivt norsk tech-selskap med ca. 230
+Et people analytics-dashbord for **Fjordlys Tech AS**, et fiktivt norsk tech-selskap med ca. 230
 ansatte i 7 team, okt 2024–sep 2026. Bygget med Python, pandas og Streamlit.
 
 Prosjektet viser hvordan HR-nøkkeltall kan defineres presist, beregnes
@@ -15,6 +15,7 @@ etterprøvbart og presenteres uten å eksponere enkeltpersoner.
 
 | Side | Viser |
 |---|---|
+| **Oversikt** (forside) | De viktigste tallene for hele selskapet med endring og status (OK / følg med / kritisk) · «Hva ledelsen bør vite nå»: 3–5 regelbaserte innsikter om de største avvikene, med mulig neste steg og lenke til detaljene |
 | **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · kostnad ved uønsket turnover med justerbar antakelse · avganger per måned · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team |
@@ -25,11 +26,11 @@ etterprøvbart og presenteres uten å eksponere enkeltpersoner.
 
 Dashbordet er bygget som om dataene var ekte:
 
-- **Ingen enkeltpersoner** vises – bare tall for grupper. Ansatte har bare en
+- **Ingen enkeltpersoner** vises, bare tall for grupper. Ansatte har bare en
   ansatt-ID, aldri navn.
 - **Femregelen:** grupper med færre enn 5 skjules. For turnover per team vises
   totalen alltid (at noen har sluttet er ikke sensitivt), men fordelingen på
-  sluttårsak og «uønsket» bare når teamet har minst 5 avganger – det sensitive er
+  sluttårsak og «uønsket» bare når teamet har minst 5 avganger. Det sensitive er
   ledelsens vurdering av enkeltpersoner.
 - **Sekundær prikking:** en skjult gruppe skal ikke kunne regnes ut som «total minus de
   synlige». For sensitive tall (sykefravær, eNPS og fordelingen på uønsket og sluttårsak)
@@ -42,7 +43,7 @@ Dashbordet er bygget som om dataene var ekte:
   hvor få personer et tall bygger på.
 - **Lønn vises aldri per team.** Kostnaden ved turnover vises bare for hele
   selskapet.
-- **Stilling er aldri et filter** – stilling og team sammen kan peke ut én person.
+- **Stilling er aldri et filter**, fordi stilling og team sammen kan peke ut én person.
 - **Testresultater lagres aldri.** Datasettet viser bare *om* en personlighets- eller
   evnetest ble brukt, ikke resultatet.
 
@@ -53,9 +54,9 @@ Dashbordet er bygget som om dataene var ekte:
 | Nøkkeltall | Definisjon |
 |---|---|
 | Snitt ansatte | Gjennomsnitt av antall ansatte ved hver månedsslutt i perioden |
-| Turnover | Avganger i perioden / snitt ansatte, omregnet til helår. En avgang teller hvis stillingen må erstattes: frivillig, ufrivillig og pensjon – ikke utløpte midlertidige kontrakter |
+| Turnover | Avganger i perioden / snitt ansatte, omregnet til helår. En avgang teller hvis stillingen må erstattes: frivillig, ufrivillig og pensjon, men ikke utløpte midlertidige kontrakter |
 | Uønsket turnover | Frivillige avganger der vi ville beholdt personen |
-| Sykefravær | Tapte dagsverk / avtalte dagsverk. Avtalte dagsverk = hverdager × stillingsprosent, uten fradrag for ferie og helligdager – gir litt lavere tall enn NAVs metode |
+| Sykefravær | Tapte dagsverk / avtalte dagsverk. Avtalte dagsverk = hverdager × stillingsprosent, uten fradrag for ferie og helligdager. Det gir litt lavere tall enn NAVs metode |
 | Tid til ansettelse | Median antall dager fra utlysning til akseptert tilbud, for ansettelser i perioden |
 | Kvalitet på ansettelser | Per nivå (ustrukturert · strukturert intervju alene · strukturert + tillegg), for en kohort av faste ansatte som har vært ansatt lenge nok: tidlig turnover (slutter innen 12 mnd) og andel bestått prøvetid (6 mnd). Viser sammenheng, ikke nødvendigvis årsak |
 | Bemanningsgrad | Faktisk antall ansatte (alle ansettelsesformer) / planlagt antall, ved periodeslutt |
@@ -68,8 +69,8 @@ Alle definisjoner, med datamodell, står i [`CLAUDE.md`](CLAUDE.md).
 
 ## Historien i dataene
 
-Dataene er generert med vilje slik at de inneholder noen tydelige mønstre – som
-man ofte ser i virkeligheten – for å vise hva dashbordet kan avdekke:
+Dataene er generert med vilje slik at de inneholder noen tydelige mønstre, slik
+man ofte ser i virkeligheten, for å vise hva dashbordet kan avdekke:
 
 1. **Kundesuksess:** langtidsfraværet stiger siste halvår, og eNPS faller fra ca.
    +10 til −15.
@@ -78,7 +79,7 @@ man ofte ser i virkeligheten – for å vise hva dashbordet kan avdekke:
 3. **Strukturert rekruttering:** lavere tidlig turnover og høyere andel bestått
    prøvetid enn ustrukturert. Andelen strukturerte ansettelser øker.
 4. **Teknologi:** lang tid til ansettelse (ca. 60 dager) og under bemanningsplanen.
-5. **Totalt:** turnover ca. 14 % og sykefravær ca. 5,5 % – problemene synes bare
+5. **Totalt:** turnover ca. 14 % og sykefravær ca. 5,5 %. Problemene synes bare
    når man ser per team.
 
 ## Kjør selv
@@ -107,7 +108,10 @@ hver gang.
 ## Prosjektstruktur
 
 ```
-app.py                    Startfil: meny og forside
+app.py                    Startfil: menyen
+sider/0_Oversikt.py       Oversikt (forside)
+innsikter.py              Terskler for status og regler for innsikter
+utseende.py               Felles utseende: palett, toppen av sidene, statusmerker
 sider/1_Turnover.py       Turnoversiden
 sider/2_Sykefravaer.py    Sykefraværssiden
 sider/3_Rekruttering.py   Rekrutteringssiden

@@ -5,9 +5,10 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+import utseende as u
 from filtre import vis_filtre_sensitiv
 
-st.set_page_config(page_title="Engasjement – HR-dashbord", layout="wide")
+st.set_page_config(page_title="Engasjement · HR-dashbord", layout="wide")
 
 
 # --- Data ---------------------------------------------------------------------
@@ -27,8 +28,7 @@ utvalg = engasjement[engasjement["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-st.title("Engasjement (eNPS)")
-st.warning(b.SYNTETISK_MERKNAD, icon="⚠️")
+u.topp("Engasjement (eNPS)")
 
 kvartaler = b.kvartaler_i_perioden(start, slutt)
 if not kvartaler:
@@ -38,19 +38,8 @@ if not kvartaler:
 siste = kvartaler[-1]
 forrige_k, fjor_k = b.kvartal_minus(siste, 1), b.kvartal_minus(siste, 4)
 
-# Sekundær prikking: team med under 5 svar i et av kvartalene som vises eller
-# sammenlignes med, holdes utenfor totalene hvis de til sammen er under 5 svar.
-# Alle kvartaler i dataene – prikkingen blir lik uansett periodevalg
-brukte_kvartaler = set(engasjement["kvartal"])
-brukt = utvalg[utvalg["kvartal"].isin(brukte_kvartaler)]
-skjult_team = sorted(brukt.loc[brukt["antall_svar"] < b.MIN_GRUPPE, "team"].unique())
-# Summen av de skjulte sjekkes i hvert kvartal
-utenfor = sorted({team for kvartal in brukte_kvartaler
-                  for team in b.sekundar_prikking(
-                      {team: int(brukt.loc[(brukt["team"] == team) & (brukt["kvartal"] == kvartal),
-                                           "antall_svar"].sum()) for team in skjult_team})})
-if not hele_selskapet:
-    utenfor = []  # ett team: vanlig femregel – sekundær prikking gjelder totaler
+# Sekundær prikking: små team holdes utenfor totalene – se beregninger.py
+utenfor = b.utenfor_enps(engasjement, valgte_team)
 utvalg_total = utvalg[~utvalg["team"].isin(utenfor)]  # brukes til alle totaler
 st.caption(
     f"Kvartaler i perioden: {kvartaler[0]}–{siste}. "
@@ -63,7 +52,7 @@ with st.expander("Slik leses eNPS"):
         "du vil anbefale arbeidsplassen din til en venn?» (0–10).\n\n"
         "- **eNPS = andel anbefalere (9–10) minus andel kritikere (0–6)**, fra −100 til +100.\n"
         "- Positive tall betyr flere anbefalere enn kritikere.\n"
-        "- I små grupper kan noen få svar flytte tallet mye – derfor vises antall svar (n) "
+        "- I små grupper kan noen få svar flytte tallet mye. Derfor vises antall svar (n) "
         "og svarandel alltid.\n"
         "- For flere team samlet vektes hvert team med antall svar.\n"
         "- **Lav svarandel** kan gi et skjevt bilde: de som er mest misfornøyde, svarer "
@@ -96,7 +85,7 @@ def hent(kvartal, data=utvalg_total):
 # --- KPI-kort -------------------------------------------------------------------------
 naa = hent(siste)
 if naa is None:
-    st.warning("Utvalget har færre enn 5 svar. eNPS skjules av personvernhensyn.")
+    st.info("Utvalget har færre enn 5 svar. eNPS skjules av personvernhensyn.", icon=":material/lock:")
     st.stop()
 
 forrige, fjor = hent(forrige_k), hent(fjor_k)
@@ -104,8 +93,8 @@ mot_fjor = endring_poeng(naa["enps"], fjor["enps"] if fjor else None)
 mot_forrige = endring_poeng(naa["enps"], forrige["enps"] if forrige else None)
 lav = naa["svarandel"] < b.LAV_SVARANDEL
 if utenfor:
-    st.caption(f"Totalene gjelder **{b.med_unntak('utvalget', utenfor)}** – små team holdes "
-               "utenfor så de ikke kan regnes ut (sekundær prikking).")
+    st.caption(f"Totalene gjelder **{b.med_unntak('utvalget', utenfor)}**. Små team holdes "
+               "utenfor, så de ikke kan regnes ut (sekundær prikking).")
 
 kort1, kort2, kort3 = st.columns(3)
 kort1.metric(f"eNPS {siste}", enps_tekst(naa["enps"]), delta=mot_fjor,
@@ -114,9 +103,9 @@ kort1.caption(f"Pila viser endring mot samme kvartal i fjor ({fjor_k})" if fjor
               else "Ingen sammenligning med i fjor (mangler data)")
 kort2.metric("Endring mot forrige kvartal", mot_forrige or "–")
 kort2.caption(f"Fra {enps_tekst(forrige['enps'])} i {forrige_k}" if forrige else "Forrige kvartal mangler")
-kort3.metric("Svarandel – lav" if lav else "Svarandel", b.prosent(naa["svarandel"], 0))
+kort3.metric("Lav svarandel" if lav else "Svarandel", b.prosent(naa["svarandel"], 0))
 kort3.caption(f"{naa['svar']} av {naa['invitert']} invitert"
-              + (f" · under {b.prosent(b.LAV_SVARANDEL, 0)} – tolk eNPS med forsiktighet" if lav else ""))
+              + (f" · under {b.prosent(b.LAV_SVARANDEL, 0)}, så tolk eNPS med forsiktighet" if lav else ""))
 
 
 # --- Graf: eNPS per kvartal og team -----------------------------------------------------
@@ -142,7 +131,7 @@ st.vega_lite_chart(
         "height": 320,
         "layer": [
             {   # Nullinje: like mange anbefalere som kritikere
-                "mark": {"type": "rule", "color": "#888", "strokeDash": [4, 4]},
+                "mark": {"type": "rule", "color": u.NOYTRAL, "strokeDash": [4, 4]},
                 "encoding": {"y": {"datum": 0}},
             },
             {
@@ -154,7 +143,7 @@ st.vega_lite_chart(
                     "detail": {"field": "team"},  # én linje per team
                     "color": {"field": "linje", "type": "nominal", "title": None,
                               "scale": {"domain": [uthevet or "", "andre team"],
-                                        "range": ["#2e86ab", "#c3c7cc"]}},
+                                        "range": [u.PETROL, u.NOYTRAL_LYS]}},
                     "tooltip": [{"field": "team", "title": "Team"},
                                 {"field": "kvartal", "title": "Kvartal"},
                                 {"field": "enps", "title": "eNPS"},
@@ -203,9 +192,9 @@ if hele_selskapet:
 st.dataframe(pd.DataFrame(rader), hide_index=True, width="stretch")
 st.caption(
     f"**Femregelen:** team med under 5 svar skjules (gjelder også kvartalene det sammenlignes "
-    f"med). **Lav svarandel** = under {b.prosent(b.LAV_SVARANDEL, 0)} av de inviterte – da kan "
-    "eNPS gi et skjevt bilde. Hele selskapet er vektet med antall svar, inkludert team som "
-    "er skjult."
+    f"med). **Lav svarandel** = under {b.prosent(b.LAV_SVARANDEL, 0)} av de inviterte. Da kan "
+    "eNPS gi et skjevt bilde. Hele selskapet er vektet med antall svar. Små team holdes "
+    "utenfor totalen, så de ikke kan regnes ut (sekundær prikking)."
 )
 
 
@@ -217,23 +206,16 @@ if lav or lave:
         + ":** når mange ikke svarer, kan eNPS gi et for positivt bilde. De som er mest "
         "misfornøyde, svarer ofte ikke (frafallsskjevhet), så det reelle engasjementet "
         "kan være lavere enn tallet viser.",
-        icon="ℹ️",
+        icon=":material/info:",
     )
 
 
 # --- Kobling: eNPS og langtidsfravær ------------------------------------------------------
 st.subheader("Engasjement og langtidsfravær")
-st.warning(b.KOBLING_MERKNAD, icon="⚠️")
+st.info(b.KOBLING_MERKNAD, icon=":material/info:")
 
-# Fravær: små team (etter antall ansatte) prikkes likt i alle periodevalg
-utenfor_fravaer = set()
-for p_start, p_slutt in b.alle_sammenligningsperioder():
-    snitt_per_team = {team: b.snitt_ansatte(ansatte[ansatte["team"] == team], p_start, p_slutt)
-                      for team in valgte_team}
-    utenfor_fravaer |= set(b.sekundar_prikking(
-        {team: n for team, n in snitt_per_team.items() if n < b.MIN_GRUPPE}))
 # Samme team holdes utenfor begge grafene, så de viser samme utvalg
-utenfor_kobling = sorted(set(utenfor) | utenfor_fravaer)
+utenfor_kobling = sorted(set(utenfor) | set(b.utenfor_sykefravaer(ansatte, valgte_team)))
 kobling_team = [t for t in valgte_team if t not in utenfor_kobling]
 snitt_ansatte = b.snitt_ansatte(ansatte[ansatte["team"].isin(kobling_team)], start, slutt)
 if snitt_ansatte < b.MIN_GRUPPE:
@@ -251,8 +233,8 @@ else:
 
     venstre, hoyre = st.columns(2)  # to grafer side om side, hver med egen akse
     for kolonne, felt, tittel, farge in [
-        (venstre, "enps", "eNPS", "#2e86ab"),
-        (hoyre, "langtid_rate", "Langtidsfravær (%)", "#d1495b"),
+        (venstre, "enps", "eNPS", u.PETROL),
+        (hoyre, "langtid_rate", "Langtidsfravær (%)", u.PETROL),
     ]:
         kolonne.markdown(f"**{tittel}**")
         kolonne.vega_lite_chart(

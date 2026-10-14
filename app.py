@@ -1,46 +1,20 @@
-# Startfila for dashbordet: lager menyen og inneholder forsiden.
+# Startfila for dashbordet: lager menyen. Forsiden (oversikten) ligger i
+# sider/0_Oversikt.py.
 #
 # Start dashbordet med:  streamlit run app.py
 
 import streamlit as st
 
-from beregninger import SYNTETISK_MERKNAD
-
 # Fanetittel og bred layout
 st.set_page_config(page_title="HR-dashbord", layout="wide")
 
-
-def forside():
-    """Innholdet på forsiden."""
-    st.title("HR-dashbord")
-    st.warning(SYNTETISK_MERKNAD, icon="⚠️")
-
-    st.markdown(
-        """
-        People analytics-dashbord for et fiktivt norsk tech-selskap med ca. 230
-        ansatte i 7 team, okt 2024–sep 2026.
-
-        **Sider** (velg i menyen til venstre):
-        - **Turnover** – hvor mange slutter, hvem vi ville beholdt, og hva det koster
-        - **Sykefravær** – korttid og langtid, mot samme periode i fjor og landssnittet
-        - **Rekruttering** – tid til ansettelse, strukturert rekruttering og kvalitet på ansettelser
-        - **Bemanning** – faktisk antall ansatte mot bemanningsplanen, per team og over tid
-        - **Engasjement** – eNPS og svarandel per kvartal og team, og koblingen mot langtidsfravær
-
-        **Personvern:** Dashbordet viser aldri enkeltpersoner. Små grupper skjules
-        (femregelen), og antall (n) vises ved siden av prosenter.
-        """
-    )
-
-
 # Menyen: navn, ikon og rekkefølge bestemmes her – ikke av filnavnene.
-# En side kan være en funksjon (forside) eller en egen fil (turnover).
 meny = st.navigation([
-    st.Page(forside, title="Forside", icon="🏠", default=True),
-    st.Page("sider/1_Turnover.py", title="Turnover", icon="📉"),
-    st.Page("sider/2_Sykefravaer.py", title="Sykefravær", icon="🩺"),
-    st.Page("sider/3_Rekruttering.py", title="Rekruttering", icon="🧭"),
-    st.Page("sider/4_Bemanning.py", title="Bemanning", icon="👥"),
-    st.Page("sider/5_Engasjement.py", title="Engasjement", icon="💬"),
+    st.Page("sider/0_Oversikt.py", title="Oversikt", icon=":material/space_dashboard:", default=True),
+    st.Page("sider/1_Turnover.py", title="Turnover", icon=":material/sync_alt:"),
+    st.Page("sider/2_Sykefravaer.py", title="Sykefravær", icon=":material/healing:"),
+    st.Page("sider/3_Rekruttering.py", title="Rekruttering", icon=":material/person_search:"),
+    st.Page("sider/4_Bemanning.py", title="Bemanning", icon=":material/groups:"),
+    st.Page("sider/5_Engasjement.py", title="Engasjement", icon=":material/forum:"),
 ])
 meny.run()  # viser siden brukeren har valgt

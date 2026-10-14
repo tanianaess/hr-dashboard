@@ -10,3 +10,40 @@ headless = true
 [browser]
 # Ikke send bruksstatistikk til Streamlit
 gatherUsageStats = false
+
+# --- Tema: rolig, profesjonelt og nordisk ---------------------------------------
+# Én hovedfarge (dyp petrol), lys nøytral bakgrunn. Statusfargene (grønn/oransje/rød)
+# brukes bare til status. Fargene er kontrollert for kontrast og fargeblindhet.
+[theme]
+base = "light"
+primaryColor = "#0F4C5C"
+backgroundColor = "#F7F8F6"
+secondaryBackgroundColor = "#EDF1F0"
+textColor = "#1E2A30"
+borderColor = "#DCE2E1"
+linkColor = "#0F4C5C"
+baseRadius = "0.5rem"
+font = "sans-serif"
+headingFontWeights = [600, 600, 600, 600, 600, 600]
+# Grafer: samme rekkefølge overalt – petrol, lys petrol, nøytral grå
+chartCategoricalColors = ["#0F4C5C", "#5F93A1", "#8A9499"]
+# Infobokser i rolig petrol (brukes til merknader, ikke status)
+blueColor = "#0F4C5C"
+blueBackgroundColor = "#E4EEF0"
+blueTextColor = "#0F4C5C"
+# Statusfarger – mørkere tekstvariant for lesbarhet
+greenColor = "#2E7D4F"
+greenBackgroundColor = "#E3F0E7"
+greenTextColor = "#1F5A37"
+orangeColor = "#C98A12"
+orangeBackgroundColor = "#FBF0D9"
+orangeTextColor = "#7A5200"
+redColor = "#A61B29"
+redBackgroundColor = "#F8E1E3"
+redTextColor = "#8A1622"
+grayColor = "#5B6770"
+grayBackgroundColor = "#E9EDEC"
+grayTextColor = "#4A555C"
+
+[theme.sidebar]
+backgroundColor = "#EDF1F0"

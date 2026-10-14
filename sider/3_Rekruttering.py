@@ -6,9 +6,10 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+import utseende as u
 from filtre import vis_filtre
 
-st.set_page_config(page_title="Rekruttering – HR-dashbord", layout="wide")
+st.set_page_config(page_title="Rekruttering · HR-dashbord", layout="wide")
 
 
 # --- Data ---------------------------------------------------------------------
@@ -26,8 +27,7 @@ utvalg = ansatte[ansatte["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-st.title("Rekruttering")
-st.warning(b.SYNTETISK_MERKNAD, icon="⚠️")
+u.topp("Rekruttering")
 st.caption(
     f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}. "
@@ -78,7 +78,7 @@ else:
 
 # --- Kvalitet på ansettelser ------------------------------------------------------------
 st.subheader("Kvalitet på ansettelser")
-st.warning(b.KVALITET_MERKNAD, icon="⚠️")
+st.info(b.KVALITET_MERKNAD, icon=":material/info:")
 
 kvalitet = b.kvalitet_per_nivaa(utvalg, slutt)
 kohorter = b.kvalitet_kohorter(utvalg, slutt)
@@ -118,10 +118,10 @@ st.caption(
 st.info(
     "**Hvorfor vi ikke kan avgjøre hvilken metode som virker best:** Et selskap på "
     "denne størrelsen ansetter for få personer til å evaluere rekrutteringsmetoder "
-    "statistisk på egne data alene – særlig de nyeste metodene, som ennå ikke har en "
+    "statistisk på egne data alene, særlig de nyeste metodene, som ennå ikke har en "
     "kohort å måle. Valg av metoder bør derfor bygge på forskning (se under), og egne "
     "data brukes til å følge med, ikke til å bevise.",
-    icon="ℹ️",
+    icon=":material/info:",
 )
 
 
@@ -134,7 +134,7 @@ for kolonne, (navn, antall) in zip(kolonner, bruk.items()):
 st.caption(
     "Antall ansettelser i perioden der metoden ble brukt (en ansettelse kan ha flere). "
     "Tilleggsmetoder ble tatt i bruk for strukturerte ansettelser utlyst fra 2026. "
-    "Bare antall vises – aldri resultater. **Femregelen:** under 5 skjules når filteret "
+    "Bare antall vises, aldri resultater. **Femregelen:** under 5 skjules når filteret "
     "ikke viser hele selskapet."
 )
 
@@ -165,14 +165,14 @@ with st.container(border=True):  # ramme rundt boksen
         "**Validitet** er sammenhengen mellom metoden og senere jobbprestasjon, fra 0 (ingen) "
         "til 1 (perfekt). Tallene er gjennomsnitt fra mange studier (metaanalyse).\n\n"
         "- **Forskningen har endret seg:** Sackett mfl. (2022) korrigerer for det de mener var "
-        "overkorrigering i tidligere metaanalyser, og estimatene ble lavere – mest for evnetest "
+        "overkorrigering i tidligere metaanalyser, og estimatene ble lavere, mest for evnetest "
         "og arbeidsprøve. Strukturert intervju ligger nå øverst.\n"
         "- **Noen forskere mener de nye estimatene er for lave**, fordi korreksjonene kan ha "
         "gått for langt den andre veien.\n"
         "- **Case study** finnes ikke som egen kategori i forskningen. Nærmeste kategori er "
         "**arbeidsprøve (work sample)**.\n"
         "- **Personlighetstest** måler alle fem Big Five-trekk. Hvilke trekk som er relevante, "
-        "**avhenger av stillingen** – et trekk med lav gjennomsnittlig validitet kan være "
+        "**avhenger av stillingen**. Et trekk med lav gjennomsnittlig validitet kan være "
         "viktig i en bestemt rolle.\n\n"
         f"Tidligere anslag: {b.TIDLIGERE_KILDE}."
     )
@@ -181,11 +181,11 @@ with st.container(border=True):  # ramme rundt boksen
 # --- Personvern ved testbruk ---------------------------------------------------------
 st.info(
     "**Personvern ved testbruk:** Resultater fra personlighets- og evnetester er "
-    "personopplysninger. Datasettet lagrer bare *om* en metode ble brukt – aldri "
+    "personopplysninger. Datasettet lagrer bare *om* en metode ble brukt, aldri "
     "resultater, heller ikke per Big Five-trekk. Kandidater skal på forhånd informeres om "
     "hvilke tester som brukes og hvorfor, resultatene skal bare brukes i den aktuelle "
     "rekrutteringen, og de skal ikke lagres lenger enn nødvendig.",
-    icon="🔒",
+    icon=":material/lock:",
 )
 
 
@@ -205,14 +205,14 @@ st.vega_lite_chart(
                   "scale": {"domain": [0, 100]}},
         },
         "layer": [
-            {"mark": {"type": "bar", "color": "#2e86ab"},
+            {"mark": {"type": "bar", "color": u.PETROL},
              "encoding": {"tooltip": [
                  {"field": "kvartal", "title": "Kvartal"},
                  {"field": "prosent", "title": "Andel (%)", "format": ".0f"},
                  {"field": "strukturert", "title": "Strukturert"},
                  {"field": "antall", "title": "Ansettelser"}]}},
             # Antall ansettelser (n) over hver stolpe
-            {"mark": {"type": "text", "dy": -8, "color": "#444"},
+            {"mark": {"type": "text", "dy": -8, "color": u.TEKST_DEMPET},
              "encoding": {"text": {"field": "etikett"}}},
         ],
     },
@@ -238,8 +238,8 @@ st.vega_lite_chart(
             "x": {"field": "median_dager", "type": "quantitative", "title": "Median dager"},
         },
         "layer": [
-            {"mark": {"type": "bar", "color": "#2e86ab"}},
-            {"mark": {"type": "text", "align": "left", "dx": 4, "color": "#444"},
+            {"mark": {"type": "bar", "color": u.PETROL}},
+            {"mark": {"type": "text", "align": "left", "dx": 4, "color": u.TEKST_DEMPET},
              "encoding": {"text": {"field": "etikett"}}},
         ],
     },

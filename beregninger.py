@@ -63,6 +63,9 @@ def med_unntak(navn, utenfor):
     """«Hele selskapet» → «Hele selskapet (uten ledergruppen)» når noen holdes utenfor."""
     return f"{navn} (uten {', '.join(utenfor)})" if utenfor else navn
 
+# Standard kostnadsandel ved uønsket turnover (andel av årslønn) – antakelse
+KOSTNADSANDEL_STANDARD = 0.75
+
 # Merking som vises øverst på alle sider (se «Presentasjon» i CLAUDE.md)
 SYNTETISK_MERKNAD = (
     "**Syntetiske data.** Alle tall i dette dashbordet er oppdiktet og konstruert "
@@ -578,7 +581,7 @@ TIDLIGERE_KILDE = "Schmidt og Hunter (1998), gjengitt i Sackett mfl. (2022), tab
 FORSKNING_VALIDITET = [
     # (metode i dashbordet, kategori i forskningen, Sackett mfl. 2022, Schmidt og Hunter 1998)
     ("Strukturert intervju", "strukturert intervju", 0.42, 0.51),
-    ("Case study", "arbeidsprøve (work sample) – nærmeste kategori", 0.33, 0.54),
+    ("Case study", "arbeidsprøve (work sample), nærmeste kategori", 0.33, 0.54),
     ("Evnetest", "generell kognitiv evne", 0.31, 0.51),
     ("Ustrukturert intervju", "ustrukturert intervju", 0.19, 0.38),
     ("Personlighetstest (Big Five)", "planmessighet", 0.19, 0.31),
@@ -670,3 +673,53 @@ def alle_sammenligningsperioder():
             if p_start >= DATA_FRA:
                 perioder.add((p_start, p_slutt))
     return sorted(perioder)
+
+
+# --- Sekundær prikking per tema (brukes av sidene OG forsiden) ---------------------
+# Alle tre: prikkingen er lik i alle periodevalg (sjekkes i alle perioder som kan
+# velges eller sammenlignes med), og gjelder bare totaler – ett team alene får [].
+
+def _utenfor(skjult_team, storrelse_per_periode):
+    """Felles regnestykke: skjulte team holdes utenfor hvis de til sammen er under 5
+    i minst én periode. `storrelse_per_periode` er en liste med {team: størrelse}."""
+    utenfor = set()
+    for storrelser in storrelse_per_periode:
+        utenfor |= set(sekundar_prikking({t: storrelser[t] for t in skjult_team}))
+    return sorted(utenfor)
+
+
+def utenfor_turnoverfordeling(ansatte, team_liste):
+    """Team som holdes utenfor fordelingen (uønsket og sluttårsak) i totaler."""
+    if len(team_liste) <= 1:
+        return []
+    perioder = alle_sammenligningsperioder()
+    tall = {team: [turnover(ansatte[ansatte["team"] == team], s, e) for s, e in perioder]
+            for team in team_liste}
+    skjult = [team for team, liste in tall.items()
+              if any(t["snitt_ansatte"] < MIN_GRUPPE or t["avganger"] < MIN_GRUPPE for t in liste)]
+    return _utenfor(skjult, [{team: tall[team][i]["avganger"] for team in team_liste}
+                             for i in range(len(perioder))])
+
+
+def utenfor_sykefravaer(ansatte, team_liste):
+    """Team som holdes utenfor sykefraværstotaler (små team etter antall ansatte)."""
+    if len(team_liste) <= 1:
+        return []
+    perioder = alle_sammenligningsperioder()
+    snitt = {team: [snitt_ansatte(ansatte[ansatte["team"] == team], s, e) for s, e in perioder]
+             for team in team_liste}
+    skjult = [team for team, liste in snitt.items() if min(liste) < MIN_GRUPPE]
+    return _utenfor(skjult, [{team: snitt[team][i] for team in team_liste}
+                             for i in range(len(perioder))])
+
+
+def utenfor_enps(engasjement, team_liste):
+    """Team som holdes utenfor eNPS-totaler (team med under 5 svar i et kvartal)."""
+    if len(team_liste) <= 1:
+        return []
+    e = engasjement[engasjement["team"].isin(team_liste)]
+    kvartaler = sorted(e["kvartal"].unique())
+    skjult = sorted(e.loc[e["antall_svar"] < MIN_GRUPPE, "team"].unique())
+    svar = e.set_index(["team", "kvartal"])["antall_svar"]
+    return _utenfor(skjult, [{team: int(svar.get((team, k), 0)) for team in team_liste}
+                             for k in kvartaler])

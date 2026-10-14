@@ -5,9 +5,10 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+import utseende as u
 from filtre import vis_filtre
 
-st.set_page_config(page_title="Bemanning – HR-dashbord", layout="wide")
+st.set_page_config(page_title="Bemanning · HR-dashbord", layout="wide")
 
 
 # --- Data ---------------------------------------------------------------------
@@ -26,8 +27,7 @@ utvalg_plan = plan[plan["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-st.title("Bemanning")
-st.warning(b.SYNTETISK_MERKNAD, icon="⚠️")
+u.topp("Bemanning")
 st.caption(
     f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}. "
@@ -80,7 +80,7 @@ st.vega_lite_chart(
                   "scale": {"zero": False}},
             # Nøytrale farger: plan grå og stiplet, faktisk blå
             "color": {"field": "serie", "type": "nominal", "title": None,
-                      "scale": {"domain": ["Faktisk", "Plan"], "range": ["#2e86ab", "#8a8f98"]}},
+                      "scale": {"domain": ["Faktisk", "Plan"], "range": [u.PETROL, u.NOYTRAL]}},
             "strokeDash": {"field": "serie", "type": "nominal", "legend": None,
                            "scale": {"domain": ["Faktisk", "Plan"], "range": [[1, 0], [6, 4]]}},
             "tooltip": [{"field": "maaned", "title": "Måned"},
@@ -118,7 +118,7 @@ tabell = pd.DataFrame(rader)
 
 def marker_rad(rad):
     """Nøytral blågrå bakgrunn på team med mer enn 5 % avvik (i begge retninger)."""
-    farge = "background-color: #e3e9f2" if rad[""] == "◆" else ""
+    farge = f"background-color: {u.MARKERT_BAKGRUNN}" if rad[""] == "◆" else ""
     return [farge] * len(rad)
 
 
@@ -126,7 +126,7 @@ def marker_rad(rad):
 st.dataframe(tabell.style.apply(marker_rad, axis=1), hide_index=True, width="stretch")
 st.caption(
     f"**◆ = avvik på mer enn {b.prosent(b.AVVIK_GRENSE, 0)} fra planen**, i begge retninger. "
-    "Plan og faktisk gjelder ved periodeslutt. Faktisk teller alle ansettelsesformer – "
+    "Plan og faktisk gjelder ved periodeslutt. Faktisk teller alle ansettelsesformer, og "
     "«herav midlertidige» viser hvor mange av dem som er vikarer. Avganger er alle "
     "sluttårsaker, også utløpte kontrakter. "
     "**Tid til tiltredelse** = dager fra utlysning til første arbeidsdag (inkluderer "
@@ -136,5 +136,5 @@ st.info(
     "**Stillinger på vei inn vises ikke.** Dataene er et øyeblikksbilde per 30.09.2026, "
     "og personer som har takket ja, men ikke startet ennå, er ikke med. Et team kan derfor "
     "ha færre ledige stillinger enn avviket tyder på.",
-    icon="ℹ️",
+    icon=":material/info:",
 )

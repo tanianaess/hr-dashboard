@@ -5,9 +5,10 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+import utseende as u
 from filtre import vis_filtre_sensitiv
 
-st.set_page_config(page_title="Turnover – HR-dashbord", layout="wide")
+st.set_page_config(page_title="Turnover · HR-dashbord", layout="wide")
 
 
 # --- Data ---------------------------------------------------------------------
@@ -29,8 +30,7 @@ utvalg = ansatte[ansatte["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-st.title("Turnover")
-st.warning(b.SYNTETISK_MERKNAD, icon="⚠️")
+u.topp("Turnover")
 st.caption(
     f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y} ({antall_mnd} mnd). "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}. "
@@ -47,25 +47,12 @@ forrige = b.turnover(utvalg, forrige_start, forrige_slutt) if har_forrige else N
 
 # Femregelen for utvalget (se CLAUDE.md)
 if naa["snitt_ansatte"] < b.MIN_GRUPPE:
-    st.warning("Utvalget har færre enn 5 ansatte. Tallene skjules av personvernhensyn.")
+    st.info("Utvalget har færre enn 5 ansatte. Tallene skjules av personvernhensyn.", icon=":material/lock:")
     st.stop()
 
-# Sekundær prikking for FORDELINGEN (uønsket og sluttårsak): team der fordelingen er
-# skjult i tabellen (nå eller i forrige periode), holdes utenfor fordelingen hvis de
-# til sammen har under 5 avganger. Total turnover og antall avganger tar med alle.
-# Summen av de skjulte sjekkes i ALLE perioder som kan velges eller sammenlignes med,
-# så prikkingen blir lik uansett periodevalg (ellers kunne to valg trekkes fra hverandre).
-perioder = b.alle_sammenligningsperioder()
-tall_per_team = {team: [b.turnover(ansatte[ansatte["team"] == team], p_start, p_slutt)
-                        for p_start, p_slutt in perioder] for team in valgte_team}
-skjult_team = [team for team, tall in tall_per_team.items()
-               if any(t["snitt_ansatte"] < b.MIN_GRUPPE or t["avganger"] < b.MIN_GRUPPE
-                      for t in tall)]
-utenfor = sorted({team for i in range(len(perioder))
-                  for team in b.sekundar_prikking(
-                      {team: tall_per_team[team][i]["avganger"] for team in skjult_team})})
-if not hele_selskapet:
-    utenfor = []  # ett team: vanlig femregel for perioden – sekundær prikking gjelder totaler
+# Sekundær prikking for FORDELINGEN (uønsket og sluttårsak) – se beregninger.py.
+# Total turnover og antall avganger tar med alle.
+utenfor = b.utenfor_turnoverfordeling(ansatte, valgte_team)
 utvalg_fordeling = utvalg[~utvalg["team"].isin(utenfor)]
 fordeling = b.turnover(utvalg_fordeling, start, slutt)
 fordeling_forrige = (b.turnover(utvalg_fordeling, forrige_start, forrige_slutt)
@@ -76,7 +63,7 @@ vis_fordeling = fordeling["avganger"] >= b.MIN_GRUPPE
 vis_fordeling_forrige = har_forrige and fordeling_forrige["avganger"] >= b.MIN_GRUPPE
 if utenfor and vis_fordeling:
     st.caption(f"Fordelingen på frivillig og uønsket gjelder **{b.med_unntak('utvalget', utenfor)}** "
-               "– små grupper holdes utenfor så de ikke kan regnes ut (sekundær prikking).")
+               ". Små grupper holdes utenfor, så de ikke kan regnes ut (sekundær prikking).")
 
 
 # --- KPI-kort -------------------------------------------------------------------------
@@ -112,7 +99,7 @@ if vis_fordeling:
 else:
     kort2.metric("Frivillig turnover", "Skjult")
     kort3.metric("Uønsket turnover", "Skjult")
-    kort2.caption("Færre enn 5 avganger i utvalget – fordelingen vises bare for hele selskapet.")
+    kort2.caption("Færre enn 5 avganger i utvalget, så fordelingen vises bare for hele selskapet.")
 
 if har_forrige:
     st.caption(f"Pilene viser endring mot {forrige_start:%m.%Y}–{forrige_slutt:%m.%Y}, i prosentpoeng (pp).")
@@ -128,7 +115,7 @@ if hele_selskapet:
     # målt i prosent av årslønnen? (Bransjeanslag ligger ofte på 50–200 %.)
     kostnadsandel = st.slider(
         "Kostnad per avgang, i prosent av årslønn", min_value=50, max_value=200,
-        value=75, step=5, format="%d %%",
+        value=b.avrund(b.KOSTNADSANDEL_STANDARD * 100), step=5, format="%d %%",
     )
     kostnad = fordeling["lønn_uønsket"] * kostnadsandel / 100
     st.metric("Anslått kostnad", b.kroner(kostnad))
@@ -136,7 +123,7 @@ if hele_selskapet:
         f"Sum årslønn for de {fordeling['uønsket']} uønskede avgangene × {kostnadsandel} %"
         + (f" ({b.med_unntak('hele selskapet', utenfor)})" if utenfor else "") + ". "
         "Prosentsatsen er en antakelse (dekker rekruttering, opplæring og tapt "
-        "produktivitet) – juster den med glidebryteren."
+        "produktivitet). Juster den med glidebryteren."
     )
 else:
     st.info("Kostnaden vises bare for hele selskapet, fordi den bygger på lønn "
@@ -150,10 +137,10 @@ per_maaned = b.avganger_per_maaned(utvalg_fordeling if vis_fordeling else utvalg
 
 if vis_fordeling:
     # Stablede stolper: uønsket og øvrige oppå hverandre
-    st.bar_chart(per_maaned, y=["Uønsket", "Øvrige"], color=["#d1495b", "#9aa5b1"])
+    st.bar_chart(per_maaned, y=["Uønsket", "Øvrige"], color=[u.PETROL, u.PETROL_LYS])
 else:
     # Bare totalen – fordelingen er skjult for små utvalg
-    st.bar_chart(per_maaned.sum(axis=1).rename("Avganger"))
+    st.bar_chart(per_maaned.sum(axis=1).rename("Avganger"), color=u.PETROL)
 st.caption("Avganger som teller i turnover (frivillig, ufrivillig, pensjon). "
            "Utløpte midlertidige kontrakter er ikke med."
            + (f" Grafen viser {b.med_unntak('utvalget', utenfor)} (sekundær prikking)."
@@ -206,5 +193,5 @@ st.caption(
     "Turnover = avganger / snitt antall ansatte (ved månedsslutt), omregnet til helår. "
     "«Kontrakt utløpt» teller ikke i turnover (stillingen skal ikke erstattes). "
     "**Femregelen:** team med under 5 ansatte skjules helt. Fordelingen på sluttårsak og "
-    "uønsket vises bare for team med minst 5 avganger – ellers bare for hele selskapet."
+    "uønsket vises bare for team med minst 5 avganger, ellers bare for hele selskapet."
 )

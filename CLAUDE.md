@@ -119,6 +119,12 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
     relevansen avhenger av stillingen.
   - Siden skal også si at et selskap på denne størrelsen ikke kan evaluere
     metoder statistisk på egne data alene, og ha en personvernmerknad om testbruk.
+- **Tankestrek:** bruk aldri lang tankestrek (—). Bruk kort tankestrek med
+  mellomrom på hver side ( – ), og bruk den **sparsomt** – skriv heller om
+  setningen (punktum, komma, «fordi», «så») der det blir naturlig. Gjelder all
+  tekst i dashbordet og README. Unntak: intervaller og perioder skrives med kort
+  tankestrek uten mellomrom (10–15 %, 01.10.2025–30.09.2026), og negative tall
+  bruker minustegn (−14). Tekst brukeren selv har formulert, gjengis ordrett.
 - **Dataene er syntetiske – si det tydelig.** Både dashbordet og README skal
   klart opplyse at dataene er oppdiktet og konstruert for å illustrere
   metodikk, og at tallene **ikke er ekte funn** om noe selskap.
@@ -257,6 +263,71 @@ perioden.
     én av case study, personlighetstest, evnetest). Alltid med n og femregelen.
 - **Bruk av tilleggsmetoder** = antall ansettelser i perioden per metode – bare
   antall, **aldri resultater**.
+
+## Utseende (gjelder alle sider)
+
+- **Retning:** rolig, profesjonelt og nordisk – et verktøy en CFO stoler på.
+- **Fiktivt selskap:** «Fjordlys Tech AS», vist øverst som «fiktivt selskap».
+- **Tema** i `.streamlit/config.toml`: hovedfarge dyp petrol `#0F4C5C`, lys nøytral
+  bakgrunn, standard sans-serif-skrift.
+- **Felles utseende** i `utseende.py`: `topp()` (selskapsnavn, tittel og diskret
+  merking om syntetiske data) og `statusmerke()`. Nye sider bruker disse.
+- **Palett for grafer** (samme på alle sider, fast rekkefølge): petrol, lys
+  petrol, nøytral grå (`u.PETROL`, `u.PETROL_LYS`, `u.NOYTRAL`, `u.NOYTRAL_LYS`).
+  Kontrollert for kontrast og fargeblindhet.
+- **Statusfarger** (grønn/oransje/rød) brukes **bare** til status, aldri til
+  vanlige serier, og alltid med ord og symbol. Merknader som ikke er status
+  vises i rolige infobokser (`st.info`), ikke gule varselbokser.
+- KPI-kort i `st.container(border=True)` med jevn luft. Innsikter som egne kort
+  der «Mulig neste steg» er skilt fra funnet.
+
+## Oversikt (forsiden)
+
+`sider/0_Oversikt.py` viser hele selskapet, **siste 12 mnd**, uten filter. Regler og
+terskler ligger i `innsikter.py`.
+
+### Status for nøkkeltall (● OK / ▲ Følg med / ■ Kritisk)
+Status settes på de **avrundede** tallene som vises. Tersklene er skjønn, ikke en
+standard, og vises åpent på siden («Slik settes status»).
+
+| Nøkkeltall | OK | Følg med | Kritisk | Rask forverring → minst «Følg med» |
+|---|---|---|---|---|
+| Total turnover | under 10 % | 10–15 % | over 15 % | +3 pp |
+| Uønsket turnover | under 3 % | 3–5 % | over 5 % | +2 pp |
+| Kostnad uønsket turnover | følger uønsket turnover | | | |
+| Sykefravær | under 5 % | 5–6 % | over 6 % (**internt mål**; landssnittet vises bare som referanse) | +1 pp |
+| eNPS | +10 eller høyere | 0 til +9 | under 0 | −10 poeng |
+| Bemanning mot plan | avvik inntil 5 % | 5–10 % | over 10 % | – (nøytral, ingen pil) |
+| Tid til ansettelse | inntil 45 dager | 46–60 dager | over 60 dager | +15 dager |
+
+Sammenligning som på sidene: turnover mot forrige 12 mnd; fravær, eNPS og
+rekruttering mot samme periode i fjor. Sykefravær og eNPS «uten ledergruppen»
+(sekundær prikking), som på sidene.
+
+### «Hva ledelsen bør vite nå» – regelbaserte innsikter (ikke AI)
+Maks 5, viktigste først. Hver innsikt har tekst, eventuell merknad, **«Mulig neste
+steg (forslag)»** og lenke(r) som åpner siden med teamet forhåndsvalgt
+(`forhandsvelg()` i `filtre.py`).
+
+1. **Fravær og engasjement** (per team): sykefravær over 6 % eller +1 pp mot i
+   fjor, og/eller eNPS under 0 eller fall ≥ 10 poeng. Samme team → én innsikt,
+   med koblingsmerknaden. Lav svarandel → merknad om frafallsskjevhet.
+   Neste steg: samtale med teamleder om arbeidsbelastning, og systematisk
+   oppfølging av langtidssykmeldte.
+2. **Bemanning**: team med over 5 % avvik. Under plan → neste steg: lys ut
+   tidligere – ledetid = median tid til tiltredelse (dager / 30 ≈ måneder).
+3. **Turnover**: frivillig turnover ≥ 15 % og ≥ 1,5 × selskapet, bare for team
+   med minst 5 ansatte og 5 avganger. Neste steg: sluttsamtaler og gjennomgang
+   av rekrutteringsmetode i teamet.
+4. **Rekruttering**: tidlig turnover ustrukturert mot strukturert intervju
+   alene, når begge er synlige og forskjellen er ≥ 10 pp. Merknad: «Sammenheng,
+   ikke nødvendigvis årsak. Peker i riktig retning, men grunnlaget er lite
+   (n = …). Følg utviklingen – metodevalget støttes uansett av forskningen.»
+   Neste steg: fortsett å øke andelen strukturerte prosesser.
+5. **Kritiske nøkkeltall** for hele selskapet.
+
+**Personvern:** innsiktene bruker bare tall som også vises på de andre sidene,
+med de samme reglene (femregel, sekundær prikking) – skjulte grupper nevnes aldri.
 
 ## Syntetiske data
 

@@ -5,9 +5,10 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+import utseende as u
 from filtre import vis_filtre_sensitiv
 
-st.set_page_config(page_title="Sykefravær – HR-dashbord", layout="wide")
+st.set_page_config(page_title="Sykefravær · HR-dashbord", layout="wide")
 
 
 # --- Data ---------------------------------------------------------------------
@@ -32,8 +33,7 @@ utvalg_fravaer = fravaer[fravaer["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-st.title("Sykefravær")
-st.warning(b.SYNTETISK_MERKNAD, icon="⚠️")
+u.topp("Sykefravær")
 st.caption(
     f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}."
@@ -42,31 +42,19 @@ st.caption(
 # Femregelen: utvalg med færre enn 5 ansatte skjules
 snitt = b.snitt_ansatte(utvalg_ansatte, start, slutt)
 if snitt < b.MIN_GRUPPE:
-    st.warning("Utvalget har færre enn 5 ansatte. Sykefraværet skjules av personvernhensyn.")
+    st.info("Utvalget har færre enn 5 ansatte. Sykefraværet skjules av personvernhensyn.", icon=":material/lock:")
     st.stop()
 
-# Sekundær prikking: små team som er skjult i tabellen (nå eller i fjor), holdes
-# utenfor totalen hvis de til sammen er under 5 – ellers kunne de regnes ut.
+# Sekundær prikking: små team holdes utenfor totalen – se beregninger.py
 fjor_start, fjor_slutt = b.samme_periode_i_fjor(start, slutt)
 har_fjor = fjor_start >= b.DATA_FRA
-# Alle perioder som kan velges eller sammenlignes med – prikkingen blir lik i alle valg
-perioder = b.alle_sammenligningsperioder()
-snitt_per_team = {team: [b.snitt_ansatte(ansatte[ansatte["team"] == team], p_start, p_slutt)
-                         for p_start, p_slutt in perioder] for team in valgte_team}
-skjult_team = [team for team, snitt_liste in snitt_per_team.items()
-               if min(snitt_liste) < b.MIN_GRUPPE]
-# Summen av de skjulte sjekkes i hver periode
-utenfor = sorted({team for i in range(len(perioder))
-                  for team in b.sekundar_prikking(
-                      {team: snitt_per_team[team][i] for team in skjult_team})})
-if not hele_selskapet:
-    utenfor = []  # ett team: vanlig femregel – sekundær prikking gjelder totaler
+utenfor = b.utenfor_sykefravaer(ansatte, valgte_team)
 if utenfor:
     utvalg_ansatte = utvalg_ansatte[~utvalg_ansatte["team"].isin(utenfor)]
     utvalg_fravaer = utvalg_fravaer[~utvalg_fravaer["team"].isin(utenfor)]
     snitt = b.snitt_ansatte(utvalg_ansatte, start, slutt)
-    st.caption(f"Totalene gjelder **{b.med_unntak('utvalget', utenfor)}** – "
-               "små team holdes utenfor så de ikke kan regnes ut (sekundær prikking).")
+    st.caption(f"Totalene gjelder **{b.med_unntak('utvalget', utenfor)}**. "
+               "Små team holdes utenfor, så de ikke kan regnes ut (sekundær prikking).")
 
 
 # --- Regn ut tallene ----------------------------------------------------------------
@@ -105,7 +93,7 @@ st.info(
     "fra avtalte dagsverk. Det gir flere avtalte dagsverk og derfor et litt lavere "
     "sykefravær enn NAVs metode. Forskjellen mot landssnittet er altså litt "
     "overdrevet i vår favør.",
-    icon="ℹ️",
+    icon=":material/info:",
 )
 
 
@@ -132,7 +120,7 @@ st.vega_lite_chart(
                           "title": "Sykefravær (%)"},
                     "color": {"field": "type", "type": "nominal", "title": None,
                               "scale": {"domain": ["Langtid", "Korttid"],
-                                        "range": ["#d1495b", "#f2a541"]}},
+                                        "range": [u.PETROL, u.PETROL_LYS]}},
                     "order": {"field": "type", "sort": "descending"},
                     "tooltip": [{"field": "maaned", "title": "Måned"},
                                 {"field": "type", "title": "Type"},
@@ -140,11 +128,11 @@ st.vega_lite_chart(
                 },
             },
             {   # Stiplet linje for landssnittet
-                "mark": {"type": "rule", "strokeDash": [6, 4], "color": "#444"},
+                "mark": {"type": "rule", "strokeDash": [6, 4], "color": u.TEKST_DEMPET},
                 "encoding": {"y": {"datum": landssnitt}},
             },
             {   # Tekst ved linja
-                "mark": {"type": "text", "align": "left", "dx": 4, "dy": -8, "color": "#444"},
+                "mark": {"type": "text", "align": "left", "dx": 4, "dy": -8, "color": u.TEKST_DEMPET},
                 "encoding": {"y": {"datum": landssnitt}, "x": {"value": 0},
                              "text": {"value": f"Landssnitt {b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2)}"}},
             },
