@@ -63,7 +63,7 @@ def endring(navn, kan_vises=True):
     return b.endring_pp(naa[navn], forrige[navn])
 
 
-snitt = round(naa["snitt_ansatte"])
+snitt = b.avrund(naa["snitt_ansatte"])
 kort1, kort2, kort3 = st.columns(3)  # tre kolonner ved siden av hverandre
 
 kort1.metric(
@@ -148,7 +148,7 @@ def tabellrad(navn, t, skjult=""):
         return {"Team": navn, "Snitt ansatte": "under 5", "Turnover": SKJULT, "Avganger": SKJULT,
                 "Frivillig": SKJULT, "Ufrivillig": SKJULT, "Pensjon": SKJULT,
                 "Uønsket": SKJULT, "Kontrakt utløpt": SKJULT}
-    snitt_rad = round(t["snitt_ansatte"])
+    snitt_rad = b.avrund(t["snitt_ansatte"])
     return {
         "Team": navn,
         "Snitt ansatte": str(snitt_rad),

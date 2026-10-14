@@ -2,6 +2,7 @@
 # Sidene i dashbordet henter tallene herfra, så hver formel finnes bare ett sted.
 # Alle definisjoner følger CLAUDE.md.
 
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 import pandas as pd
@@ -156,11 +157,22 @@ def avganger_per_maaned(ansatte, start, slutt):
 
 # --- Formatering (norsk tallformat) -------------------------------------------
 
+def avrund(tall, desimaler=0):
+    """Avrunding som AVRUND i Excel: 5 rundes opp (bort fra null).
+    31,25 → 31,3 · 0,5 → 1 · −0,25 → −0,3.
+    Pythons egen round() runder 5 mot nærmeste partall (31,25 → 31,2), så den
+    skal ikke brukes til tall som vises i dashbordet."""
+    # round(..., 10) fjerner bitte små regnerester først (f.eks. 14,449999999 → 14,45)
+    renset = Decimal(str(round(float(tall), 10)))
+    resultat = renset.quantize(Decimal(1).scaleb(-desimaler), rounding=ROUND_HALF_UP)
+    return int(resultat) if desimaler == 0 else float(resultat)
+
+
 def prosent(andel, desimaler=1):
     """0.143 → «14,3 %». Tom verdi → «–»."""
     if andel is None or pd.isna(andel):
         return "–"
-    return f"{andel * 100:.{desimaler}f} %".replace(".", ",")
+    return f"{avrund(andel * 100, desimaler):.{desimaler}f} %".replace(".", ",")
 
 
 def prosent_med_n(teller, nevner):
@@ -173,7 +185,7 @@ def prosent_med_n(teller, nevner):
 def endring_pp(ny, gammel):
     """Endring i prosentpoeng som tekst: «+3,1 pp», «−0,4 pp» eller «±0,0 pp»
     når endringen rundes av til null."""
-    pp = round((ny - gammel) * 100, 1)
+    pp = avrund((ny - gammel) * 100, 1)
     if pp == 0:
         return "±0,0 pp"
     return f"{pp:+.1f} pp".replace(".", ",")
@@ -189,7 +201,7 @@ def pilfarge(endring_tekst, hoyere_er_bedre=False):
 
 def kroner(belop):
     """2700000 → «2 700 000 kr»."""
-    return f"{belop:,.0f} kr".replace(",", " ")
+    return f"{avrund(belop):,} kr".replace(",", " ")
 
 
 # --- Sykefravær ---------------------------------------------------------------

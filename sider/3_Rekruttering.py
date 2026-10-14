@@ -50,8 +50,10 @@ def endring_dager():
     """Endring i median tid til ansettelse, f.eks. «−6 dager»."""
     if not (har_fjor and fjor["antall"]):
         return None
-    dager = round(naa["median_dager"] - fjor["median_dager"])
-    return "±0 dager" if dager == 0 else f"{dager:+d} dager"
+    dager = b.avrund(naa["median_dager"] - fjor["median_dager"])
+    if dager == 0:
+        return "±0 dager"
+    return f"{dager:+d} {'dag' if abs(dager) == 1 else 'dager'}"
 
 
 endring_andel = (b.endring_pp(naa["andel_strukturert"], fjor["andel_strukturert"])
@@ -61,7 +63,7 @@ endring_antall = f"{naa['antall'] - fjor['antall']:+d}" if har_fjor else None
 kort1, kort2, kort3 = st.columns(3)
 kort1.metric("Ansettelser", naa["antall"], delta=endring_antall, delta_color="off")
 kort1.caption("Alle ansettelsesformer, med registrerte rekrutteringsdata")
-kort2.metric("Median tid til ansettelse", f"{naa['median_dager']:.0f} dager",
+kort2.metric("Median tid til ansettelse", f"{b.avrund(naa['median_dager'])} dager",
              delta=endring_dager(), delta_color=b.pilfarge(endring_dager()))
 kort2.caption("Fra utlysning til akseptert tilbud")
 kort3.metric("Andel strukturert rekruttering", b.prosent(naa["andel_strukturert"], 0),
@@ -149,7 +151,7 @@ st.caption("n = antall ansettelser i kvartalet (alle ansettelsesformer). Med få
 st.subheader("Median tid til ansettelse per team")
 per_team = b.tid_til_ansettelse_per_team(utvalg, start, slutt, valgte_team)
 per_team = per_team[per_team["antall"] > 0].copy()  # bare team med ansettelser
-per_team["etikett"] = (per_team["median_dager"].round().astype(int).astype(str)
+per_team["etikett"] = (per_team["median_dager"].map(b.avrund).astype(str)
                        + " d (n = " + per_team["antall"].astype(str) + ")")
 
 st.vega_lite_chart(

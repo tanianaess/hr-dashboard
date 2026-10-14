@@ -64,7 +64,7 @@ def endring(navn):
 kort1, kort2, kort3, kort4 = st.columns(4)
 kort1.metric("Sykefravær totalt", b.prosent(naa["total_rate"], 2),
              delta=endring("total_rate"), delta_color=b.pilfarge(endring("total_rate")))
-kort1.caption(f"Snitt {round(snitt)} ansatte")
+kort1.caption(f"Snitt {b.avrund(snitt)} ansatte")
 kort2.metric("Korttid (1–16 dager)", b.prosent(naa["korttid_rate"], 2),
              delta=endring("korttid_rate"), delta_color=b.pilfarge(endring("korttid_rate")))
 kort3.metric("Langtid (over 16 dager)", b.prosent(naa["langtid_rate"], 2),
@@ -147,7 +147,7 @@ for _, r in per_team.iterrows():
     endring_tekst = "–" if pd.isna(r["endring_pp"]) else b.endring_pp(r["endring_pp"] / 100, 0)
     rader.append({
         "Team": r["team"],
-        "Snitt ansatte": str(round(r["snitt_ansatte"])),  # n ved siden av prosentene
+        "Snitt ansatte": str(b.avrund(r["snitt_ansatte"])),  # n ved siden av prosentene
         "Totalt": b.prosent(r["total_rate"], 2),
         "Korttid": b.prosent(r["korttid_rate"], 2),
         "Langtid": b.prosent(r["langtid_rate"], 2),
@@ -155,7 +155,7 @@ for _, r in per_team.iterrows():
     })
 if hele_selskapet:
     rader.append({
-        "Team": "Hele selskapet", "Snitt ansatte": str(round(snitt)),
+        "Team": "Hele selskapet", "Snitt ansatte": str(b.avrund(snitt)),
         "Totalt": b.prosent(naa["total_rate"], 2), "Korttid": b.prosent(naa["korttid_rate"], 2),
         "Langtid": b.prosent(naa["langtid_rate"], 2),
         "Endring mot i fjor": endring("total_rate") or "–",

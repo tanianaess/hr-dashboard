@@ -70,6 +70,10 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
 - **Vis alltid n ved siden av prosenter for små grupper**, f.eks.
   «12,5 % (1 av 8)». Én person mer eller mindre kan flytte en liten gruppe
   mange prosentpoeng, og leseren må kunne se det.
+- **Avrunding som i Excel:** tall som vises, rundes med 5 opp (bort fra null),
+  som AVRUND i Excel – 31,25 % vises som 31,3 %. Pythons `round()` runder 5 mot
+  nærmeste partall og skal **ikke** brukes til visning. Bruk alltid
+  `avrund()` (eller `prosent()`, `endring_pp()`, `kroner()`) fra `beregninger.py`.
 - **Dataene er syntetiske – si det tydelig.** Både dashbordet og README skal
   klart opplyse at dataene er oppdiktet og konstruert for å illustrere
   metodikk, og at tallene **ikke er ekte funn** om noe selskap.
