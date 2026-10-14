@@ -6,17 +6,7 @@ import pandas as pd
 
 import beregninger as b
 
-# Sidene innsiktene og nøkkeltallene lenker til
-SIDER = {
-    "Turnover": "sider/1_Turnover.py",
-    "Sykefravær": "sider/2_Sykefravaer.py",
-    "Rekruttering": "sider/3_Rekruttering.py",
-    "Bemanning": "sider/4_Bemanning.py",
-    "Engasjement": "sider/5_Engasjement.py",
-}
-
 OK, FOLG_MED, KRITISK = "OK", "Følg med", "Kritisk"
-ALVOR = {OK: 0, FOLG_MED: 1, KRITISK: 2}
 
 # Terskler for status (skjønn, ikke en standard – vises åpent på forsiden).
 # ok / kritisk: grensene. ok_inkludert: om «inntil» (≤) eller «under» (<).
@@ -52,7 +42,7 @@ def status(navn, verdi, endring=None):
         kritisk = verdi > t["kritisk"]
         forverret = endring is not None and t["forverring"] is not None and endring >= t["forverring"]
     else:
-        ok = verdi >= t["ok"]
+        ok = verdi >= t["ok"] if t["ok_inkludert"] else verdi > t["ok"]
         kritisk = verdi < t["kritisk"]
         forverret = endring is not None and t["forverring"] is not None and -endring >= t["forverring"]
     if kritisk:
@@ -69,18 +59,9 @@ def _prosentpoeng(andel, desimaler=1):
     return b.avrund(andel * 100, desimaler)
 
 
-fortegn = b.fortegn  # felles funksjon i beregninger.py
-
-
 def _uten(utenfor):
     """«Uten ledergruppen · » foran forklaringen når noen holdes utenfor totalen."""
     return f"Uten {', '.join(utenfor)} · " if utenfor else ""
-
-
-def enps_tekst(verdi):
-    """13,6 → «+14», −14 → «−14», 0 → «0»."""
-    tall = b.avrund(verdi)
-    return "0" if tall == 0 else f"{tall:+d}".replace("-", "−")
 
 
 # =============================================================================
@@ -146,8 +127,8 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
     en = b.enps_samlet(e_e[e_e["kvartal"] == siste])
     ej = b.enps_samlet(e_e[e_e["kvartal"] == fjor_k])
     d_poeng = b.avrund(en["enps"] - ej["enps"]) if ej else None
-    liste.append(dict(navn=f"eNPS {siste}", verdi=enps_tekst(en["enps"]),
-                      endring=None if d_poeng is None else ("±0 poeng" if d_poeng == 0 else f"{d_poeng:+d} poeng"),
+    liste.append(dict(navn=f"eNPS {siste}", verdi=b.enps_tekst(en["enps"]),
+                      endring=b.endring_antall(d_poeng, "poeng"),
                       hoyere_er_bedre=True,
                       status=status("eNPS", b.avrund(en["enps"]), d_poeng),
                       ekstra=_uten(utenfor_e) + f"Mot {fjor_k} · svarandel {b.prosent(en['svarandel'], 0)}",
@@ -158,10 +139,10 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
     faktisk, planlagt = int(bt["faktisk"].sum()), int(bt["plan"].sum())
     avvik, avvik_for = faktisk - planlagt, int(bf["faktisk"].sum() - bf["plan"].sum())
     v = _prosentpoeng(abs(avvik) / planlagt)
-    liste.append(dict(navn="Bemanning mot plan", verdi=fortegn(avvik),
+    liste.append(dict(navn="Bemanning mot plan", verdi=b.fortegn(avvik),
                       endring=None, status=status("Bemanning mot plan", v),
                       ekstra=f"{faktisk} av {planlagt} ({b.prosent(faktisk / planlagt)}) · "
-                             f"avvik {fortegn(avvik_for)} for ett år siden",
+                             f"avvik {b.fortegn(avvik_for)} for ett år siden",
                       side="Bemanning"))
 
     # Tid til ansettelse, mot samme periode i fjor
@@ -172,7 +153,7 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
         d_dager = (b.avrund(rn["median_dager"] - rj["median_dager"])
                    if rj["median_dager"] is not None else None)
         liste.append(dict(navn="Tid til ansettelse", verdi=f"{dager} dager",
-                          endring=None if d_dager is None else ("±0 dager" if d_dager == 0 else f"{d_dager:+d} dager"),
+                          endring=b.endring_antall(d_dager, "dager", "dag"),
                           status=status("Tid til ansettelse", dager, d_dager),
                           ekstra=f"Median, {rn['antall']} ansettelser · mot i fjor",
                           side="Rekruttering"))
@@ -222,7 +203,7 @@ def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None):
         if en and ej and (en["enps"] < 0 or en["enps"] - ej["enps"] <= -10):
             lav_svar = en["svarandel"] < b.LAV_SVARANDEL
             fall = b.avrund(en["enps"] - ej["enps"])
-            deler.append(f"eNPS {enps_tekst(en['enps'])} ({fortegn(fall)} poeng mot {fjor_k}), "
+            deler.append(f"eNPS {b.enps_tekst(en['enps'])} ({b.fortegn(fall)} poeng mot {fjor_k}), "
                          f"{en['svar']} av {en['invitert']} svarte "
                          f"({b.prosent(en['svarandel'], 0)}{', lav' if lav_svar else ''})")
             tittel_deler.append("fallende engasjement")
@@ -249,7 +230,7 @@ def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None):
     bt = b.bemanning_per_team(ansatte, plan, start, slutt)
     for _, r in bt[bt["markert"]].iterrows():
         grad = r["faktisk"] / r["plan"]
-        tekst = (f"{int(r['faktisk'])} av {int(r['plan'])} planlagte ({fortegn(int(r['avvik']))}, "
+        tekst = (f"{int(r['faktisk'])} av {int(r['plan'])} planlagte ({b.fortegn(int(r['avvik']))}, "
                  f"bemanningsgrad {b.prosent(grad)}).")
         if r["avvik"] < 0 and pd.notna(r["tiltredelse_median"]):  # skjult under 5
             dager = b.avrund(r["tiltredelse_median"])

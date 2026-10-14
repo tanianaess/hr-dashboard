@@ -101,8 +101,9 @@ STILLINGER = {
 LEDERGRUPPEN = [("Daglig leder", 2_200_000), ("Økonomidirektør", 1_800_000),
                 ("Teknologidirektør", 1_900_000), ("Kommersiell direktør", 1_700_000)]
 
-# Tilleggsmetoder i strukturert rekruttering: fra 2026 (etter utlysningsdato) får
-# ca. 25 % av de strukturerte ansettelsene én eller flere tilleggsmetoder.
+# Tilleggsmetoder i strukturert rekruttering: strukturerte ansettelser utlyst fra
+# 2026 får én eller flere tilleggsmetoder med sannsynlighet 25 % (i dataene ble det
+# 4 av 15; regnet etter ansattdato i 2026 er det 4 av 20, altså 20 %).
 # Trekkes med en EGEN tilfeldighetsgenerator etter simuleringen, så resten av
 # dataene blir helt uendret. Metodene har ingen innebygd effekt på turnover eller
 # prøvetid – dataene skal ikke «bevise» noe forskningen allerede har undersøkt.
@@ -111,7 +112,7 @@ ANDEL_MED_TILLEGG = 0.25
 # Av dem som får tillegg: hvor ofte hver metode brukes (noen får flere)
 TILLEGGSMETODER = {"case_study": 0.60, "personlighetstest": 0.45, "evnetest": 0.35}
 
-DATAMAPPE = Path("data")
+DATAMAPPE = Path(__file__).parent / "data"  # ved siden av skriptet, så det virker fra alle mapper
 
 # =============================================================================
 # HJELPEFUNKSJONER

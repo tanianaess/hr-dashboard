@@ -5,20 +5,15 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+import datalasting as d
 import utseende as u
 from filtre import vis_filtre_sensitiv
 
 st.set_page_config(page_title="Turnover · HR-dashbord", layout="wide")
 
 
-# --- Data ---------------------------------------------------------------------
-# @st.cache_data: les fila bare én gang, ikke på nytt hver gang du klikker.
-@st.cache_data
-def hent_ansatte():
-    return b.les_ansatte()
-
-
-ansatte = hent_ansatte()
+# --- Data (felles innlesing, lest bare én gang – se datalasting.py) ----------------
+ansatte = d.hent_ansatte()
 
 
 # --- Filtre: begrenset, fordi siden har sensitive tall (se filtre.py) -------------
@@ -68,8 +63,8 @@ fordeling_forrige = (b.turnover(utvalg_fordeling, forrige_start, forrige_slutt)
 vis_fordeling = fordeling["avganger"] >= b.MIN_GRUPPE
 vis_fordeling_forrige = har_forrige and fordeling_forrige["avganger"] >= b.MIN_GRUPPE
 if utenfor and vis_fordeling:
-    st.caption(f"Fordelingen på frivillig og uønsket gjelder **{b.med_unntak('utvalget', utenfor)}** "
-               ". Små grupper holdes utenfor, så de ikke kan regnes ut (sekundær prikking).")
+    st.caption(f"Fordelingen på frivillig og uønsket gjelder **{b.med_unntak('utvalget', utenfor)}**. "
+               "Små grupper holdes utenfor, så de ikke kan regnes ut (sekundær prikking).")
 
 
 # --- KPI-kort -------------------------------------------------------------------------
@@ -168,7 +163,7 @@ st.caption("Avganger som teller i turnover (frivillig, ufrivillig, pensjon). "
 st.subheader("Turnover per team")
 
 per_team = b.turnover_per_team(ansatte, start, slutt, valgte_team)
-SKJULT = "skjult"
+SKJULT = b.SKJULT
 
 
 def tekst(verdi):

@@ -5,23 +5,16 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+import datalasting as d
 import utseende as u
 from filtre import vis_filtre_sensitiv
 
 st.set_page_config(page_title="Sykefravær · HR-dashbord", layout="wide")
 
 
-# --- Data ---------------------------------------------------------------------
-# Avtalte dagsverk regnes ut fra ansatte – det tar et øyeblikk, så vi lagrer
-# resultatet (cache) og regner bare én gang.
-@st.cache_data
-def hent_data():
-    ansatte = b.les_ansatte()
-    fravaer = b.fravaer_med_avtalte(ansatte, b.les_fravaer())
-    return ansatte, fravaer
-
-
-ansatte, fravaer = hent_data()
+# --- Data (felles innlesing, lest bare én gang – se datalasting.py) ----------------
+# Avtalte dagsverk regnes ut fra ansatte én gang og deles av alle sidene.
+ansatte, fravaer = d.hent_ansatte(), d.hent_fravaer()
 
 
 # --- Filtre: begrenset, fordi siden har sensitive tall (se filtre.py) -------------
@@ -111,6 +104,9 @@ else:
     graf_data = (per_maaned.reset_index()
                  .melt(id_vars="måned", var_name="type", value_name="prosent")
                  .rename(columns={"måned": "maaned"}))
+    # Ferdig formatert tekst til verktøytipset: komma og Excel-avrunding (avrund),
+    # ikke desimalpunktum og JavaScript-avrunding
+    graf_data["prosent_tekst"] = graf_data["prosent"].map(lambda x: b.prosent(x / 100, 1))
     landssnitt = b.SYKEFRAVAER_LANDSSNITT * 100
 
     st.vega_lite_chart(
@@ -130,7 +126,7 @@ else:
                         "order": {"field": "type", "sort": "descending"},
                         "tooltip": [{"field": "maaned", "title": "Måned"},
                                     {"field": "type", "title": "Type"},
-                                    {"field": "prosent", "title": "Prosent", "format": ".1f"}],
+                                    {"field": "prosent_tekst", "title": "Sykefravær"}],
                     },
                 },
                 {   # Stiplet linje for landssnittet
@@ -157,7 +153,7 @@ else:
 st.subheader("Sykefravær per team")
 
 per_team = b.sykefravaer_per_team(ansatte, fravaer, start, slutt, valgte_team)
-SKJULT = "skjult"
+SKJULT = b.SKJULT
 rader = []
 for _, r in per_team.iterrows():
     if r["skjult"]:

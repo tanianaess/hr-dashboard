@@ -5,21 +5,15 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+import datalasting as d
 import utseende as u
 from filtre import vis_filtre_sensitiv
 
 st.set_page_config(page_title="Engasjement · HR-dashbord", layout="wide")
 
 
-# --- Data ---------------------------------------------------------------------
-@st.cache_data
-def hent_data():
-    ansatte = b.les_ansatte()
-    fravaer = b.fravaer_med_avtalte(ansatte, b.les_fravaer())
-    return ansatte, fravaer, b.les_engasjement()
-
-
-ansatte, fravaer, engasjement = hent_data()
+# --- Data (felles innlesing, lest bare én gang – se datalasting.py) ----------------
+ansatte, fravaer, engasjement = d.hent_ansatte(), d.hent_fravaer(), d.hent_engasjement()
 
 
 # --- Filtre: begrenset, fordi siden har sensitive tall (se filtre.py) -------------
@@ -61,20 +55,14 @@ with st.expander("Slik leses eNPS"):
 
 
 # --- Hjelpefunksjoner for visning ----------------------------------------------------
-def enps_tekst(verdi):
-    """13,6 → «+14», −14 → «−14», 0 → «0»."""
-    if verdi is None or pd.isna(verdi):
-        return "–"
-    tall = b.avrund(verdi)
-    return "0" if tall == 0 else f"{tall:+d}".replace("-", "−")
+enps_tekst = b.enps_tekst  # felles i beregninger.py
 
 
 def endring_poeng(ny, gammel):
     """Endring i eNPS-poeng som tekst, f.eks. «+3 poeng». None hvis noe mangler."""
     if ny is None or gammel is None:
         return None
-    diff = b.avrund(ny - gammel)
-    return "±0 poeng" if diff == 0 else f"{diff:+d} poeng"
+    return b.endring_antall(ny - gammel, "poeng")
 
 
 def hent(kvartal, data=utvalg_total):
@@ -128,6 +116,7 @@ if uthevet is not None and endring_per_team[uthevet] > -b.UTHEV_FALL:
     uthevet = None  # ingen team har falt nok til å utheves
 
 synlig["linje"] = synlig["team"].where(synlig["team"] == uthevet, "andre team")
+synlig["enps_tekst"] = synlig["enps"].map(b.enps_tekst)  # verktøytips: Excel-avrunding
 st.vega_lite_chart(
     synlig,
     {
@@ -149,7 +138,7 @@ st.vega_lite_chart(
                                         "range": [u.PETROL, u.NOYTRAL_LYS]}},
                     "tooltip": [{"field": "team", "title": "Team"},
                                 {"field": "kvartal", "title": "Kvartal"},
-                                {"field": "enps", "title": "eNPS"},
+                                {"field": "enps_tekst", "title": "eNPS"},
                                 {"field": "antall_svar", "title": "Antall svar"}],
                 },
             },
@@ -169,7 +158,7 @@ st.caption(
 
 # --- Tabell per team --------------------------------------------------------------------
 st.subheader("eNPS per team")
-SKJULT = "skjult"
+SKJULT = b.SKJULT
 rader = []
 for team in valgte_team:
     data_team = utvalg[utvalg["team"] == team]
@@ -234,8 +223,9 @@ else:
                                      trend_kvartaler).set_index("kvartal")
     langtid = b.langtid_per_kvartal(fravaer[fravaer["team"].isin(kobling_team)], trend_kvartaler)
     kobling = per_kvartal[["enps"]].join(langtid * 100, how="inner").reset_index()
-    kobling["enps"] = kobling["enps"].map(b.avrund)
-    kobling["langtid_rate"] = kobling["langtid_rate"].map(lambda x: b.avrund(x, 1))
+    # Verktøytips med ferdig formatert tekst (komma, Excel-avrunding)
+    kobling["enps_tekst"] = kobling["enps"].map(b.enps_tekst)
+    kobling["langtid_rate_tekst"] = kobling["langtid_rate"].map(lambda x: b.prosent(x / 100, 1))
 
     venstre, hoyre = st.columns(2)  # to grafer side om side, hver med egen akse
     for kolonne, felt, tittel, farge in [
@@ -254,7 +244,8 @@ else:
                     # Aksen tar med null, så små endringer ikke ser dramatiske ut
                     "y": {"field": felt, "type": "quantitative", "title": None,
                           "scale": {"zero": True}},
-                    "tooltip": [{"field": "kvartal"}, {"field": felt, "title": tittel}],
+                    "tooltip": [{"field": "kvartal", "title": "Kvartal"},
+                                {"field": f"{felt}_tekst", "title": tittel}],
                 },
             },
             width="stretch",

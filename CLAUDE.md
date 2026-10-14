@@ -171,6 +171,10 @@ Gjelder alle ark:
 - `Datamodell.xlsx` er brukerens Excel-utkast og **fasit for de 20
   testradene**. Fila oppdateres ikke (den har derfor ikke de nye kolonnene).
   Python-versjonen følger denne beskrivelsen, ikke formlene i Excel-fila.
+- `kontroller_mot_excel.py` regner testradene med **de samme funksjonene som
+  dashbordet** (`beregninger.py`) og sammenligner med Excel. Hvert avvik skal
+  ha en forklaring i skriptet (f.eks. snitt ansatte per månedsslutt, og tid til
+  ansettelse = NaN fordi ingen av testradene ble ansatt i perioden).
 
 ### Ark: Ansatte (én rad per ansatt, også de som har sluttet)
 
@@ -210,7 +214,7 @@ også være uønsket.
 | `måned` | tekst | ÅÅÅÅ-MM |
 | `tapte_dagsverk_korttid` | tall | Fravær på 1–16 dager (arbeidsgiverperioden). |
 | `tapte_dagsverk_langtid` | tall | Fravær over 16 dager. |
-| `avtalte_dagsverk` | tall | **Lagres ikke, men regnes ut i Python fra Ansatte**: arbeidsdager i måneden × stillingsprosent, for alle som var ansatt i måneden. Ferie er *ikke* trukket fra, så fraværsprosenten blir litt lavere enn med SSBs metode. |
+| `avtalte_dagsverk` | tall | **Lagres ikke, men regnes ut i Python fra Ansatte**: arbeidsdager i måneden × stillingsprosent, for alle som var ansatt i måneden. Ferie er *ikke* trukket fra, så fraværsprosenten blir litt lavere enn med NAVs metode. |
 
 ### Ark: Engasjement (én rad per team per kvartal)
 
@@ -305,6 +309,14 @@ perioden.
   bakgrunn, standard sans-serif-skrift.
 - **Felles utseende** i `utseende.py`: `topp()` (selskapsnavn, tittel og diskret
   merking om syntetiske data) og `statusmerke()`. Nye sider bruker disse.
+- **Felles kode, ett sted:** data leses via `datalasting.py` (lagres i cache, så
+  avtalte dagsverk regnes ut én gang). Sidestiene står bare i `SIDER` i
+  `filtre.py`. Visningstekster som `enps_tekst()`, `fortegn()`, `endring_antall()`
+  og «skjult»-tekstene (`SKJULT`, `SKJULT_UNDER_5`, `SKJULT_PRIKKET`) ligger i
+  `beregninger.py`.
+- **Verktøytips i grafer** viser ferdig formatert tekst (`prosent()`,
+  `enps_tekst()`): komma og Excel-avrunding, ikke desimalpunktum og
+  JavaScript-avrunding.
 - **Palett for grafer** (samme på alle sider, fast rekkefølge): petrol, lys
   petrol, nøytral grå (`u.PETROL`, `u.PETROL_LYS`, `u.NOYTRAL`, `u.NOYTRAL_LYS`).
   Kontrollert for kontrast og fargeblindhet.
@@ -319,7 +331,10 @@ perioden.
 `sider/0_Oversikt.py` viser hele selskapet, **siste 12 mnd**, uten filter. Regler og
 terskler ligger i `innsikter.py`.
 
-### Status for nøkkeltall (● OK / ▲ Følg med / ■ Kritisk)
+### Status for nøkkeltall (OK / Følg med / Kritisk)
+Vises med ord, ikon og farge i `statusmerke()` (`utseende.py`): hake (OK), øye
+(Følg med) og utropstegn (Kritisk).
+
 Status settes på de **avrundede** tallene som vises. Tersklene er skjønn, ikke en
 standard, og vises åpent på siden («Slik settes status»).
 
@@ -388,8 +403,10 @@ med de samme reglene (femregel, sekundær prikking) – skjulte grupper nevnes a
      regelen om at pensjon teller i total turnover blir testet.
   8. **Prøvetid**: én strukturert ansettelse stryker, så strukturert ikke
      ligger på 100 %.
-  9. **Tilleggsmetoder**: fra 2026 (etter `utlysningsdato`) har ca. 25 % av de
-     strukturerte ansettelsene én eller flere tilleggsmetoder. **Ingen innebygd
+  9. **Tilleggsmetoder**: strukturerte ansettelser utlyst fra 2026 får én eller
+     flere tilleggsmetoder med sannsynlighet 25 %. I dataene ble det 4 av 15
+     (ca. 27 %). Dashbordet teller etter ansattdato, og av de 20 strukturerte
+     som startet i 2026 har 4 tilleggsmetoder (20 %), fordi noen ble utlyst i 2025. **Ingen innebygd
      effekt** på turnover eller prøvetid. Trekkes med egen tilfeldighetsgenerator
      (`FRO + 1`), så resten av dataene ikke endres. Gruppen er så liten at nivå 3
      i praksis vises som «for tidlig å måle» eller «skjult» – det er poenget.

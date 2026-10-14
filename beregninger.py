@@ -244,6 +244,31 @@ def fortegn(tall):
     return "0" if tall == 0 else f"{tall:+d}".replace("-", "−")
 
 
+def enps_tekst(verdi):
+    """eNPS som tekst: 13,6 → «+14», −14 → «−14», 0 → «0». Tom verdi → «–»."""
+    if verdi is None or pd.isna(verdi):
+        return "–"
+    return fortegn(avrund(verdi))
+
+
+def endring_antall(diff, enhet, entall=None):
+    """Endring i hele enheter til pila i KPI-kort: «+3 poeng», «-6 dager», «±0 dager».
+    `entall` brukes når endringen er 1 («+1 dag»). Tom verdi → None (ingen pil).
+    Bindestrek, ikke minustegn: Streamlit bruker den til å avgjøre retningen på pila."""
+    if diff is None or pd.isna(diff):
+        return None
+    tall = avrund(diff)
+    if tall == 0:
+        return f"±0 {enhet}"
+    return f"{tall:+d} {entall if entall and abs(tall) == 1 else enhet}"
+
+
+# Felles tekst for tall som er skjult av personvernhensyn
+SKJULT = "skjult"
+SKJULT_UNDER_5 = "skjult (under 5)"
+SKJULT_PRIKKET = "skjult (sekundær prikking)"
+
+
 def pilfarge(endring_tekst, hoyere_er_bedre=False):
     """Farge på pila i KPI-kort. Vanligvis er økning dårlig (rød), f.eks. turnover.
     Med hoyere_er_bedre=True er økning bra (grønn). Ingen farge når endringen er null."""
@@ -502,12 +527,6 @@ def _kvalitet_per_gruppe(ansatte, slutt, gruppe, grupper):
                                 if n_p >= MIN_GRUPPE else None,
         })
     return pd.DataFrame(rader)
-
-
-def kvalitet_per_metode(ansatte, slutt):
-    """Tidlig turnover og prøvetid bestått per rekrutteringsmetode, med n."""
-    return _kvalitet_per_gruppe(ansatte, slutt, lambda a: a["rekrutteringsmetode"],
-                                ["strukturert", "ustrukturert"])
 
 
 def kvalitet_per_nivaa(ansatte, slutt):

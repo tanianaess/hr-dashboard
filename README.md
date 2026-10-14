@@ -15,7 +15,7 @@ etterprøvbart og presenteres uten å eksponere enkeltpersoner.
 
 | Side | Viser |
 |---|---|
-| **Oversikt** (forside) | De viktigste tallene for hele selskapet med endring og status (OK / følg med / kritisk) · «Hva ledelsen bør vite nå»: 3–5 regelbaserte innsikter om de største avvikene, med mulig neste steg og lenke til detaljene |
+| **Oversikt** (forside) | De viktigste tallene for hele selskapet med endring og status (OK / følg med / kritisk) · «Hva ledelsen bør vite nå»: opptil 5 regelbaserte innsikter om de største avvikene, med mulig neste steg og lenke til detaljene |
 | **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · kostnad ved uønsket turnover med justerbar antakelse (hele selskapet, siste 12 mnd mot forrige 12 mnd) · avganger per måned (bare totalen) · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned over hele dataperioden · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team · filter: hele selskapet eller ett team, faste perioder |
@@ -127,7 +127,8 @@ sider/3_Rekruttering.py   Rekrutteringssiden
 sider/4_Bemanning.py      Bemanningssiden
 sider/5_Engasjement.py    Engasjementssiden (eNPS)
 beregninger.py            Alle formler (brukes av alle sider)
-filtre.py                 Felles filtre for periode og team
+filtre.py                 Felles filtre for periode og team, og sidestiene (SIDER)
+datalasting.py            Felles innlesing av data (lest én gang, deles av alle sider)
 lag_syntetiske_data.py    Genererer de syntetiske dataene
 data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan
 kontroller_mot_excel.py   Sjekker Python-formlene mot en Excel-fasit
@@ -147,6 +148,11 @@ pytest
 ```
 
 Formlene er også kontrollert mot en håndregnet Excel-fasit (`Datamodell.xlsx`, 20
-testrader) med `kontroller_mot_excel.py`. Avvik mellom Excel og Python er
-forklart og skyldes bevisste valg i definisjonene (f.eks. snitt ansatte per
-månedsslutt i stedet for (start + slutt) / 2).
+testrader) med `kontroller_mot_excel.py`, som bruker de samme funksjonene som
+dashbordet (`beregninger.py`). Avvikene er forklart i utskriften:
+
+- **Snitt ansatte** (og dermed turnoverratene): Python bruker snittet av hver
+  månedsslutt, Excel-utkastet (start + slutt) / 2.
+- **Tid til ansettelse = NaN:** ingen av de 20 testradene ble ansatt i perioden
+  (siste ansattdato er 01.09.2025), så Python gir tomt svar. Excel-utkastet tok
+  medianen av alle radene (42,5 dager).

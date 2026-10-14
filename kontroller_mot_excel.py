@@ -1,21 +1,32 @@
 # Kontrollskript: regner ut metrikkene for de 20 testradene i Datamodell.xlsx
-# etter definisjonene i CLAUDE.md, og sammenligner med Excel-svarene i
-# arket Definisjoner.
+# med de SAMME formlene som dashbordet (beregninger.py), og sammenligner med
+# Excel-svarene i arket Definisjoner.
 #
-# Kjør slik:  python kontroller_mot_excel.py
+# Kjør slik:  python kontroller_mot_excel.py   (virker fra hvilken som helst mappe)
+
+from pathlib import Path
 
 import pandas as pd
 
-FIL = "Datamodell.xlsx"
+import beregninger as b
+
+# Fila ligger ved siden av dette skriptet
+FIL = Path(__file__).parent / "Datamodell.xlsx"
 
 # Perioden vi måler – samme startdato som Excel-utkastet bruker (1.10.2025).
 # Disse to linjene er som egne celler for periodestart og periodeslutt i Excel.
 PERIODESTART = pd.Timestamp("2025-10-01")
 PERIODESLUTT = pd.Timestamp("2026-09-30")
 
-# Avganger som teller i turnover: stillingen må erstattes (se CLAUDE.md).
-# «kontrakt utløpt» er bevisst ikke med.
-TELLER_I_TURNOVER = ["frivillig", "ufrivillig", "pensjon"]
+# Kjente, bevisste forskjeller mellom Excel-utkastet og definisjonene i CLAUDE.md
+FORKLARING = {
+    "Snitt ansatte": "Python: snitt av hver månedsslutt. Excel: (start + nå) / 2",
+    "Total turnover": "Følger av snitt ansatte",
+    "Frivillig turnover": "Følger av snitt ansatte",
+    "Uønsket turnover": "Følger av snitt ansatte",
+    "Tid til ansettelse": "Ingen av testradene ble ansatt i perioden, så Python gir "
+                          "tomt svar (NaN). Excel tar medianen av alle radene",
+}
 
 
 # --- 1. Les arkene -----------------------------------------------------------
@@ -25,98 +36,39 @@ fravaer = pd.read_excel(FIL, sheet_name="Fravær")
 definisjoner = pd.read_excel(FIL, sheet_name="Definisjoner")
 
 
-# --- 2. Hjelpefunksjon: hvor mange var ansatt på en bestemt dato? -------------
-# En funksjon er en formel vi lager selv og kan bruke flere ganger.
-def antall_ansatt_paa(dato):
-    # Startet senest denne dagen ...
-    har_startet = ansatte["ansattdato"] <= dato
-    # ... og har ikke sluttet ennå (tom sluttdato, eller sluttdato er i dag
-    # eller senere – sluttdato er siste arbeidsdag).
-    ikke_sluttet = ansatte["sluttdato"].isna() | (ansatte["sluttdato"] >= dato)
-    # "&" betyr OG, "|" betyr ELLER – som i ANTALL.HVIS.SETT.
-    # .sum() teller radene der begge er sanne.
-    return (har_startet & ikke_sluttet).sum()
+# --- 2. Regn ut med formlene i beregninger.py ---------------------------------
+maanedsslutter = b.maanedsslutter(PERIODESTART, PERIODESLUTT)
+t = b.turnover(ansatte, PERIODESTART, PERIODESLUTT)
 
+# NB: Avtalte dagsverk tas fra Fravær-arket her. I dashbordet regnes de ut fra
+# Ansatte, men de 20 testradene er bare et utvalg og dekker ikke hele teamene.
+s = b.sykefravaer(fravaer, PERIODESTART, PERIODESLUTT)
 
-# --- 3. Antall ansatte --------------------------------------------------------
-ved_start = antall_ansatt_paa(PERIODESTART)
-ved_slutt = antall_ansatt_paa(PERIODESLUTT)
-
-# Siste dag i hver måned i perioden (31.10.2025, 30.11.2025 … 30.09.2026).
-maanedsslutter = pd.date_range(PERIODESTART, PERIODESLUTT, freq="ME")
-# int() gjør svaret om til et vanlig heltall, så det skrives pent ut.
-antall_hver_maaned = [int(antall_ansatt_paa(dag)) for dag in maanedsslutter]
-snitt_ansatte = sum(antall_hver_maaned) / len(antall_hver_maaned)
-
-# Annualisering: gang opp til helår hvis perioden ikke er 12 måneder.
-antall_maaneder = len(maanedsslutter)
-til_helaar = 12 / antall_maaneder
-
-
-# --- 4. Turnover --------------------------------------------------------------
-# Filtrer (som autofilter) til dem som sluttet innenfor perioden.
-sluttet_i_perioden = ansatte[
-    (ansatte["sluttdato"] >= PERIODESTART) & (ansatte["sluttdato"] <= PERIODESLUTT)
+# Tid til ansettelse: Excel-utkastet har ferdig utregnet dager_til_ansettelse i
+# stedet for utlysningsdato og aksept_dato, så her brukes den kolonnen – men med
+# samme utvalg som dashbordet: ansatt i perioden, med registrert rekrutteringsmetode.
+i_perioden = ansatte[
+    ansatte["rekrutteringsmetode"].notna()
+    & (ansatte["ansattdato"] >= PERIODESTART) & (ansatte["ansattdato"] <= PERIODESLUTT)
 ]
-# Behold bare avganger der stillingen må erstattes.
-teller = sluttet_i_perioden[sluttet_i_perioden["sluttårsak"].isin(TELLER_I_TURNOVER)]
-
-frivillige = teller[teller["sluttårsak"] == "frivillig"]
-# Regel i CLAUDE.md: «uønsket» kan bare være ja når sluttårsak er frivillig.
-uonskede = frivillige[frivillige["uønsket"] == "ja"]
-
-antall_sluttet = len(teller)
-antall_frivillig = len(frivillige)
-antall_uonsket = len(uonskede)
-
-# Kostnad: sum årslønn for de uønskede × 75 % – som SUMMERHVIS(...) * 0,75
-kostnad_uonsket = uonskede["årslønn"].sum() * 0.75
+tid_til_ansettelse = i_perioden["dager_til_ansettelse"].median()
 
 
-# --- 5. Sykefravær ------------------------------------------------------------
-# Bare måneder innenfor perioden. "måned" er tekst (ÅÅÅÅ-MM), så vi gjør den om
-# til en dato (første dag i måneden) før vi sammenligner.
-maaned_som_dato = pd.to_datetime(fravaer["måned"], format="%Y-%m")
-fravaer_i_perioden = fravaer[
-    (maaned_som_dato >= PERIODESTART) & (maaned_som_dato <= PERIODESLUTT)
-]
-
-# NB: Avtalte dagsverk tas fra Fravær-arket her. I den ferdige versjonen regnes
-# de ut fra Ansatte, men de 20 testradene er bare et utvalg og dekker ikke hele
-# teamene som Fravær-arket beskriver.
-avtalte = fravaer_i_perioden["avtalte_dagsverk"].sum()
-tapte_kort = fravaer_i_perioden["tapte_dagsverk_korttid"].sum()
-tapte_lang = fravaer_i_perioden["tapte_dagsverk_langtid"].sum()
-
-sykefravaer = (tapte_kort + tapte_lang) / avtalte
-langtidsfravaer = tapte_lang / avtalte
-
-
-# --- 6. Tid til ansettelse ----------------------------------------------------
-# Etter CLAUDE.md: bare dem som ble ansatt i perioden. Excel-utkastet har
-# dager_til_ansettelse i stedet for utlysningsdato og aksept_dato, så vi
-# bruker den kolonnen her.
-ansatt_i_perioden = ansatte[
-    (ansatte["ansattdato"] >= PERIODESTART) & (ansatte["ansattdato"] <= PERIODESLUTT)
-]
-tid_til_ansettelse = ansatt_i_perioden["dager_til_ansettelse"].median()
-
-
-# --- 7. Sammenlign med Excel --------------------------------------------------
+# --- 3. Sammenlign med Excel --------------------------------------------------
 # Python-svarene, med samme navn som i Metrikk-kolonnen i Excel.
 python_svar = {
-    "Sluttet totalt": antall_sluttet,
-    "Sa opp selv": antall_frivillig,
-    "Uønsket turnover (antall)": antall_uonsket,
-    "Ansatte ved periodestart": ved_start,
-    "Ansatte nå": ved_slutt,
-    "Snitt ansatte": snitt_ansatte,
-    "Total turnover": antall_sluttet / snitt_ansatte * til_helaar,
-    "Frivillig turnover": antall_frivillig / snitt_ansatte * til_helaar,
-    "Uønsket turnover": antall_uonsket / snitt_ansatte * til_helaar,
-    "Kostnad uønsket turnover": kostnad_uonsket,
-    "Sykefravær": sykefravaer,
-    "Langtidsfravær": langtidsfravaer,
+    "Sluttet totalt": t["avganger"],
+    "Sa opp selv": t["frivillig"],
+    "Uønsket turnover (antall)": t["uønsket"],
+    "Ansatte ved periodestart": b.antall_ansatt_paa(ansatte, PERIODESTART),
+    "Ansatte nå": b.antall_ansatt_paa(ansatte, PERIODESLUTT),
+    "Snitt ansatte": t["snitt_ansatte"],
+    "Total turnover": t["total_rate"],
+    "Frivillig turnover": t["frivillig_rate"],
+    "Uønsket turnover": t["uønsket_rate"],
+    "Kostnad uønsket turnover": t["lønn_uønsket"] * b.KOSTNADSANDEL_STANDARD,
+    "Sykefravær": s["total_rate"],
+    "Langtidsfravær": s["langtid_rate"],
     "Tid til ansettelse": tid_til_ansettelse,
 }
 
@@ -130,8 +82,16 @@ sammenligning["Python"] = sammenligning["Metrikk"].map(python_svar).astype(float
 # "Stemmer" hvis forskjellen er praktisk talt null (små avrundingsrester godtas).
 lik = (sammenligning["Excel"] - sammenligning["Python"]).abs() < 0.0001
 sammenligning["Stemmer"] = lik.map({True: "ja", False: "nei"})
+sammenligning["Forklaring"] = sammenligning["Metrikk"].map(FORKLARING).fillna("")
 
-print(f"Periode: {PERIODESTART.date()} – {PERIODESLUTT.date()} ({antall_maaneder} mnd)")
+antall_hver_maaned = [b.antall_ansatt_paa(ansatte, dag) for dag in maanedsslutter]
+print(f"Periode: {PERIODESTART:%d.%m.%Y}–{PERIODESLUTT:%d.%m.%Y} ({len(maanedsslutter)} mnd)")
 print(f"Ansatte ved hver månedsslutt: {antall_hver_maaned}")
 print()
 print(sammenligning.round(3).to_string(index=False))
+
+# Alle avvik skal være forklart – ellers er noe galt
+uforklart = sammenligning[(sammenligning["Stemmer"] == "nei") & (sammenligning["Forklaring"] == "")]
+print()
+print("Alle avvik er forklart." if uforklart.empty
+      else f"UFORKLARTE AVVIK: {', '.join(uforklart['Metrikk'])}")

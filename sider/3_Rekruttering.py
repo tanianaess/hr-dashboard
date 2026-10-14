@@ -6,19 +6,15 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+import datalasting as d
 import utseende as u
 from filtre import vis_filtre_sensitiv
 
 st.set_page_config(page_title="Rekruttering · HR-dashbord", layout="wide")
 
 
-# --- Data ---------------------------------------------------------------------
-@st.cache_data
-def hent_ansatte():
-    return b.les_ansatte()
-
-
-ansatte = hent_ansatte()
+# --- Data (felles innlesing, lest bare én gang – se datalasting.py) ----------------
+ansatte = d.hent_ansatte()
 
 
 # --- Filtre: begrenset, fordi siden har sensitive tall (se filtre.py) -------------
@@ -49,17 +45,14 @@ if naa["antall"] == 0:
 
 
 # Femregelen: med under 5 ansettelser er median og andel strukturert skjult (None)
-SKJULT_UNDER_5 = "skjult (under 5)"
+SKJULT_UNDER_5 = b.SKJULT_UNDER_5
 
 
 def endring_dager():
-    """Endring i median tid til ansettelse, f.eks. «−6 dager»."""
+    """Endring i median tid til ansettelse, f.eks. «-6 dager»."""
     if not har_fjor or naa["median_dager"] is None or fjor["median_dager"] is None:
         return None
-    dager = b.avrund(naa["median_dager"] - fjor["median_dager"])
-    if dager == 0:
-        return "±0 dager"
-    return f"{dager:+d} {'dag' if abs(dager) == 1 else 'dager'}"
+    return b.endring_antall(naa["median_dager"] - fjor["median_dager"], "dager", "dag")
 
 
 endring_andel = (b.endring_pp(naa["andel_strukturert"], fjor["andel_strukturert"])
@@ -104,7 +97,7 @@ def andel_tekst(antall, n, prikket=False):
     if n == 0:
         return "for tidlig å måle"
     if prikket:
-        return "skjult (sekundær prikking)"
+        return b.SKJULT_PRIKKET
     if antall is None or pd.isna(antall):
         return SKJULT_UNDER_5
     return b.prosent_med_n(int(antall), n)
@@ -215,6 +208,7 @@ if per_kvartal.empty:
     st.info("Ingen kvartaler med minst 5 ansettelser i utvalget. Grafen skjules (femregelen).",
             icon=":material/lock:")
 per_kvartal["prosent"] = per_kvartal["andel"] * 100
+per_kvartal["andel_tekst"] = per_kvartal["andel"].map(lambda x: b.prosent(x, 0))  # verktøytips
 per_kvartal["etikett"] = "n = " + per_kvartal["antall"].astype(str)
 
 st.vega_lite_chart(
@@ -230,7 +224,7 @@ st.vega_lite_chart(
             {"mark": {"type": "bar", "color": u.PETROL},
              "encoding": {"tooltip": [
                  {"field": "kvartal", "title": "Kvartal"},
-                 {"field": "prosent", "title": "Andel (%)", "format": ".0f"},
+                 {"field": "andel_tekst", "title": "Andel strukturert"},
                  {"field": "strukturert", "title": "Strukturert"},
                  {"field": "antall", "title": "Ansettelser"}]}},
             # Antall ansettelser (n) over hver stolpe

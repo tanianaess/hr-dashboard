@@ -1,7 +1,6 @@
 # Formatering og avrunding: tall skal vises som i Excel og med norsk tallformat.
 
 import beregninger as b
-import innsikter as i
 
 
 def test_avrund_som_excel():
@@ -33,6 +32,6 @@ def test_kroner():
 
 
 def test_fortegn_bruker_ekte_minustegn():
-    assert i.fortegn(-14) == "−14"
-    assert i.fortegn(2) == "+2"
-    assert i.fortegn(0) == "0"
+    assert b.fortegn(-14) == "−14"
+    assert b.fortegn(2) == "+2"
+    assert b.fortegn(0) == "0"

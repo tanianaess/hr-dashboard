@@ -5,19 +5,15 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+import datalasting as d
 import utseende as u
 from filtre import vis_filtre
 
 st.set_page_config(page_title="Bemanning · HR-dashbord", layout="wide")
 
 
-# --- Data ---------------------------------------------------------------------
-@st.cache_data
-def hent_data():
-    return b.les_ansatte(), b.les_bemanningsplan()
-
-
-ansatte, plan = hent_data()
+# --- Data (felles innlesing, lest bare én gang – se datalasting.py) ----------------
+ansatte, plan = d.hent_ansatte(), d.hent_bemanningsplan()
 
 
 # --- Filtre (felles for alle sider, se filtre.py) ---------------------------------
@@ -42,11 +38,6 @@ planlagt = int(per_team["plan"].sum())
 avvik = faktisk - planlagt
 
 
-def med_fortegn(tall):
-    """+2, −14 eller 0 – fortegn gjør retningen tydelig uten farge."""
-    return b.fortegn(tall)
-
-
 # --- KPI-kort (nøytrale – ingen røde/grønne piler) -----------------------------------
 kort1, kort2, kort3 = st.columns(3)
 kort1.metric("Faktisk antall ansatte", faktisk)
@@ -55,7 +46,7 @@ kort2.metric("Planlagt antall", planlagt)
 kort2.caption(f"Bemanningsplan for {slutt:%m.%Y}")
 # Samme 5 %-regel som i tabellen: ◆ i overskriften og forklaring under
 markert = b.over_avviksgrense(faktisk, planlagt)
-kort3.metric("Avvik mot plan ◆" if markert else "Avvik mot plan", med_fortegn(avvik))
+kort3.metric("Avvik mot plan ◆" if markert else "Avvik mot plan", b.fortegn(avvik))
 kort3.caption(
     f"Bemanningsgrad {b.prosent(faktisk / planlagt if planlagt else None)}"
     + (f" · ◆ mer enn {b.prosent(b.AVVIK_GRENSE, 0)} fra planen" if markert else "")
@@ -102,7 +93,7 @@ for _, r in per_team.iterrows():
     if r["tiltredelse_n"] == 0:
         tiltredelse = "–"
     elif pd.isna(r["tiltredelse_median"]):
-        tiltredelse = "skjult (under 5)"  # femregelen: medianen bygger på for få
+        tiltredelse = b.SKJULT_UNDER_5  # femregelen: medianen bygger på for få
     else:
         tiltredelse = f"{b.avrund(r['tiltredelse_median'])} dager (n = {int(r['tiltredelse_n'])})"
     rader.append({
@@ -111,7 +102,7 @@ for _, r in per_team.iterrows():
         "Plan": int(r["plan"]),
         "Faktisk": int(r["faktisk"]),
         "Herav midlertidige": int(r["midlertidige"]),
-        "Avvik": med_fortegn(int(r["avvik"])),
+        "Avvik": b.fortegn(int(r["avvik"])),
         "Bemanningsgrad": b.prosent(r["bemanningsgrad"]),
         "Ansettelser i perioden": int(r["ansettelser"]),
         "Avganger i perioden": int(r["avganger"]),

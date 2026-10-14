@@ -5,24 +5,19 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
+import datalasting as d
 import innsikter as i
 import utseende as u
-from filtre import forhandsvelg
+from filtre import SIDER, forhandsvelg
 
 st.set_page_config(page_title="Oversikt · HR-dashbord", layout="wide")
 
 
 # --- Data ---------------------------------------------------------------------
 @st.cache_data
-def hent_data():
-    ansatte = b.les_ansatte()
-    fravaer = b.fravaer_med_avtalte(ansatte, b.les_fravaer())
-    return ansatte, fravaer, b.les_engasjement(), b.les_bemanningsplan()
-
-
-@st.cache_data
 def beregn_oversikt():
-    ansatte, fravaer, engasjement, plan = hent_data()
+    ansatte, fravaer = d.hent_ansatte(), d.hent_fravaer()
+    engasjement, plan = d.hent_engasjement(), d.hent_bemanningsplan()
     nokkeltall = i.nokkeltall(ansatte, fravaer, engasjement, plan)
     return nokkeltall, i.innsikter(ansatte, fravaer, engasjement, plan, nokkeltall)
 
@@ -51,7 +46,7 @@ def vis_kort(k, nr):
         st.caption(k["ekstra"])
         if st.button("Detaljer", icon=":material/arrow_forward:", type="tertiary",
                      key=f"kort_{nr}"):
-            forhandsvelg(i.SIDER[k["side"]])
+            forhandsvelg(SIDER[k["side"]])
 
 
 for rad_start in range(0, len(nokkeltall), 4):  # fire kort per rad, med jevn luft
@@ -103,7 +98,7 @@ for nr, innsikt in enumerate(innsikt_liste):
                     if st.button(f"Se {side.lower()}", icon=":material/arrow_forward:",
                                  key=f"innsikt_{nr}_{j}",
                                  help=f"Åpner {side.lower()} med {team} valgt" if team else None):
-                        forhandsvelg(i.SIDER[side], team)
+                        forhandsvelg(SIDER[side], team)
 
         # Høyre: forslag til neste steg, tydelig skilt fra funnet
         with steg:

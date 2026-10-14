@@ -5,16 +5,23 @@
 
 import streamlit as st
 
+from filtre import SIDER
+
 # Fanetittel og bred layout
 st.set_page_config(page_title="HR-dashbord", layout="wide")
 
 # Menyen: navn, ikon og rekkefølge bestemmes her – ikke av filnavnene.
+# Filene står i SIDER (filtre.py); her bestemmes bare ikonene.
+IKONER = {
+    "Oversikt": ":material/space_dashboard:",
+    "Turnover": ":material/sync_alt:",
+    "Sykefravær": ":material/healing:",
+    "Rekruttering": ":material/person_search:",
+    "Bemanning": ":material/groups:",
+    "Engasjement": ":material/forum:",
+}
 meny = st.navigation([
-    st.Page("sider/0_Oversikt.py", title="Oversikt", icon=":material/space_dashboard:", default=True),
-    st.Page("sider/1_Turnover.py", title="Turnover", icon=":material/sync_alt:"),
-    st.Page("sider/2_Sykefravaer.py", title="Sykefravær", icon=":material/healing:"),
-    st.Page("sider/3_Rekruttering.py", title="Rekruttering", icon=":material/person_search:"),
-    st.Page("sider/4_Bemanning.py", title="Bemanning", icon=":material/groups:"),
-    st.Page("sider/5_Engasjement.py", title="Engasjement", icon=":material/forum:"),
+    st.Page(fil, title=navn, icon=IKONER[navn], default=(navn == "Oversikt"))
+    for navn, fil in SIDER.items()
 ])
 meny.run()  # viser siden brukeren har valgt

@@ -14,10 +14,20 @@ NOKKEL_PERIODE = "filter_periode"         # begrenset filter: fast periode
 NOKKEL_TEAM = "filter_team"               # begrenset filter: hele selskapet eller ett team
 HELE_SELSKAPET = "Hele selskapet"
 
+# Alle sidene: navn → fil. Det eneste stedet sidestiene står (brukes av menyen i
+# app.py, lenkene på forsiden og filtrene under).
+SIDER = {
+    "Oversikt": "sider/0_Oversikt.py",
+    "Turnover": "sider/1_Turnover.py",
+    "Sykefravær": "sider/2_Sykefravaer.py",
+    "Rekruttering": "sider/3_Rekruttering.py",
+    "Bemanning": "sider/4_Bemanning.py",
+    "Engasjement": "sider/5_Engasjement.py",
+}
+
 # Sider med begrenset filter (sensitive tall). Bare Bemanning har fritt filter,
 # fordi ingen av tallene der er sensitive (se CLAUDE.md).
-SENSITIVE_SIDER = {"sider/1_Turnover.py", "sider/2_Sykefravaer.py",
-                   "sider/3_Rekruttering.py", "sider/5_Engasjement.py"}
+SENSITIVE_SIDER = {SIDER[navn] for navn in ["Turnover", "Sykefravær", "Rekruttering", "Engasjement"]}
 
 
 def forhandsvelg(side, team=None):
