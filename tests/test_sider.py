@@ -10,8 +10,9 @@ from streamlit.testing.v1 import AppTest
 import beregninger as b
 
 PROSJEKT = Path(__file__).resolve().parent.parent
-SENSITIVE = ["sider/1_Turnover.py", "sider/2_Sykefravaer.py", "sider/5_Engasjement.py"]
-FRIE = ["sider/3_Rekruttering.py", "sider/4_Bemanning.py"]
+SENSITIVE = ["sider/1_Turnover.py", "sider/2_Sykefravaer.py", "sider/3_Rekruttering.py",
+             "sider/5_Engasjement.py"]
+FRIE = ["sider/4_Bemanning.py"]
 
 
 def kjor(side):
@@ -43,9 +44,11 @@ def test_fritt_filter_kan_endres(side):
 def test_oversikt():
     at = kjor("app.py")
     assert not at.exception
-    # Uønsket turnover og kostnad gjelder fordelingen etter sekundær prikking
+    # Med to faste, ikke-overlappende perioder trenger ingen team å holdes utenfor
+    # turnoverfordelingen lenger (før: fem team), så uønsket turnover gjelder alle.
+    # Sykefravær er fortsatt uten ledergruppen (sekundær prikking).
     assert [m.value for m in at.metric] == [
-        "14,3 %", "4,9 %", "3,46 mill", "5,69 %", "+15", "−13", "36 dager"]
+        "14,3 %", "4,5 %", "5,6 mill. kr", "5,69 %", "+15", "−13", "36 dager"]
 
 
 @pytest.mark.parametrize("side", ["app.py", *SENSITIVE, *FRIE])

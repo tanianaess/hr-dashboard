@@ -42,28 +42,46 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
 
 ## Personvern (gjelder alltid)
 
+- **Prinsipp:** Sensitive tall vises bare i faste, ikke-overlappende visninger.
+  Fritt filter brukes bare på tall som ikke er sensitive.
+  - **Sensitive tall:** sykefravær, eNPS (inkl. svarandel), turnoverfordelingen
+    (uønsket og sluttårsak), kostnad ved uønsket turnover (bygger på lønn) og
+    rekrutteringstall (tid til ansettelse, andel strukturert, kvalitet på
+    ansettelser, bruk av tilleggsmetoder).
+  - **Ikke sensitive:** totalt antall avganger, total turnover, «kontrakt
+    utløpt» (antall) og bemanning (antall ansatte, plan, ansettelser, avganger).
+  - To visninger som overlapper (to perioder, to utvalg av team), kan trekkes
+    fra hverandre og avsløre en liten gruppe. Derfor finnes hvert sensitivt tall
+    i én fast visning per periode og team.
 - Dashbordet skal **aldri vise data om enkeltpersoner** – bare tall for grupper
   (team, avdeling, aldersgruppe osv.).
 - **Femregelen:** grupper med **færre enn 5** skjules for:
   - **sykefravær** – antall ansatte i gruppa
   - **eNPS** – `antall_svar` (ikke teamstørrelsen)
   - **turnover per team**:
-    - team med færre enn 5 ansatte (snitt i perioden): **alt** skjules
-    - totalt antall avganger og total turnover vises ellers alltid – at noen
-      har sluttet er ikke sensitivt
-    - fordeling på **uønsket og sluttårsak** (inkl. `kontrakt utløpt`) vises
-      bare når teamet har **minst 5 avganger** i perioden; ellers bare for hele
-      selskapet. Det sensitive er ledelsens vurdering av enkeltpersoner.
-    - Samme regel gjelder når filteret velger noen team, men ikke alle.
+    - totalt antall avganger og antall `kontrakt utløpt` vises alltid, også for
+      ledergruppen – at noen har sluttet er ikke sensitivt
+    - team med færre enn 5 ansatte (snitt i perioden): alt annet skjules
+    - fordeling på **uønsket og sluttårsak** (frivillig, ufrivillig, pensjon)
+      vises bare når teamet har **minst 5 avganger** i perioden; ellers bare for
+      hele selskapet. Det sensitive er ledelsens vurdering av enkeltpersoner.
+    - **Avganger per måned** vises bare som total, aldri fordelt på uønsket
+      eller sluttårsak (én måned er ofte én person).
   - **kvalitet på ansettelser** – både per team, per rekrutteringsmetode og per
     nivå (antall ansatte som inngår i beregningen)
-  - **antall tilleggsmetoder** – skjules under 5 når filteret ikke viser hele
-    selskapet (ellers kan «1 personlighetstest» peke mot én kandidat)
+  - **tid til ansettelse og andel strukturert** – median og andel skjules når
+    de bygger på under 5 ansettelser (totalt, per team og per kvartal)
+  - **median tid til tiltredelse** på Bemanning – skjules under 5 ansettelser
+  - **antall tilleggsmetoder** – under 5 skjules, også for hele selskapet
+    (ellers kan «1 personlighetstest» peke mot én kandidat)
+  - **trendgrafer** for sykefravær (per måned) og eNPS (per kvartal) –
+    femregelen gjelder **per punkt** (se under)
   
   Dette gjelder også når filtre gjør en gruppe mindre enn 5.
 - **Sekundær prikking:** en skjult gruppe må ikke kunne regnes ut som «total minus
   de synlige gruppene». For **sensitive tall** – sykefravær, eNPS (inkl.
-  svarandel) og turnoverfordelingen (uønsket og sluttårsak) – gjelder:
+  svarandel), turnoverfordelingen (uønsket og sluttårsak) og kvalitet på
+  ansettelser – gjelder:
   - Hvis de skjulte teamene **til sammen** er under 5 (ansatte, svar eller
     avganger), holdes de **utenfor totalen**. Er de til sammen 5 eller flere,
     kan totalen ta med alle (de kan ikke skilles fra hverandre).
@@ -73,24 +91,38 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
     det sammenlignes med (samme team holdes utenfor i begge perioder).
   - **Ikke sensitivt** – totalen tar alltid med alle: totalt antall avganger,
     total turnover og bemanning.
-  - Regelen ligger i `sekundar_prikking()` i `beregninger.py`.
+  - Regelen ligger i `sekundar_prikking()` i `beregninger.py`. For kvalitet på
+    ansettelser prikkes hver celle (nivå × mål) for seg i
+    `kvalitet_per_nivaa_prikket()`, og cellen vises som «skjult (sekundær
+    prikking)».
   - Sekundær prikking gjelder **totaler** (visningen «hele selskapet»). Når ett
     team er valgt, gjelder vanlig femregel for den viste perioden.
   - Prikkingen er **lik i alle periodevalg**: et team som må holdes utenfor i én
     av de faste periodene (eller periodene det sammenlignes med), holdes utenfor
     i alle (`alle_sammenligningsperioder()`).
-- **Begrenset filter på sider med sensitive tall** (turnover, sykefravær, eNPS),
-  `vis_filtre_sensitiv()` i `filtre.py`:
+- **Begrenset filter på sider med sensitive tall** (turnover, sykefravær,
+  rekruttering, eNPS), `vis_filtre_sensitiv()` i `filtre.py`:
   - **Team:** enten «Hele selskapet» eller **ett team om gangen** – ikke fritt
     flervalg (to utvalg som skiller seg med én liten gruppe kan trekkes fra
     hverandre).
-  - **Periode:** bare **faste valg** – siste 12 mnd, siste 24 mnd og hvert
-    kalenderår (hele år, pluss inneværende år hittil) – ikke fri månedsglider
-    (overlappende perioder kan trekkes fra hverandre).
-  - Rekruttering og bemanning beholder det frie filteret (`vis_filtre()`).
+  - **Periode:** bare **to faste, ikke-overlappende perioder** – siste 12 mnd
+    og forrige 12 mnd (`FASTE_PERIODER`) – ikke fri månedsglider og ikke
+    perioder som overlapper (som siste 24 mnd eller kalenderår).
+  - Bare **Bemanning** har fritt filter (`vis_filtre()`), fordi ingen av
+    tallene der er sensitive (medianen for tiltredelse følger femregelen).
+- **Trendgrafer** for sykefravær (per måned) og eNPS (per kvartal, også grafene
+  for kobling mot langtidsfravær) viser **alltid hele dataperioden**
+  (`TRENDPERIODE`), uansett periodevalg – én fast visning. Femregelen gjelder
+  **per punkt**: et punkt med under 5 (ansatte eller svar) vises ikke, og små
+  team holdes utenfor punktet når de til sammen er under 5
+  (`sykefravaer_per_maaned()`, `langtid_per_kvartal()`).
 - **Tilgangsstyring:** Ingen tekniske regler kan helt hindre at tall utledes i et interaktivt verktøy. Den viktigste beskyttelsen er tilgangsstyring – i drift skal bare HR-ledelse og ledergruppen ha tilgang. Reglene her reduserer risikoen.
 - **Lønn** vises aldri per team. Den brukes bare i kostnadsberegningen, og
-  kostnaden vises bare for hele selskapet (ikke når filteret velger enkeltteam).
+  kostnaden vises bare i **én fast visning**: hele selskapet, **siste 12 mnd**
+  (`er_siste_12()`), sammenlignet med forrige 12 mnd (den andre faste perioden),
+  avrundet til nærmeste 0,1 mill. kr (`millioner()`), og bare med minst 5
+  uønskede avganger. Endringen regnes på de avrundede tallene
+  (`endring_millioner()`), så den ikke avslører mer enn tallene selv.
 - **Stilling** blir aldri et filter i dashbordet (stilling + team kan peke ut
   én person).
 - Selv om dataene er syntetiske, skal dashbordet bygges som om de var ekte.
@@ -246,7 +278,8 @@ perioden.
   `ansattdato` (inkluderer oppsigelsestid), for dem som ble ansatt i perioden.
   Skiller seg fra tid til ansettelse, som stopper ved `aksept_dato`.
 - **Kostnad ved uønsket turnover** = sum årslønn for uønskede avganger × 75 %
-  (antakelse).
+  (antakelse). Vises bare for hele selskapet, siste 12 mnd mot forrige 12 mnd
+  (se «Personvern»).
 - **Sykefravær** = (tapte korttid + tapte langtid) / avtalte dagsverk.
   **Langtidsfravær** = tapte langtid / avtalte dagsverk.
 - **Tid til ansettelse** = median antall dager fra `utlysningsdato` til
@@ -301,7 +334,8 @@ standard, og vises åpent på siden («Slik settes status»).
 | Tid til ansettelse | inntil 45 dager | 46–60 dager | over 60 dager | +15 dager |
 
 Sammenligning som på sidene: turnover mot forrige 12 mnd; fravær, eNPS og
-rekruttering mot samme periode i fjor. Sykefravær og eNPS «uten ledergruppen»
+rekruttering mot samme periode i fjor. Kostnaden mot forrige 12 mnd, regnet på
+de avrundede tallene. Sykefravær og eNPS «uten ledergruppen»
 (sekundær prikking), som på sidene.
 
 ### «Hva ledelsen bør vite nå» – regelbaserte innsikter (ikke AI)
@@ -320,7 +354,8 @@ steg (forslag)»** og lenke(r) som åpner siden med teamet forhåndsvalgt
    med minst 5 ansatte og 5 avganger. Neste steg: sluttsamtaler og gjennomgang
    av rekrutteringsmetode i teamet.
 4. **Rekruttering**: tidlig turnover ustrukturert mot strukturert intervju
-   alene, når begge er synlige og forskjellen er ≥ 10 pp. Merknad: «Sammenheng,
+   alene, når begge er synlige (etter sekundær prikking, som på
+   Rekruttering-siden) og forskjellen er ≥ 10 pp. Merknad: «Sammenheng,
    ikke nødvendigvis årsak. Peker i riktig retning, men grunnlaget er lite
    (n = …). Følg utviklingen – metodevalget støttes uansett av forskningen.»
    Neste steg: fortsett å øke andelen strukturerte prosesser.

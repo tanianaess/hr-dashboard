@@ -47,7 +47,13 @@ forrige = b.turnover(utvalg, forrige_start, forrige_slutt) if har_forrige else N
 
 # Femregelen for utvalget (se CLAUDE.md)
 if naa["snitt_ansatte"] < b.MIN_GRUPPE:
-    st.info("Utvalget har færre enn 5 ansatte. Tallene skjules av personvernhensyn.", icon=":material/lock:")
+    # Antall avganger er ikke sensitivt og vises alltid – ratene og fordelingen skjules
+    kort1, kort2 = st.columns(2)
+    kort1.metric("Avganger", naa["avganger"])
+    kort1.caption("Avganger som teller i turnover (frivillig, ufrivillig, pensjon)")
+    kort2.metric("Kontrakt utløpt", naa["kontrakt_utløpt"])
+    st.info("Utvalget har færre enn 5 ansatte. Turnoverratene og fordelingen på sluttårsak "
+            "skjules av personvernhensyn.", icon=":material/lock:")
     st.stop()
 
 # Sekundær prikking for FORDELINGEN (uønsket og sluttårsak) – se beregninger.py.
@@ -110,7 +116,20 @@ else:
 # --- Kostnad ved uønsket turnover -------------------------------------------------------
 st.subheader("Kostnad ved uønsket turnover")
 
-if hele_selskapet:
+# Kostnaden bygger på lønn, så den vises bare i ÉN fast visning: hele selskapet,
+# siste 12 mnd. Flere visninger (andre perioder eller team) kunne trekkes fra
+# hverandre og gi lønnen til noen få personer.
+if not hele_selskapet:
+    st.info("Kostnaden vises bare for hele selskapet, fordi den bygger på lønn "
+            "(lønn vises aldri per team).", icon=":material/lock:")
+elif not b.er_siste_12(start, slutt):
+    st.info("Kostnaden vises bare for siste 12 mnd. Den bygger på lønn, og to perioder "
+            "kunne sammenlignes for å regne ut lønnen til noen få personer.",
+            icon=":material/lock:")
+elif not vis_fordeling or fordeling["uønsket"] < b.MIN_GRUPPE:
+    st.info("Færre enn 5 uønskede avganger. Kostnaden skjules, fordi den ellers viser "
+            "lønnen til noen få personer.", icon=":material/lock:")
+else:
     # Glidebryter for antakelsen: hvor mye koster det å erstatte én person,
     # målt i prosent av årslønnen? (Bransjeanslag ligger ofte på 50–200 %.)
     kostnadsandel = st.slider(
@@ -118,33 +137,31 @@ if hele_selskapet:
         value=b.avrund(b.KOSTNADSANDEL_STANDARD * 100), step=5, format="%d %%",
     )
     kostnad = fordeling["lønn_uønsket"] * kostnadsandel / 100
-    st.metric("Anslått kostnad", b.kroner(kostnad))
+    # Sammenligning med forrige 12 mnd (den andre faste perioden), bare med minst 5
+    kan_sammenligne = vis_fordeling_forrige and fordeling_forrige["uønsket"] >= b.MIN_GRUPPE
+    pil = (b.endring_millioner(kostnad, fordeling_forrige["lønn_uønsket"] * kostnadsandel / 100)
+           if kan_sammenligne else None)
+    # Rundes grovt (0,1 mill.) med vilje, så lønnssummen ikke kan leses ut nøyaktig
+    st.metric("Anslått kostnad", b.millioner(kostnad), delta=pil, delta_color=b.pilfarge(pil))
     st.caption(
         f"Sum årslønn for de {fordeling['uønsket']} uønskede avgangene × {kostnadsandel} %"
-        + (f" ({b.med_unntak('hele selskapet', utenfor)})" if utenfor else "") + ". "
-        "Prosentsatsen er en antakelse (dekker rekruttering, opplæring og tapt "
-        "produktivitet). Juster den med glidebryteren."
+        + (f" ({b.med_unntak('hele selskapet', utenfor)})" if utenfor else "") + ", "
+        "avrundet til nærmeste 0,1 mill. kr. "
+        + ("Pila viser endring mot forrige 12 mnd. " if kan_sammenligne else "")
+        + "Prosentsatsen er en antakelse (dekker "
+        "rekruttering, opplæring og tapt produktivitet). Juster den med glidebryteren."
     )
-else:
-    st.info("Kostnaden vises bare for hele selskapet, fordi den bygger på lønn "
-            "(lønn vises aldri per team). Velg alle team for å se den.")
 
 
 # --- Graf: avganger per måned -----------------------------------------------------------
 st.subheader("Avganger per måned")
-# Delt på uønsket/øvrige = fordeling → bruker utvalget etter sekundær prikking
-per_maaned = b.avganger_per_maaned(utvalg_fordeling if vis_fordeling else utvalg, start, slutt)
-
-if vis_fordeling:
-    # Stablede stolper: uønsket og øvrige oppå hverandre
-    st.bar_chart(per_maaned, y=["Uønsket", "Øvrige"], color=[u.PETROL, u.PETROL_LYS])
-else:
-    # Bare totalen – fordelingen er skjult for små utvalg
-    st.bar_chart(per_maaned.sum(axis=1).rename("Avganger"), color=u.PETROL)
+# Bare totalen: én måned er ofte én person, så fordelingen på uønsket og sluttårsak
+# vises aldri per måned. Totalt antall avganger er ikke sensitivt, så alle er med.
+per_maaned = b.avganger_per_maaned(utvalg, start, slutt)
+st.bar_chart(per_maaned, y="Avganger", color=u.PETROL)
 st.caption("Avganger som teller i turnover (frivillig, ufrivillig, pensjon). "
-           "Utløpte midlertidige kontrakter er ikke med."
-           + (f" Grafen viser {b.med_unntak('utvalget', utenfor)} (sekundær prikking)."
-              if utenfor and vis_fordeling else ""))
+           "Utløpte midlertidige kontrakter er ikke med. Fordelingen på uønsket og "
+           "sluttårsak vises ikke per måned, fordi én måned ofte er én person.")
 
 
 # --- Tabell per team --------------------------------------------------------------------
@@ -162,9 +179,11 @@ def tekst(verdi):
 def tabellrad(navn, t, skjult=""):
     """Gjør én rad med tall om til ferdig formatert tekst for tabellen."""
     if skjult == "lite team":
-        return {"Team": navn, "Snitt ansatte": "under 5", "Turnover": SKJULT, "Avganger": SKJULT,
+        # Antall avganger og utløpte kontrakter er ikke sensitivt og vises alltid
+        return {"Team": navn, "Snitt ansatte": "under 5", "Turnover": SKJULT,
+                "Avganger": tekst(t["avganger"]),
                 "Frivillig": SKJULT, "Ufrivillig": SKJULT, "Pensjon": SKJULT,
-                "Uønsket": SKJULT, "Kontrakt utløpt": SKJULT}
+                "Uønsket": SKJULT, "Kontrakt utløpt": tekst(t["kontrakt_utløpt"])}
     snitt_rad = b.avrund(t["snitt_ansatte"])
     return {
         "Team": navn,
@@ -192,6 +211,8 @@ st.dataframe(pd.DataFrame(rader), hide_index=True, width="stretch")
 st.caption(
     "Turnover = avganger / snitt antall ansatte (ved månedsslutt), omregnet til helår. "
     "«Kontrakt utløpt» teller ikke i turnover (stillingen skal ikke erstattes). "
-    "**Femregelen:** team med under 5 ansatte skjules helt. Fordelingen på sluttårsak og "
-    "uønsket vises bare for team med minst 5 avganger, ellers bare for hele selskapet."
+    "**Femregelen:** antall avganger og utløpte kontrakter vises alltid (at noen slutter, er "
+    "ikke sensitivt). For team med under 5 ansatte skjules turnoverraten. Fordelingen på "
+    "sluttårsak og uønsket vises bare for team med minst 5 avganger, ellers bare for hele "
+    "selskapet."
 )

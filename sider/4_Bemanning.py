@@ -99,8 +99,12 @@ st.subheader("Bemanning per team")
 
 rader = []
 for _, r in per_team.iterrows():
-    tiltredelse = ("–" if r["tiltredelse_n"] == 0
-                   else f"{b.avrund(r['tiltredelse_median'])} dager (n = {int(r['tiltredelse_n'])})")
+    if r["tiltredelse_n"] == 0:
+        tiltredelse = "–"
+    elif pd.isna(r["tiltredelse_median"]):
+        tiltredelse = "skjult (under 5)"  # femregelen: medianen bygger på for få
+    else:
+        tiltredelse = f"{b.avrund(r['tiltredelse_median'])} dager (n = {int(r['tiltredelse_n'])})"
     rader.append({
         "": "◆" if r["markert"] else "",
         "Team": r["team"],
@@ -130,7 +134,9 @@ st.caption(
     "«herav midlertidige» viser hvor mange av dem som er vikarer. Avganger er alle "
     "sluttårsaker, også utløpte kontrakter. "
     "**Tid til tiltredelse** = dager fra utlysning til første arbeidsdag (inkluderer "
-    "oppsigelsestid), median for ansettelser i perioden."
+    "oppsigelsestid), median for ansettelser i perioden. **Femregelen:** medianen skjules "
+    "når den bygger på færre enn 5 ansettelser (med få personer ligger medianen nær ett "
+    "enkelt forløp)."
 )
 st.info(
     "**Stillinger på vei inn vises ikke.** Dataene er et øyeblikksbilde per 30.09.2026, "

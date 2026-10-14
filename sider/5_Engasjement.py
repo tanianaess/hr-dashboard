@@ -111,15 +111,18 @@ kort3.caption(f"{naa['svar']} av {naa['invitert']} invitert"
 # --- Graf: eNPS per kvartal og team -----------------------------------------------------
 st.subheader("eNPS per kvartal og team")
 
-i_perioden = utvalg[utvalg["kvartal"].isin(kvartaler)]
-synlig = i_perioden[i_perioden["antall_svar"] >= b.MIN_GRUPPE].copy()  # femregelen
+# Trendgrafene viser alltid hele dataperioden (én fast visning, uansett periodevalg).
+# Femregelen gjelder per punkt: hvert team-kvartal med under 5 svar vises ikke.
+trend_kvartaler = b.kvartaler_i_perioden(*b.TRENDPERIODE)
+i_trend = utvalg[utvalg["kvartal"].isin(trend_kvartaler)]
+synlig = i_trend[i_trend["antall_svar"] >= b.MIN_GRUPPE].copy()  # femregelen per punkt
 
-# Uthev teamet med størst fall fra første til siste kvartal i perioden
+# Uthev teamet med størst fall fra første til siste kvartal i grafen
 endring_per_team = {}
 for team, t in synlig.groupby("team"):
     t = t.set_index("kvartal")
-    if kvartaler[0] in t.index and siste in t.index:
-        endring_per_team[team] = t.loc[siste, "enps"] - t.loc[kvartaler[0], "enps"]
+    if trend_kvartaler[0] in t.index and trend_kvartaler[-1] in t.index:
+        endring_per_team[team] = t.loc[trend_kvartaler[-1], "enps"] - t.loc[trend_kvartaler[0], "enps"]
 uthevet = min(endring_per_team, key=endring_per_team.get) if endring_per_team else None
 if uthevet is not None and endring_per_team[uthevet] > -b.UTHEV_FALL:
     uthevet = None  # ingen team har falt nok til å utheves
@@ -155,11 +158,12 @@ st.vega_lite_chart(
     width="stretch",
 )
 st.caption(
-    (f"Uthevet: **{uthevet}**, teamet med størst fall i perioden "
-     f"({enps_tekst(endring_per_team[uthevet])} poeng). " if uthevet else "")
+    f"Hele dataperioden ({trend_kvartaler[0]}–{trend_kvartaler[-1]}), uansett periodevalg. "
+    + (f"Uthevet: **{uthevet}**, teamet med størst fall fra første til siste kvartal "
+       f"({enps_tekst(endring_per_team[uthevet])} poeng). " if uthevet else "")
     + f"Et team uthevet bare ved fall på minst {b.UTHEV_FALL} poeng. "
     "Stiplet linje = 0 (like mange anbefalere som kritikere). "
-    "Team-kvartaler med under 5 svar vises ikke (femregelen)."
+    "**Femregelen per punkt:** team-kvartaler med under 5 svar vises ikke."
 )
 
 
@@ -224,10 +228,12 @@ else:
     if utenfor_kobling:
         st.caption(f"Begge grafene gjelder **{b.med_unntak('utvalget', utenfor_kobling)}** "
                    "(sekundær prikking).")
+    # Hele dataperioden, med femregelen per kvartal (se beregninger.py).
+    # «inner» = bare kvartaler der begge tallene kan vises, så grafene viser det samme.
     per_kvartal = b.enps_per_kvartal(utvalg[utvalg["team"].isin(kobling_team)],
-                                     kvartaler).set_index("kvartal")
-    langtid = b.langtid_per_kvartal(fravaer[fravaer["team"].isin(kobling_team)], kvartaler)
-    kobling = per_kvartal[["enps"]].join(langtid * 100).reset_index()
+                                     trend_kvartaler).set_index("kvartal")
+    langtid = b.langtid_per_kvartal(fravaer[fravaer["team"].isin(kobling_team)], trend_kvartaler)
+    kobling = per_kvartal[["enps"]].join(langtid * 100, how="inner").reset_index()
     kobling["enps"] = kobling["enps"].map(b.avrund)
     kobling["langtid_rate"] = kobling["langtid_rate"].map(lambda x: b.avrund(x, 1))
 
@@ -254,6 +260,8 @@ else:
             width="stretch",
         )
     st.caption(
+        f"Hele dataperioden ({trend_kvartaler[0]}–{trend_kvartaler[-1]}). Kvartaler med under "
+        "5 svar eller under 5 ansatte vises ikke (femregelen per punkt). "
         "Samme utvalg og kvartaler i begge grafene. To grafer i stedet for én med to akser, "
         "så det ikke ser ut som om linjene «følger» hverandre bare på grunn av skaleringen. "
         "Velg ett team i filteret for å se det teamet alene."

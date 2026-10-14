@@ -7,7 +7,7 @@ import streamlit as st
 
 import beregninger as b
 import utseende as u
-from filtre import vis_filtre
+from filtre import vis_filtre_sensitiv
 
 st.set_page_config(page_title="Rekruttering · HR-dashbord", layout="wide")
 
@@ -21,8 +21,10 @@ def hent_ansatte():
 ansatte = hent_ansatte()
 
 
-# --- Filtre (felles for alle sider, se filtre.py) ---------------------------------
-start, slutt, valgte_team, hele_selskapet = vis_filtre()
+# --- Filtre: begrenset, fordi siden har sensitive tall (se filtre.py) -------------
+# Kvaliteten på ansettelser (tidlig turnover, prøvetid) handler om få personer per
+# gruppe, så fritt filter kunne trekke utvalg fra hverandre.
+start, slutt, valgte_team, hele_selskapet = vis_filtre_sensitiv()
 utvalg = ansatte[ansatte["team"].isin(valgte_team)]
 
 
@@ -46,9 +48,13 @@ if naa["antall"] == 0:
     st.stop()
 
 
+# Femregelen: med under 5 ansettelser er median og andel strukturert skjult (None)
+SKJULT_UNDER_5 = "skjult (under 5)"
+
+
 def endring_dager():
     """Endring i median tid til ansettelse, f.eks. «−6 dager»."""
-    if not (har_fjor and fjor["antall"]):
+    if not har_fjor or naa["median_dager"] is None or fjor["median_dager"] is None:
         return None
     dager = b.avrund(naa["median_dager"] - fjor["median_dager"])
     if dager == 0:
@@ -57,18 +63,24 @@ def endring_dager():
 
 
 endring_andel = (b.endring_pp(naa["andel_strukturert"], fjor["andel_strukturert"])
-                 if har_fjor and fjor["antall"] else None)
+                 if har_fjor and None not in (naa["andel_strukturert"], fjor["andel_strukturert"])
+                 else None)
 endring_antall = f"{naa['antall'] - fjor['antall']:+d}" if har_fjor else None
 
 kort1, kort2, kort3 = st.columns(3)
 kort1.metric("Ansettelser", naa["antall"], delta=endring_antall, delta_color="off")
 kort1.caption("Alle ansettelsesformer, med registrerte rekrutteringsdata")
-kort2.metric("Median tid til ansettelse", f"{b.avrund(naa['median_dager'])} dager",
-             delta=endring_dager(), delta_color=b.pilfarge(endring_dager()))
-kort2.caption("Fra utlysning til akseptert tilbud")
-kort3.metric("Andel strukturert rekruttering", b.prosent(naa["andel_strukturert"], 0),
-             delta=endring_andel, delta_color=b.pilfarge(endring_andel, hoyere_er_bedre=True))
-kort3.caption(f"{naa['strukturert']} av {naa['antall']} ansettelser")
+if naa["median_dager"] is None:
+    kort2.metric("Median tid til ansettelse", SKJULT_UNDER_5)
+    kort3.metric("Andel strukturert rekruttering", SKJULT_UNDER_5)
+    kort2.caption("Færre enn 5 ansettelser i utvalget, så tallene skjules (femregelen).")
+else:
+    kort2.metric("Median tid til ansettelse", f"{b.avrund(naa['median_dager'])} dager",
+                 delta=endring_dager(), delta_color=b.pilfarge(endring_dager()))
+    kort2.caption("Fra utlysning til akseptert tilbud")
+    kort3.metric("Andel strukturert rekruttering", b.prosent(naa["andel_strukturert"], 0),
+                 delta=endring_andel, delta_color=b.pilfarge(endring_andel, hoyere_er_bedre=True))
+    kort3.caption(f"{naa['strukturert']} av {naa['antall']} ansettelser")
 
 if har_fjor:
     st.caption(f"Pilene viser endring mot samme periode i fjor ({fjor_start:%m.%Y}–{fjor_slutt:%m.%Y}).")
@@ -80,25 +92,31 @@ else:
 st.subheader("Kvalitet på ansettelser")
 st.info(b.KVALITET_MERKNAD, icon=":material/info:")
 
-kvalitet = b.kvalitet_per_nivaa(utvalg, slutt)
+# Med sekundær prikking: i totalen («hele selskapet») skjules en celle hvis små,
+# skjulte team ellers kunne regnes ut som total minus de synlige (se beregninger.py)
+kvalitet = b.kvalitet_per_nivaa_prikket(ansatte, slutt, valgte_team)
 kohorter = b.kvalitet_kohorter(utvalg, slutt)
 
 
-def andel_tekst(antall, n):
-    """«14,3 % (1 av 7)», «skjult (under 5)» (femregelen), eller «for tidlig å måle»
-    når ingen i kohorten har vært ansatt lenge nok ennå."""
+def andel_tekst(antall, n, prikket=False):
+    """«14,3 % (1 av 7)», «skjult (under 5)» (femregelen), «skjult (sekundær prikking)»,
+    eller «for tidlig å måle» når ingen i kohorten har vært ansatt lenge nok ennå."""
     if n == 0:
         return "for tidlig å måle"
+    if prikket:
+        return "skjult (sekundær prikking)"
     if antall is None or pd.isna(antall):
-        return "skjult (under 5)"
+        return SKJULT_UNDER_5
     return b.prosent_med_n(int(antall), n)
 
 
 st.dataframe(
     pd.DataFrame([{
         "Rekruttering": r["gruppe"].capitalize(),
-        "Tidlig turnover (slutter innen 12 mnd)": andel_tekst(r["tidlig_antall"], r["tidlig_n"]),
-        "Prøvetid bestått": andel_tekst(r["provetid_bestatt"], r["provetid_n"]),
+        "Tidlig turnover (slutter innen 12 mnd)": andel_tekst(r["tidlig_antall"], r["tidlig_n"],
+                                                              r["tidlig_prikket"]),
+        "Prøvetid bestått": andel_tekst(r["provetid_bestatt"], r["provetid_n"],
+                                        r["provetid_prikket"]),
     } for _, r in kvalitet.iterrows()]),
     hide_index=True, width="stretch",
 )
@@ -112,7 +130,8 @@ st.caption(
     f"(minst 6 mnd før periodeslutt).\n\n"
     f"**Tre nivåer:** ustrukturert · strukturert intervju alene · strukturert intervju "
     f"+ minst én tilleggsmetode (case study, personlighetstest eller evnetest).\n\n"
-    f"**Femregelen:** grupper med færre enn 5 i kohorten skjules."
+    f"**Femregelen:** grupper med færre enn 5 i kohorten skjules. For hele selskapet "
+    f"skjules også celler der små team ellers kunne regnes ut (sekundær prikking)."
 )
 
 st.info(
@@ -127,15 +146,15 @@ st.info(
 
 # --- Bruk av tilleggsmetoder (bare antall, aldri resultater) -----------------------------
 st.subheader("Bruk av tilleggsmetoder")
-bruk = b.bruk_av_tilleggsmetoder(utvalg, start, slutt, hele_selskapet)
+bruk = b.bruk_av_tilleggsmetoder(utvalg, start, slutt)
 kolonner = st.columns(len(bruk))
 for kolonne, (navn, antall) in zip(kolonner, bruk.items()):
-    kolonne.metric(navn.capitalize(), "skjult (under 5)" if antall is None else antall)
+    kolonne.metric(navn.capitalize(), SKJULT_UNDER_5 if antall is None else antall)
 st.caption(
     "Antall ansettelser i perioden der metoden ble brukt (en ansettelse kan ha flere). "
     "Tilleggsmetoder ble tatt i bruk for strukturerte ansettelser utlyst fra 2026. "
-    "Bare antall vises, aldri resultater. **Femregelen:** under 5 skjules når filteret "
-    "ikke viser hele selskapet."
+    "Bare antall vises, aldri resultater. **Femregelen:** under 5 skjules, også for hele "
+    "selskapet (ellers kan «1 personlighetstest» peke mot én kandidat)."
 )
 
 
@@ -191,7 +210,10 @@ st.info(
 
 # --- Graf 1: andel strukturerte per kvartal, med n ---------------------------------------
 st.subheader("Andel strukturert rekruttering per kvartal")
-per_kvartal = b.strukturert_per_kvartal(utvalg, start, slutt)
+per_kvartal = b.strukturert_per_kvartal(utvalg, start, slutt)  # bare kvartaler med minst 5
+if per_kvartal.empty:
+    st.info("Ingen kvartaler med minst 5 ansettelser i utvalget. Grafen skjules (femregelen).",
+            icon=":material/lock:")
 per_kvartal["prosent"] = per_kvartal["andel"] * 100
 per_kvartal["etikett"] = "n = " + per_kvartal["antall"].astype(str)
 
@@ -219,13 +241,15 @@ st.vega_lite_chart(
     width="stretch",
 )
 st.caption("n = antall ansettelser i kvartalet (alle ansettelsesformer). Med få ansettelser "
-           "per kvartal kan én ansettelse flytte andelen mye.")
+           "per kvartal kan én ansettelse flytte andelen mye. **Femregelen:** kvartaler med "
+           "under 5 ansettelser vises ikke.")
 
 
 # --- Graf 2: median tid til ansettelse per team, med n -----------------------------------
 st.subheader("Median tid til ansettelse per team")
 per_team = b.tid_til_ansettelse_per_team(utvalg, start, slutt, valgte_team)
-per_team = per_team[per_team["antall"] > 0].copy()  # bare team med ansettelser
+# Bare team med minst 5 ansettelser – ellers er medianen skjult (femregelen)
+per_team = per_team[per_team["median_dager"].notna()].copy()
 per_team["etikett"] = (per_team["median_dager"].map(b.avrund).astype(str)
                        + " d (n = " + per_team["antall"].astype(str) + ")")
 
@@ -246,4 +270,5 @@ st.vega_lite_chart(
     width="stretch",
 )
 st.caption("Fra utlysning til akseptert tilbud, for ansettelser i perioden. "
-           "n = antall ansettelser. Team uten ansettelser i perioden vises ikke.")
+           "n = antall ansettelser. **Femregelen:** team med under 5 ansettelser i perioden "
+           "vises ikke.")

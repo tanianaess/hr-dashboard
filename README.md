@@ -16,33 +16,41 @@ etterprøvbart og presenteres uten å eksponere enkeltpersoner.
 | Side | Viser |
 |---|---|
 | **Oversikt** (forside) | De viktigste tallene for hele selskapet med endring og status (OK / følg med / kritisk) · «Hva ledelsen bør vite nå»: 3–5 regelbaserte innsikter om de største avvikene, med mulig neste steg og lenke til detaljene |
-| **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · kostnad ved uønsket turnover med justerbar antakelse · avganger per måned · tabell per team · filter: hele selskapet eller ett team, faste perioder |
-| **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned · tabell per team · filter: hele selskapet eller ett team, faste perioder |
-| **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team |
-| **Bemanning** | Faktisk antall ansatte mot bemanningsplanen · utvikling per måned · tabell per team med avvik, bemanningsgrad, ansettelser, avganger og tid til tiltredelse · team med mer enn 5 % avvik markeres |
-| **Engasjement** | eNPS siste kvartal mot samme kvartal i fjor og forrige kvartal · svarandel (lav markeres) · eNPS per kvartal og team · tabell per team · kobling mot langtidsfravær (sammenheng, ikke nødvendigvis årsak) |
+| **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · kostnad ved uønsket turnover med justerbar antakelse (hele selskapet, siste 12 mnd mot forrige 12 mnd) · avganger per måned (bare totalen) · tabell per team · filter: hele selskapet eller ett team, faste perioder |
+| **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned over hele dataperioden · tabell per team · filter: hele selskapet eller ett team, faste perioder |
+| **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team · filter: hele selskapet eller ett team, faste perioder |
+| **Bemanning** | Faktisk antall ansatte mot bemanningsplanen · utvikling per måned · tabell per team med avvik, bemanningsgrad, ansettelser, avganger og tid til tiltredelse · team med mer enn 5 % avvik markeres · fritt filter (ingen sensitive tall) |
+| **Engasjement** | eNPS siste kvartal mot samme kvartal i fjor og forrige kvartal · svarandel (lav markeres) · eNPS per kvartal og team over hele dataperioden · tabell per team · kobling mot langtidsfravær (sammenheng, ikke nødvendigvis årsak) · filter: hele selskapet eller ett team, faste perioder |
 
 ## Personvern
 
-Dashbordet er bygget som om dataene var ekte:
+Dashbordet er bygget som om dataene var ekte. Grunnprinsippet:
+
+> **Sensitive tall vises bare i faste, ikke-overlappende visninger. Fritt filter brukes
+> bare på tall som ikke er sensitive.**
 
 - **Ingen enkeltpersoner** vises, bare tall for grupper. Ansatte har bare en
   ansatt-ID, aldri navn.
 - **Femregelen:** grupper med færre enn 5 skjules. For turnover per team vises
   totalen alltid (at noen har sluttet er ikke sensitivt), men fordelingen på
   sluttårsak og «uønsket» bare når teamet har minst 5 avganger. Det sensitive er
-  ledelsens vurdering av enkeltpersoner.
+  ledelsens vurdering av enkeltpersoner. Avganger per måned vises bare som total.
+  Medianer (tid til ansettelse og tiltredelse) skjules når de bygger på under 5.
 - **Sekundær prikking:** en skjult gruppe skal ikke kunne regnes ut som «total minus de
-  synlige». For sensitive tall (sykefravær, eNPS og fordelingen på uønsket og sluttårsak)
+  synlige». For sensitive tall (sykefravær, eNPS, fordelingen på uønsket og sluttårsak, og
+  kvalitet på ansettelser)
   holdes små skjulte grupper utenfor totalen, og totalen merkes, f.eks. «Hele selskapet
   (uten ledergruppen)». Totalt antall avganger og bemanning tar med alle.
-- **Begrenset filter på sider med sensitive tall:** på turnover, sykefravær og eNPS kan du
-  bare velge hele selskapet eller ett team, og faste perioder (siste 12 mnd, siste 24 mnd,
-  kalenderår). Ellers kunne to filtervalg eller overlappende perioder trekkes fra hverandre.
+- **Begrenset filter på sider med sensitive tall:** på turnover, sykefravær, rekruttering
+  og eNPS kan du bare velge hele selskapet eller ett team, og to faste perioder som ikke
+  overlapper (siste 12 mnd og forrige 12 mnd). Ellers kunne to filtervalg eller
+  overlappende perioder trekkes fra hverandre. Bare bemanning har fritt filter.
+- **Trendgrafer over hele dataperioden:** grafene for sykefravær per måned og eNPS per
+  kvartal viser alltid hele perioden, med femregelen per punkt.
 - **n vises ved siden av prosenter**, f.eks. «20,7 % (8 av 39)», så leseren ser
   hvor få personer et tall bygger på.
 - **Lønn vises aldri per team.** Kostnaden ved turnover vises bare for hele
-  selskapet.
+  selskapet og siste 12 mnd (mot forrige 12 mnd), avrundet til nærmeste 0,1 mill. kr.
 - **Stilling er aldri et filter**, fordi stilling og team sammen kan peke ut én person.
 - **Testresultater lagres aldri.** Datasettet viser bare *om* en personlighets- eller
   evnetest ble brukt, ikke resultatet.
@@ -63,7 +71,7 @@ Dashbordet er bygget som om dataene var ekte:
 | Tid til tiltredelse | Median antall dager fra utlysning til første arbeidsdag (inkluderer oppsigelsestid) |
 | eNPS | Andel anbefalere (9–10) minus andel kritikere (0–6), fra −100 til +100. For flere team: vektet med antall svar |
 | Svarandel | Antall svar / antall invitert. Under 50 % markeres som lav |
-| Kostnad ved uønsket turnover | Sum årslønn for uønskede avganger × antatt kostnadsandel (standard 75 %, justerbar 50–200 %) |
+| Kostnad ved uønsket turnover | Sum årslønn for uønskede avganger × antatt kostnadsandel (standard 75 %, justerbar 50–200 %). Bare hele selskapet, siste 12 mnd mot forrige 12 mnd |
 
 Alle definisjoner, med datamodell, står i [`CLAUDE.md`](CLAUDE.md).
 

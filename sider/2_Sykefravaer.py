@@ -100,46 +100,57 @@ st.info(
 # --- Graf: sykefravær per måned, med landssnitt -----------------------------------------
 st.subheader("Sykefravær per måned")
 
-per_maaned = b.sykefravaer_per_maaned(utvalg_fravaer, start, slutt)
-# Gjør tabellen «lang»: én rad per måned og fraværstype (som å «oppheve pivot» i Excel)
-graf_data = (per_maaned.reset_index()
-             .melt(id_vars="måned", var_name="type", value_name="prosent")
-             .rename(columns={"måned": "maaned"}))
-landssnitt = b.SYKEFRAVAER_LANDSSNITT * 100
+# Trendgrafen viser alltid hele dataperioden (én fast visning, uansett periodevalg).
+# Femregelen gjelder per måned – se sykefravaer_per_maaned() i beregninger.py.
+per_maaned = b.sykefravaer_per_maaned(utvalg_fravaer, *b.TRENDPERIODE)
+if per_maaned.empty:
+    st.info("Utvalget har færre enn 5 ansatte i alle månedene. Grafen skjules av "
+            "personvernhensyn.", icon=":material/lock:")
+else:
+    # Gjør tabellen «lang»: én rad per måned og fraværstype (som å «oppheve pivot» i Excel)
+    graf_data = (per_maaned.reset_index()
+                 .melt(id_vars="måned", var_name="type", value_name="prosent")
+                 .rename(columns={"måned": "maaned"}))
+    landssnitt = b.SYKEFRAVAER_LANDSSNITT * 100
 
-st.vega_lite_chart(
-    graf_data,
-    {
-        "height": 320,
-        "layer": [
-            {   # Stablede stolper: langtid nederst, korttid oppå
-                "mark": "bar",
-                "encoding": {
-                    "x": {"field": "maaned", "type": "ordinal", "title": None},
-                    "y": {"field": "prosent", "type": "quantitative", "stack": True,
-                          "title": "Sykefravær (%)"},
-                    "color": {"field": "type", "type": "nominal", "title": None,
-                              "scale": {"domain": ["Langtid", "Korttid"],
-                                        "range": [u.PETROL, u.PETROL_LYS]}},
-                    "order": {"field": "type", "sort": "descending"},
-                    "tooltip": [{"field": "maaned", "title": "Måned"},
-                                {"field": "type", "title": "Type"},
-                                {"field": "prosent", "title": "Prosent", "format": ".1f"}],
+    st.vega_lite_chart(
+        graf_data,
+        {
+            "height": 320,
+            "layer": [
+                {   # Stablede stolper: langtid nederst, korttid oppå
+                    "mark": "bar",
+                    "encoding": {
+                        "x": {"field": "maaned", "type": "ordinal", "title": None},
+                        "y": {"field": "prosent", "type": "quantitative", "stack": True,
+                              "title": "Sykefravær (%)"},
+                        "color": {"field": "type", "type": "nominal", "title": None,
+                                  "scale": {"domain": ["Langtid", "Korttid"],
+                                            "range": [u.PETROL, u.PETROL_LYS]}},
+                        "order": {"field": "type", "sort": "descending"},
+                        "tooltip": [{"field": "maaned", "title": "Måned"},
+                                    {"field": "type", "title": "Type"},
+                                    {"field": "prosent", "title": "Prosent", "format": ".1f"}],
+                    },
                 },
-            },
-            {   # Stiplet linje for landssnittet
-                "mark": {"type": "rule", "strokeDash": [6, 4], "color": u.TEKST_DEMPET},
-                "encoding": {"y": {"datum": landssnitt}},
-            },
-            {   # Tekst ved linja
-                "mark": {"type": "text", "align": "left", "dx": 4, "dy": -8, "color": u.TEKST_DEMPET},
-                "encoding": {"y": {"datum": landssnitt}, "x": {"value": 0},
-                             "text": {"value": f"Landssnitt {b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2)}"}},
-            },
-        ],
-    },
-    width="stretch",
-)
+                {   # Stiplet linje for landssnittet
+                    "mark": {"type": "rule", "strokeDash": [6, 4], "color": u.TEKST_DEMPET},
+                    "encoding": {"y": {"datum": landssnitt}},
+                },
+                {   # Tekst ved linja
+                    "mark": {"type": "text", "align": "left", "dx": 4, "dy": -8, "color": u.TEKST_DEMPET},
+                    "encoding": {"y": {"datum": landssnitt}, "x": {"value": 0},
+                                 "text": {"value": f"Landssnitt {b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2)}"}},
+                },
+            ],
+        },
+        width="stretch",
+    )
+    st.caption(
+        f"Hele dataperioden ({b.TRENDPERIODE[0]:%m.%Y}–{b.TRENDPERIODE[1]:%m.%Y}), uansett "
+        "periodevalg. **Femregelen per måned:** måneder der utvalget har færre enn 5 ansatte, "
+        "vises ikke, og små team holdes utenfor måneden når de til sammen er under 5."
+    )
 
 
 # --- Tabell per team --------------------------------------------------------------------

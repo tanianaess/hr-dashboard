@@ -14,8 +14,10 @@ NOKKEL_PERIODE = "filter_periode"         # begrenset filter: fast periode
 NOKKEL_TEAM = "filter_team"               # begrenset filter: hele selskapet eller ett team
 HELE_SELSKAPET = "Hele selskapet"
 
-# Sider med begrenset filter (sensitive tall)
-SENSITIVE_SIDER = {"sider/1_Turnover.py", "sider/2_Sykefravaer.py", "sider/5_Engasjement.py"}
+# Sider med begrenset filter (sensitive tall). Bare Bemanning har fritt filter,
+# fordi ingen av tallene der er sensitive (se CLAUDE.md).
+SENSITIVE_SIDER = {"sider/1_Turnover.py", "sider/2_Sykefravaer.py",
+                   "sider/3_Rekruttering.py", "sider/5_Engasjement.py"}
 
 
 def forhandsvelg(side, team=None):
@@ -61,11 +63,11 @@ def vis_filtre(standard_periode=("2025-10", "2026-09")):
 
 
 def vis_filtre_sensitiv():
-    """Begrenset filter for sider med sensitive tall (sykefravær, eNPS, turnoverfordeling):
-    - periode: bare faste valg (siste 12 mnd, siste 24 mnd, kalenderår)
+    """Begrenset filter for sider med sensitive tall (turnover, sykefravær, rekruttering, eNPS):
+    - periode: bare faste, ikke-overlappende valg (siste 12 mnd og forrige 12 mnd)
     - team: enten hele selskapet eller ett team om gangen
-    Fritt flervalg og fri periode er bevisst ikke mulig – to utvalg som skiller seg
-    med én liten gruppe kan trekkes fra hverandre. Gir tilbake det samme som vis_filtre()."""
+    Fritt flervalg og fri periode er bevisst ikke mulig – to utvalg som overlapper,
+    kan trekkes fra hverandre. Gir tilbake det samme som vis_filtre()."""
     st.sidebar.header("Filter")
     st.session_state.setdefault(NOKKEL_PERIODE, "Siste 12 mnd")
     st.session_state.setdefault(NOKKEL_TEAM, HELE_SELSKAPET)

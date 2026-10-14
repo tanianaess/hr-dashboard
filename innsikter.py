@@ -72,11 +72,6 @@ def _prosentpoeng(andel, desimaler=1):
 fortegn = b.fortegn  # felles funksjon i beregninger.py
 
 
-def millioner(belop):
-    """5 580 000 → «5,58 mill» (kort nok til et KPI-kort; hele beløpet står under)."""
-    return f"{b.avrund(belop / 1_000_000, 2):.2f} mill".replace(".", ",")
-
-
 def _uten(utenfor):
     """«Uten ledergruppen · » foran forklaringen når noen holdes utenfor totalen."""
     return f"Uten {', '.join(utenfor)} · " if utenfor else ""
@@ -119,14 +114,18 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
                       endring=b.endring_pp(nf["uønsket_rate"], ff["uønsket_rate"]),
                       status=st_uonsket, ekstra=_uten(utenfor) + f"{nf['uønsket']} vi ville beholdt · mot forrige 12 mnd",
                       side="Turnover"))
-    kostnad = nf["lønn_uønsket"] * b.KOSTNADSANDEL_STANDARD
-    kostnad_forrige = ff["lønn_uønsket"] * b.KOSTNADSANDEL_STANDARD
-    endring_kr = b.avrund(kostnad - kostnad_forrige)
-    liste.append(dict(navn="Turnoverkostnad", verdi=millioner(kostnad),
-                      endring=f"{'+' if endring_kr > 0 else ''}{millioner(endring_kr)}",
-                      status=(st_uonsket[0], "følger uønsket turnover"),
-                      ekstra=f"Uønskede avganger · {b.kroner(kostnad)} · {b.prosent(b.KOSTNADSANDEL_STANDARD, 0)} av årslønn (antakelse)",
-                      side="Turnover"))
+    # Kostnaden bygger på lønn: bare siste 12 mnd mot forrige 12 mnd (de to faste
+    # periodene), grovt avrundet, og bare med minst 5 uønskede avganger (se CLAUDE.md)
+    if nf["uønsket"] >= b.MIN_GRUPPE:
+        kostnad = nf["lønn_uønsket"] * b.KOSTNADSANDEL_STANDARD
+        pil = (b.endring_millioner(kostnad, ff["lønn_uønsket"] * b.KOSTNADSANDEL_STANDARD)
+               if ff["uønsket"] >= b.MIN_GRUPPE else None)
+        liste.append(dict(navn="Turnoverkostnad", verdi=b.millioner(kostnad), endring=pil,
+                          status=(st_uonsket[0], "følger uønsket turnover"),
+                          ekstra=_uten(utenfor) + f"Uønskede avganger · "
+                                 f"{b.prosent(b.KOSTNADSANDEL_STANDARD, 0)} av årslønn (antakelse)"
+                                 " · mot forrige 12 mnd",
+                          side="Turnover"))
 
     # Sykefravær (sekundær prikking)
     utenfor_s = b.utenfor_sykefravaer(ansatte, b.TEAM)
@@ -166,14 +165,17 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
                       side="Bemanning"))
 
     # Tid til ansettelse, mot samme periode i fjor
+    # Femregelen: medianen er None når den bygger på under 5 ansettelser
     rn, rj = b.rekruttering(ansatte, start, slutt), b.rekruttering(ansatte, js, je)
-    dager = b.avrund(rn["median_dager"])
-    d_dager = b.avrund(rn["median_dager"] - rj["median_dager"]) if rj["antall"] else None
-    liste.append(dict(navn="Tid til ansettelse", verdi=f"{dager} dager",
-                      endring=None if d_dager is None else ("±0 dager" if d_dager == 0 else f"{d_dager:+d} dager"),
-                      status=status("Tid til ansettelse", dager, d_dager),
-                      ekstra=f"Median, {rn['antall']} ansettelser · mot i fjor",
-                      side="Rekruttering"))
+    if rn["median_dager"] is not None:
+        dager = b.avrund(rn["median_dager"])
+        d_dager = (b.avrund(rn["median_dager"] - rj["median_dager"])
+                   if rj["median_dager"] is not None else None)
+        liste.append(dict(navn="Tid til ansettelse", verdi=f"{dager} dager",
+                          endring=None if d_dager is None else ("±0 dager" if d_dager == 0 else f"{d_dager:+d} dager"),
+                          status=status("Tid til ansettelse", dager, d_dager),
+                          ekstra=f"Median, {rn['antall']} ansettelser · mot i fjor",
+                          side="Rekruttering"))
     return liste
 
 
@@ -249,7 +251,7 @@ def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None):
         grad = r["faktisk"] / r["plan"]
         tekst = (f"{int(r['faktisk'])} av {int(r['plan'])} planlagte ({fortegn(int(r['avvik']))}, "
                  f"bemanningsgrad {b.prosent(grad)}).")
-        if r["avvik"] < 0 and r["tiltredelse_n"]:
+        if r["avvik"] < 0 and pd.notna(r["tiltredelse_median"]):  # skjult under 5
             dager = b.avrund(r["tiltredelse_median"])
             tekst += f" Median tid til tiltredelse {dager} dager (n = {int(r['tiltredelse_n'])})."
             neste = (f"Lys ut tidligere – med {dager} dager til tiltredelse trenger "
@@ -285,7 +287,8 @@ def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None):
             ))
 
     # --- Regel 4: rekruttering – tidlig turnover etter metode -----------------------------
-    kv = b.kvalitet_per_nivaa(ansatte, slutt).set_index("gruppe")
+    # Samme tall som Rekruttering-siden viser for hele selskapet (med sekundær prikking)
+    kv = b.kvalitet_per_nivaa_prikket(ansatte, slutt).set_index("gruppe")
     u, s = kv.loc["ustrukturert"], kv.loc["strukturert intervju alene"]
     if pd.notna(u["tidlig_antall"]) and pd.notna(s["tidlig_antall"]):
         andel_u = u["tidlig_antall"] / u["tidlig_n"]

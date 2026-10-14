@@ -15,28 +15,16 @@ DATAMAPPE = Path(__file__).parent / "data"
 DATA_FRA = pd.Timestamp("2024-10-01")
 DATA_TIL = pd.Timestamp("2026-09-30")
 
-MAANEDSNAVN = {1: "jan", 2: "feb", 3: "mar", 4: "apr", 5: "mai", 6: "jun",
-               7: "jul", 8: "aug", 9: "sep", 10: "okt", 11: "nov", 12: "des"}
-
-
 def _faste_perioder():
-    """Faste periodevalg for sider med sensitive tall: siste 12 og 24 mnd, og hvert
-    kalenderår i dataene (hele år, pluss inneværende år hittil). Fri månedsglider
-    brukes ikke der, fordi overlappende perioder kan trekkes fra hverandre."""
-    etter_slutt = DATA_TIL + pd.Timedelta(days=1)
-    perioder = {
-        "Siste 12 mnd": (etter_slutt - pd.DateOffset(months=12), DATA_TIL),
-        "Siste 24 mnd": (etter_slutt - pd.DateOffset(months=24), DATA_TIL),
+    """Faste, IKKE-overlappende perioder for sider med sensitive tall: siste 12 mnd og
+    de 12 månedene før. Perioder som overlapper (f.eks. siste 24 mnd og et kalenderår),
+    kunne trekkes fra hverandre og avsløre små grupper (se CLAUDE.md)."""
+    siste_start = DATA_TIL + pd.Timedelta(days=1) - pd.DateOffset(months=12)
+    forrige_start = siste_start - pd.DateOffset(months=12)
+    return {
+        "Siste 12 mnd": (siste_start, DATA_TIL),
+        "Forrige 12 mnd": (forrige_start, siste_start - pd.Timedelta(days=1)),
     }
-    for aar in range(DATA_FRA.year, DATA_TIL.year + 1):
-        aar_start, aar_slutt = pd.Timestamp(f"{aar}-01-01"), pd.Timestamp(f"{aar}-12-31")
-        if aar_start < DATA_FRA:
-            continue  # året starter før dataene (bare noen få måneder) – tas ikke med
-        if aar_slutt <= DATA_TIL:
-            perioder[str(aar)] = (aar_start, aar_slutt)
-        else:
-            perioder[f"{aar} hittil (jan–{MAANEDSNAVN[DATA_TIL.month]})"] = (aar_start, DATA_TIL)
-    return perioder
 
 
 # Avganger som teller i turnover: stillingen må erstattes (se CLAUDE.md)
@@ -46,6 +34,15 @@ TELLER_I_TURNOVER = ["frivillig", "ufrivillig", "pensjon"]
 MIN_GRUPPE = 5
 
 FASTE_PERIODER = _faste_perioder()
+
+# Trendgrafene for sykefravær og eNPS viser alltid hele dataperioden – én fast visning,
+# uansett periodevalg. Femregelen gjelder da per punkt (måned eller kvartal).
+TRENDPERIODE = (DATA_FRA, DATA_TIL)
+
+
+def er_siste_12(start, slutt):
+    """Sant når perioden er «Siste 12 mnd». Kostnaden ved uønsket turnover vises bare da."""
+    return (start, slutt) == FASTE_PERIODER["Siste 12 mnd"]
 
 
 def sekundar_prikking(skjulte):
@@ -162,20 +159,21 @@ def turnover(ansatte, start, slutt):
 
 def turnover_per_team(ansatte, start, slutt, team_liste=TEAM):
     """Én rad per team – som en pivottabell. Femregelen er bygd inn:
-    - team med færre enn 5 ansatte (i snitt): alt skjules
-    - fordeling på sluttårsak og uønsket: bare når teamet har minst 5 avganger
+    - totalt antall avganger og «kontrakt utløpt» vises alltid (ikke sensitivt)
+    - team med færre enn 5 ansatte (i snitt): alt annet skjules
+    - fordeling på frivillig/ufrivillig/pensjon og uønsket: bare med minst 5 avganger
     Skjulte tall settes til None (tom celle)."""
+    sensitive = ["frivillig", "ufrivillig", "pensjon", "uønsket", "frivillig_rate", "uønsket_rate"]
     rader = []
     for team in team_liste:
         t = turnover(ansatte[ansatte["team"] == team], start, slutt)
         rad = {"team": team, **t}
         if t["snitt_ansatte"] < MIN_GRUPPE:
-            for felt in t:
+            for felt in [*sensitive, "snitt_ansatte", "total_rate"]:
                 rad[felt] = None
             rad["skjult"] = "lite team"
         elif t["avganger"] < MIN_GRUPPE:
-            for felt in ["frivillig", "ufrivillig", "pensjon", "uønsket", "kontrakt_utløpt",
-                         "frivillig_rate", "uønsket_rate"]:
+            for felt in sensitive:
                 rad[felt] = None
             rad["skjult"] = "få avganger"
         else:
@@ -186,18 +184,14 @@ def turnover_per_team(ansatte, start, slutt, team_liste=TEAM):
 
 
 def avganger_per_maaned(ansatte, start, slutt):
-    """Avganger som teller i turnover, per måned, delt i uønsket og øvrige.
+    """Antall avganger som teller i turnover, per måned. Bare totalen: fordelingen på
+    uønsket og sluttårsak vises aldri per måned, fordi én måned ofte er én person.
     Alle måneder i perioden er med, også de uten avganger (0)."""
     sluttet = sluttet_i_perioden(ansatte, start, slutt)
     teller = sluttet[sluttet["sluttårsak"].isin(TELLER_I_TURNOVER)]
-    er_uonsket = (teller["sluttårsak"] == "frivillig") & (teller["uønsket"] == "ja")
     maaned = teller["sluttdato"].dt.strftime("%Y-%m")
-
     alle_maaneder = [d.strftime("%Y-%m") for d in maanedsslutter(start, slutt)]
-    tabell = pd.DataFrame({
-        "Uønsket": er_uonsket.groupby(maaned).sum(),
-        "Øvrige": (~er_uonsket).groupby(maaned).sum(),
-    })
+    tabell = pd.DataFrame({"Avganger": teller.groupby(maaned).size()})
     # reindex = sørg for at alle måneder er med, tomme fylles med 0
     return tabell.reindex(alle_maaneder, fill_value=0).astype(int)
 
@@ -258,6 +252,21 @@ def pilfarge(endring_tekst, hoyere_er_bedre=False):
     return "normal" if hoyere_er_bedre else "inverse"
 
 
+def millioner(belop, desimaler=1):
+    """5 580 000 → «5,6 mill. kr». Kostnaden rundes grovt med vilje (se CLAUDE.md)."""
+    tall = f"{avrund(belop / 1_000_000, desimaler):.{desimaler}f}".replace(".", ",")
+    return f"{tall} mill. kr"
+
+
+def endring_millioner(ny, gammel):
+    """Endring i grovt avrundet kostnad, f.eks. «+3,1 mill. kr». Regnes på de avrundede
+    tallene som vises, så endringen ikke avslører mer enn tallene selv.
+    Bindestrek, ikke minustegn: Streamlit bruker den til å avgjøre retningen på pila."""
+    diff = avrund(ny / 1_000_000, 1) - avrund(gammel / 1_000_000, 1)
+    tekst = f"{abs(diff):.1f}".replace(".", ",")
+    return "±0,0 mill. kr" if diff == 0 else f"{'+' if diff > 0 else '-'}{tekst} mill. kr"
+
+
 def kroner(belop):
     """2700000 → «2 700 000 kr»."""
     return f"{avrund(belop):,} kr".replace(",", " ")
@@ -299,10 +308,20 @@ def avtalte_dagsverk(ansatte):
     return pd.DataFrame(rader).groupby(["team", "måned"], as_index=False)["avtalte_dagsverk"].sum()
 
 
+def antall_per_team_og_maaned(ansatte):
+    """Antall ansatte ved hver månedsslutt, per team – brukes til femregelen per punkt."""
+    return pd.DataFrame([
+        {"team": team, "måned": dag.strftime("%Y-%m"),
+         "antall_ansatte": antall_ansatt_paa(ansatte[ansatte["team"] == team], dag)}
+        for dag in maanedsslutter(DATA_FRA, DATA_TIL) for team in TEAM
+    ])
+
+
 def fravaer_med_avtalte(ansatte, fravaer):
-    """Legger avtalte dagsverk inn ved siden av tapte dagsverk.
+    """Legger avtalte dagsverk og antall ansatte inn ved siden av tapte dagsverk.
     merge = slå opp på team og måned, som XOPPSLAG med to kriterier."""
-    return fravaer.merge(avtalte_dagsverk(ansatte), on=["team", "måned"], how="left")
+    return (fravaer.merge(avtalte_dagsverk(ansatte), on=["team", "måned"], how="left")
+                   .merge(antall_per_team_og_maaned(ansatte), on=["team", "måned"], how="left"))
 
 
 def samme_periode_i_fjor(start, slutt):
@@ -332,14 +351,22 @@ def sykefravaer(fravaer, start, slutt):
 
 
 def sykefravaer_per_maaned(fravaer, start, slutt):
-    """Sykefravær per måned i prosent, delt i korttid og langtid."""
+    """Sykefravær per måned i prosent, delt i korttid og langtid. Femregelen gjelder
+    per punkt: små team holdes utenfor måneden hvis de til sammen er under 5
+    (sekundær prikking), og måneder med under 5 ansatte i utvalget vises ikke."""
     f = fravaer_i_perioden(fravaer, start, slutt)
-    per_mnd = f.groupby("måned")[["tapte_dagsverk_korttid", "tapte_dagsverk_langtid",
-                                  "avtalte_dagsverk"]].sum()
-    return pd.DataFrame({
-        "Korttid": per_mnd["tapte_dagsverk_korttid"] / per_mnd["avtalte_dagsverk"] * 100,
-        "Langtid": per_mnd["tapte_dagsverk_langtid"] / per_mnd["avtalte_dagsverk"] * 100,
-    })
+    rader = {}
+    for maaned, f_m in f.groupby("måned"):
+        if f_m["team"].nunique() > 1:
+            skjulte = dict(zip(f_m.loc[f_m["antall_ansatte"] < MIN_GRUPPE, "team"],
+                               f_m.loc[f_m["antall_ansatte"] < MIN_GRUPPE, "antall_ansatte"]))
+            f_m = f_m[~f_m["team"].isin(sekundar_prikking(skjulte))]
+        if f_m["antall_ansatte"].sum() < MIN_GRUPPE:
+            continue  # for få i utvalget denne måneden
+        avtalte = f_m["avtalte_dagsverk"].sum()
+        rader[maaned] = {"Korttid": f_m["tapte_dagsverk_korttid"].sum() / avtalte * 100,
+                         "Langtid": f_m["tapte_dagsverk_langtid"].sum() / avtalte * 100}
+    return pd.DataFrame.from_dict(rader, orient="index").rename_axis("måned")
 
 
 def sykefravaer_per_team(ansatte, fravaer, start, slutt, team_liste=TEAM):
@@ -391,11 +418,13 @@ def ansettelser_i_perioden(ansatte, start, slutt):
 
 
 def rekruttering(ansatte, start, slutt):
-    """Nøkkeltall for ansettelser i perioden."""
+    """Nøkkeltall for ansettelser i perioden. Femregelen: med under 5 ansettelser
+    skjules median og andel strukturert (None) – de kan peke ut enkeltpersoner."""
     a = ansettelser_i_perioden(ansatte, start, slutt)
-    if len(a) == 0:
-        return {"antall": 0, "median_dager": None, "andel_strukturert": None, "strukturert": 0}
     strukturert = int((a["rekrutteringsmetode"] == "strukturert").sum())
+    if len(a) < MIN_GRUPPE:
+        return {"antall": len(a), "median_dager": None, "andel_strukturert": None,
+                "strukturert": None}
     return {
         "antall": len(a),
         "median_dager": a["dager_til_ansettelse"].median(),
@@ -405,18 +434,21 @@ def rekruttering(ansatte, start, slutt):
 
 
 def tid_til_ansettelse_per_team(ansatte, start, slutt, team_liste=TEAM):
-    """Median dager fra utlysning til aksept per team, med antall ansettelser (n)."""
+    """Median dager fra utlysning til aksept per team, med antall ansettelser (n).
+    Femregelen: median vises bare med minst 5 ansettelser (ellers None)."""
     a = ansettelser_i_perioden(ansatte, start, slutt)
     rader = []
     for team in team_liste:
         t = a[a["team"] == team]
         rader.append({"team": team, "antall": len(t),
-                      "median_dager": t["dager_til_ansettelse"].median() if len(t) else None})
+                      "median_dager": t["dager_til_ansettelse"].median()
+                                      if len(t) >= MIN_GRUPPE else None})
     return pd.DataFrame(rader)
 
 
 def strukturert_per_kvartal(ansatte, start, slutt):
-    """Andel strukturerte ansettelser per kvartal, med antall ansettelser (n)."""
+    """Andel strukturerte ansettelser per kvartal, med antall ansettelser (n).
+    Femregelen: kvartaler med under 5 ansettelser tas ikke med."""
     a = ansettelser_i_perioden(ansatte, start, slutt)
     kvartal = a["ansattdato"].dt.year.astype(str) + "-K" + a["ansattdato"].dt.quarter.astype(str)
     er_strukturert = a["rekrutteringsmetode"] == "strukturert"
@@ -424,6 +456,7 @@ def strukturert_per_kvartal(ansatte, start, slutt):
         "antall": er_strukturert.groupby(kvartal).size(),
         "strukturert": er_strukturert.groupby(kvartal).sum(),
     })
+    tabell = tabell[tabell["antall"] >= MIN_GRUPPE]
     tabell["andel"] = tabell["strukturert"] / tabell["antall"]
     return tabell.reset_index(names="kvartal")
 
@@ -482,6 +515,29 @@ def kvalitet_per_nivaa(ansatte, slutt):
     return _kvalitet_per_gruppe(ansatte, slutt, rekrutteringsnivaa, NIVAAER)
 
 
+def kvalitet_per_nivaa_prikket(ansatte, slutt, team_liste=TEAM):
+    """Som kvalitet_per_nivaa, men med sekundær prikking når flere team er med:
+    en celle i totalen skjules hvis teamene som er skjult i den cellen (under 5),
+    til sammen er 1–4 – ellers kunne de regnes ut som total minus de synlige teamene.
+    Kolonnene «tidlig_prikket» og «provetid_prikket» viser hvilke celler det gjelder."""
+    utvalg = ansatte[ansatte["team"].isin(team_liste)]
+    total = kvalitet_per_nivaa(utvalg, slutt).set_index("gruppe")
+    total["tidlig_prikket"] = total["provetid_prikket"] = False
+    if len(team_liste) > 1:
+        per_team = {t: kvalitet_per_nivaa(utvalg[utvalg["team"] == t], slutt).set_index("gruppe")
+                    for t in team_liste}
+        for nivaa in NIVAAER:
+            for maal, n_kol in [("tidlig", "tidlig_n"), ("provetid", "provetid_n")]:
+                skjult_rest = sum(int(k.loc[nivaa, n_kol]) for k in per_team.values()
+                                  if 0 < k.loc[nivaa, n_kol] < MIN_GRUPPE)
+                antall_kol = "tidlig_antall" if maal == "tidlig" else "provetid_bestatt"
+                # Bare celler som ellers ville vært synlige, prikkes sekundært
+                if 0 < skjult_rest < MIN_GRUPPE and pd.notna(total.loc[nivaa, antall_kol]):
+                    total.loc[nivaa, f"{maal}_prikket"] = True
+                    total.loc[nivaa, antall_kol] = None
+    return total.reset_index()
+
+
 # --- Bemanning mot plan -----------------------------------------------------------
 
 # Team med større avvik enn dette (i begge retninger) markeres
@@ -515,7 +571,8 @@ def bemanning_per_maaned(ansatte, plan, start, slutt):
 
 def bemanning_per_team(ansatte, plan, start, slutt, team_liste=TEAM):
     """Én rad per team: plan og faktisk ved periodeslutt, avvik, bemanningsgrad,
-    ansettelser og avganger i perioden, og median tid til tiltredelse."""
+    ansettelser og avganger i perioden, og median tid til tiltredelse
+    (None når den bygger på under 5 ansettelser – femregelen)."""
     siste_maaned = slutt.strftime("%Y-%m")
     rader = []
     for team in team_liste:
@@ -544,7 +601,8 @@ def bemanning_per_team(ansatte, plan, start, slutt, team_liste=TEAM):
             "markert": over_avviksgrense(faktisk, planlagt),
             "ansettelser": len(ansatt_i_perioden),
             "avganger": len(sluttet),
-            "tiltredelse_median": dager.median() if len(dager) else None,
+            # Femregelen: medianen vises bare når den bygger på minst 5 ansettelser
+            "tiltredelse_median": dager.median() if len(dager) >= MIN_GRUPPE else None,
             "tiltredelse_n": len(dager),
         })
     return pd.DataFrame(rader)
@@ -571,15 +629,13 @@ def rekrutteringsnivaa(ansatte):
     return nivaa
 
 
-def bruk_av_tilleggsmetoder(ansatte, start, slutt, hele_selskapet):
+def bruk_av_tilleggsmetoder(ansatte, start, slutt):
     """Antall ansettelser i perioden per tilleggsmetode – bare antall, aldri resultater.
-    Femregelen: under 5 skjules (None) når filteret ikke viser hele selskapet."""
+    Femregelen: under 5 skjules (None), også for hele selskapet."""
     a = ansettelser_i_perioden(ansatte, start, slutt)
     tellinger = {navn: int((a[kolonne] == "ja").sum()) for kolonne, navn in TILLEGGSMETODER.items()}
     tellinger["minst én metode"] = int((a[list(TILLEGGSMETODER)] == "ja").any(axis=1).sum())
-    if not hele_selskapet:
-        tellinger = {k: (v if v >= MIN_GRUPPE else None) for k, v in tellinger.items()}
-    return tellinger
+    return {k: (v if v >= MIN_GRUPPE else None) for k, v in tellinger.items()}
 
 
 # Validitet (korrigert, operasjonell) for jobbprestasjon.
@@ -662,16 +718,22 @@ def enps_per_kvartal(engasjement, kvartaler):
         e = enps_samlet(engasjement[engasjement["kvartal"] == kvartal])
         if e:
             rader.append({"kvartal": kvartal, **e})
-    return pd.DataFrame(rader)
+    # Faste kolonner, så tabellen har riktig form også når alle kvartaler er skjult
+    return pd.DataFrame(rader, columns=["kvartal", "enps", "svar", "invitert", "svarandel"])
 
 
 def langtid_per_kvartal(fravaer, kvartaler):
-    """Langtidsfravær per kvartal: tapte langtid / avtalte dagsverk for kvartalets måneder."""
+    """Langtidsfravær per kvartal: tapte langtid / avtalte dagsverk for kvartalets måneder.
+    Femregelen per punkt: et kvartal tas bare med når utvalget hadde minst 5 ansatte
+    i hver av kvartalets måneder."""
     f = fravaer.copy()
     maaned = pd.to_datetime(f["måned"], format="%Y-%m")
     f["kvartal"] = maaned.dt.year.astype(str) + "-K" + maaned.dt.quarter.astype(str)
-    per_k = f[f["kvartal"].isin(kvartaler)].groupby("kvartal")[
-        ["tapte_dagsverk_langtid", "avtalte_dagsverk"]].sum()
+    f = f[f["kvartal"].isin(kvartaler)]
+    # Minste antall ansatte i en måned i kvartalet (summert over teamene i utvalget)
+    minst = f.groupby(["kvartal", "måned"])["antall_ansatte"].sum().groupby("kvartal").min()
+    per_k = f.groupby("kvartal")[["tapte_dagsverk_langtid", "avtalte_dagsverk"]].sum()
+    per_k = per_k[minst.reindex(per_k.index) >= MIN_GRUPPE]
     return (per_k["tapte_dagsverk_langtid"] / per_k["avtalte_dagsverk"]).rename("langtid_rate")
 
 

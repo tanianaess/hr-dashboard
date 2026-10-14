@@ -20,7 +20,8 @@ def test_kontrakt_utlopt_teller_ikke_i_turnover(ansatte, siste_12):
 
 
 def test_annualisering_ved_9_maaneder(ansatte):
-    start, slutt = b.FASTE_PERIODER["2026 hittil (jan–sep)"]
+    # Formelen støtter fortsatt andre perioder enn 12 mnd, selv om sidene bare bruker faste
+    start, slutt = b.pd.Timestamp("2026-01-01"), b.pd.Timestamp("2026-09-30")
     t = b.turnover(ansatte, start, slutt)
     assert len(b.maanedsslutter(start, slutt)) == 9
     assert abs(t["total_rate"] - t["avganger"] / t["snitt_ansatte"] * 12 / 9) < 1e-12
@@ -42,5 +43,5 @@ def test_femregelen_per_team(ansatte, siste_12):
 
 
 def test_perioder():
-    assert b.forrige_periode(*b.FASTE_PERIODER["2026 hittil (jan–sep)"]) == (
+    assert b.forrige_periode(b.pd.Timestamp("2026-01-01"), b.pd.Timestamp("2026-09-30")) == (
         b.pd.Timestamp("2025-04-01"), b.pd.Timestamp("2025-12-31"))
