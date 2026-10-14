@@ -44,7 +44,7 @@ avvik = faktisk - planlagt
 
 def med_fortegn(tall):
     """+2, −14 eller 0 – fortegn gjør retningen tydelig uten farge."""
-    return f"{tall:+d}" if tall else "0"
+    return b.fortegn(tall)
 
 
 # --- KPI-kort (nøytrale – ingen røde/grønne piler) -----------------------------------

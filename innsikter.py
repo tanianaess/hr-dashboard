@@ -69,9 +69,7 @@ def _prosentpoeng(andel, desimaler=1):
     return b.avrund(andel * 100, desimaler)
 
 
-def fortegn(tall):
-    """Heltall med fortegn og ekte minustegn i tekst: +2, −14, 0."""
-    return "0" if tall == 0 else f"{tall:+d}".replace("-", "−")
+fortegn = b.fortegn  # felles funksjon i beregninger.py
 
 
 def millioner(belop):

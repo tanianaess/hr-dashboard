@@ -39,13 +39,15 @@ def vis_filtre(standard_periode=("2025-10", "2026-09")):
 
     # Liste med alle måneder i dataene: «2024-10», «2024-11» … «2026-09»
     alle_maaneder = [d.strftime("%Y-%m") for d in b.maanedsslutter(b.DATA_FRA, b.DATA_TIL)]
-    # Startverdier legges i session_state (Streamlits minne) første gang. Da kan
-    # forsiden forhåndsvelge et team før den åpner siden (se forhandsvelg()).
-    st.session_state.setdefault(NOKKEL_MAANEDER, standard_periode)
-    st.session_state.setdefault(NOKKEL_FLERVALG, list(b.TEAM))
-    fra_mnd, til_mnd = st.sidebar.select_slider("Periode", options=alle_maaneder,
-                                                key=NOKKEL_MAANEDER)
-    valgte_team = st.sidebar.multiselect("Team", b.TEAM, key=NOKKEL_FLERVALG)
+    # Startverdien hentes fra session_state (Streamlits minne) hvis forsiden har
+    # forhåndsvalgt noe (se forhandsvelg()). Glideren MÅ få en startverdi med to
+    # verdier – ellers tror den at den bare har ett håndtak og krasjer.
+    fra_mnd, til_mnd = st.sidebar.select_slider(
+        "Periode", options=alle_maaneder, key=NOKKEL_MAANEDER,
+        value=st.session_state.get(NOKKEL_MAANEDER, standard_periode))
+    valgte_team = st.sidebar.multiselect(
+        "Team", b.TEAM, key=NOKKEL_FLERVALG,
+        default=st.session_state.get(NOKKEL_FLERVALG, list(b.TEAM)))
 
     if not valgte_team:
         st.info("Velg minst ett team i filteret til venstre.")

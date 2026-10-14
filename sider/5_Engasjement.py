@@ -101,7 +101,7 @@ kort1.metric(f"eNPS {siste}", enps_tekst(naa["enps"]), delta=mot_fjor,
              delta_color=b.pilfarge(mot_fjor, hoyere_er_bedre=True))
 kort1.caption(f"Pila viser endring mot samme kvartal i fjor ({fjor_k})" if fjor
               else "Ingen sammenligning med i fjor (mangler data)")
-kort2.metric("Endring mot forrige kvartal", mot_forrige or "–")
+kort2.metric("Endring mot forrige kvartal", b.minustegn(mot_forrige) or "–")
 kort2.caption(f"Fra {enps_tekst(forrige['enps'])} i {forrige_k}" if forrige else "Forrige kvartal mangler")
 kort3.metric("Lav svarandel" if lav else "Svarandel", b.prosent(naa["svarandel"], 0))
 kort3.caption(f"{naa['svar']} av {naa['invitert']} invitert"
@@ -180,14 +180,14 @@ for team in valgte_team:
         "Antall svar": str(e["svar"]),
         "Svarandel": b.prosent(e["svarandel"], 0)
                      + (" (lav)" if e["svarandel"] < b.LAV_SVARANDEL else ""),
-        "Mot forrige kvartal": endring_poeng(e["enps"], e_forrige["enps"] if e_forrige else None) or "–",
-        "Mot i fjor": endring_poeng(e["enps"], e_fjor["enps"] if e_fjor else None) or "–",
+        "Mot forrige kvartal": b.minustegn(endring_poeng(e["enps"], e_forrige["enps"] if e_forrige else None)) or "–",
+        "Mot i fjor": b.minustegn(endring_poeng(e["enps"], e_fjor["enps"] if e_fjor else None)) or "–",
     })
 if hele_selskapet:
     rader.append({
         "Team": b.med_unntak("Hele selskapet", utenfor), f"eNPS {siste}": enps_tekst(naa["enps"]),
         "Antall svar": str(naa["svar"]), "Svarandel": b.prosent(naa["svarandel"], 0),
-        "Mot forrige kvartal": mot_forrige or "–", "Mot i fjor": mot_fjor or "–",
+        "Mot forrige kvartal": b.minustegn(mot_forrige) or "–", "Mot i fjor": b.minustegn(mot_fjor) or "–",
     })
 st.dataframe(pd.DataFrame(rader), hide_index=True, width="stretch")
 st.caption(

@@ -153,7 +153,7 @@ for _, r in per_team.iterrows():
         rader.append({"Team": r["team"], "Snitt ansatte": "under 5", "Totalt": SKJULT,
                       "Korttid": SKJULT, "Langtid": SKJULT, "Endring mot i fjor": SKJULT})
         continue
-    endring_tekst = "–" if pd.isna(r["endring_pp"]) else b.endring_pp(r["endring_pp"] / 100, 0)
+    endring_tekst = "–" if pd.isna(r["endring_pp"]) else b.minustegn(b.endring_pp(r["endring_pp"] / 100, 0))
     rader.append({
         "Team": r["team"],
         "Snitt ansatte": str(b.avrund(r["snitt_ansatte"])),  # n ved siden av prosentene
@@ -167,7 +167,7 @@ if hele_selskapet:
         "Team": b.med_unntak("Hele selskapet", utenfor), "Snitt ansatte": str(b.avrund(snitt)),
         "Totalt": b.prosent(naa["total_rate"], 2), "Korttid": b.prosent(naa["korttid_rate"], 2),
         "Langtid": b.prosent(naa["langtid_rate"], 2),
-        "Endring mot i fjor": endring("total_rate") or "–",
+        "Endring mot i fjor": b.minustegn(endring("total_rate")) or "–",
     })
 
 st.dataframe(pd.DataFrame(rader), hide_index=True, width="stretch")

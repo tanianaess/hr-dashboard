@@ -2,6 +2,7 @@
 # Sidene i dashbordet henter tallene herfra, så hver formel finnes bare ett sted.
 # Alle definisjoner følger CLAUDE.md.
 
+import re
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
@@ -235,6 +236,18 @@ def endring_pp(ny, gammel):
     if pp == 0:
         return "±0,0 pp"
     return f"{pp:+.1f} pp".replace(".", ",")
+
+
+def minustegn(tekst):
+    """Bytter bindestrek foran tall med ekte minustegn: «-14» → «−14».
+    Brukes på tall som VISES. Ikke på pilene i st.metric (delta), der Streamlit
+    bruker bindestreken til å avgjøre retningen på pila."""
+    return re.sub(r"(^|[\s(])-(?=\d)", lambda m: m.group(1) + "−", tekst) if tekst else tekst
+
+
+def fortegn(tall):
+    """Heltall med fortegn og ekte minustegn i tekst: +2, −14, 0."""
+    return "0" if tall == 0 else f"{tall:+d}".replace("-", "−")
 
 
 def pilfarge(endring_tekst, hoyere_er_bedre=False):
@@ -679,12 +692,22 @@ def alle_sammenligningsperioder():
 # Alle tre: prikkingen er lik i alle periodevalg (sjekkes i alle perioder som kan
 # velges eller sammenlignes med), og gjelder bare totaler – ett team alene får [].
 
-def _utenfor(skjult_team, storrelse_per_periode):
-    """Felles regnestykke: skjulte team holdes utenfor hvis de til sammen er under 5
-    i minst én periode. `storrelse_per_periode` er en liste med {team: størrelse}."""
+def _utenfor(skjulte_per_periode):
+    """Felles regnestykke: `skjulte_per_periode` er en liste – én per periode – med
+    {team: størrelse} for team som er skjult I DEN perioden. Er de skjulte til sammen
+    under 5 i minst én periode, holdes de utenfor totalen i alle periodevalg."""
     utenfor = set()
-    for storrelser in storrelse_per_periode:
-        utenfor |= set(sekundar_prikking({t: storrelser[t] for t in skjult_team}))
+    # Gjenta til ingenting endrer seg: når noen team holdes utenfor, kan resten av de
+    # skjulte i en annen periode bli under 5 – da må også de holdes utenfor.
+    endret = True
+    while endret:
+        endret = False
+        for skjulte in skjulte_per_periode:
+            rest = {t: n for t, n in skjulte.items() if t not in utenfor}
+            ny = set(sekundar_prikking(rest))
+            if ny:
+                utenfor |= ny
+                endret = True
     return sorted(utenfor)
 
 
@@ -692,25 +715,27 @@ def utenfor_turnoverfordeling(ansatte, team_liste):
     """Team som holdes utenfor fordelingen (uønsket og sluttårsak) i totaler."""
     if len(team_liste) <= 1:
         return []
-    perioder = alle_sammenligningsperioder()
-    tall = {team: [turnover(ansatte[ansatte["team"] == team], s, e) for s, e in perioder]
-            for team in team_liste}
-    skjult = [team for team, liste in tall.items()
-              if any(t["snitt_ansatte"] < MIN_GRUPPE or t["avganger"] < MIN_GRUPPE for t in liste)]
-    return _utenfor(skjult, [{team: tall[team][i]["avganger"] for team in team_liste}
-                             for i in range(len(perioder))])
+    skjulte_per_periode = []
+    for start, slutt in alle_sammenligningsperioder():
+        skjulte = {}
+        for team in team_liste:
+            t = turnover(ansatte[ansatte["team"] == team], start, slutt)
+            if t["snitt_ansatte"] < MIN_GRUPPE or t["avganger"] < MIN_GRUPPE:
+                skjulte[team] = t["avganger"]
+        skjulte_per_periode.append(skjulte)
+    return _utenfor(skjulte_per_periode)
 
 
 def utenfor_sykefravaer(ansatte, team_liste):
     """Team som holdes utenfor sykefraværstotaler (små team etter antall ansatte)."""
     if len(team_liste) <= 1:
         return []
-    perioder = alle_sammenligningsperioder()
-    snitt = {team: [snitt_ansatte(ansatte[ansatte["team"] == team], s, e) for s, e in perioder]
-             for team in team_liste}
-    skjult = [team for team, liste in snitt.items() if min(liste) < MIN_GRUPPE]
-    return _utenfor(skjult, [{team: snitt[team][i] for team in team_liste}
-                             for i in range(len(perioder))])
+    skjulte_per_periode = []
+    for start, slutt in alle_sammenligningsperioder():
+        snitt = {team: snitt_ansatte(ansatte[ansatte["team"] == team], start, slutt)
+                 for team in team_liste}
+        skjulte_per_periode.append({t: n for t, n in snitt.items() if n < MIN_GRUPPE})
+    return _utenfor(skjulte_per_periode)
 
 
 def utenfor_enps(engasjement, team_liste):
@@ -718,8 +743,7 @@ def utenfor_enps(engasjement, team_liste):
     if len(team_liste) <= 1:
         return []
     e = engasjement[engasjement["team"].isin(team_liste)]
-    kvartaler = sorted(e["kvartal"].unique())
-    skjult = sorted(e.loc[e["antall_svar"] < MIN_GRUPPE, "team"].unique())
-    svar = e.set_index(["team", "kvartal"])["antall_svar"]
-    return _utenfor(skjult, [{team: int(svar.get((team, k), 0)) for team in team_liste}
-                             for k in kvartaler])
+    return _utenfor([
+        {team: int(n) for team, n in zip(k["team"], k["antall_svar"]) if n < MIN_GRUPPE}
+        for _, k in e.groupby("kvartal")
+    ])
