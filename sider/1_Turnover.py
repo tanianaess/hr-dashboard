@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
-from filtre import vis_filtre
+from filtre import vis_filtre_sensitiv
 
 st.set_page_config(page_title="Turnover – HR-dashbord", layout="wide")
 
@@ -20,8 +20,8 @@ def hent_ansatte():
 ansatte = hent_ansatte()
 
 
-# --- Filtre (felles for alle sider, se filtre.py) ---------------------------------
-start, slutt, valgte_team, hele_selskapet = vis_filtre()
+# --- Filtre: begrenset, fordi siden har sensitive tall (se filtre.py) -------------
+start, slutt, valgte_team, hele_selskapet = vis_filtre_sensitiv()
 antall_mnd = len(b.maanedsslutter(start, slutt))
 
 # Filtrer til valgte team – som autofilter på team-kolonnen
@@ -53,16 +53,19 @@ if naa["snitt_ansatte"] < b.MIN_GRUPPE:
 # Sekundær prikking for FORDELINGEN (uønsket og sluttårsak): team der fordelingen er
 # skjult i tabellen (nå eller i forrige periode), holdes utenfor fordelingen hvis de
 # til sammen har under 5 avganger. Total turnover og antall avganger tar med alle.
-# Summen av de skjulte sjekkes i HVER periode – ellers kunne pila avsløre dem.
-perioder = [(start, slutt)] + ([(forrige_start, forrige_slutt)] if har_forrige else [])
-per_team = {team: [b.turnover(ansatte[ansatte["team"] == team], p_start, p_slutt)
-                   for p_start, p_slutt in perioder] for team in valgte_team}
-skjult_team = [team for team, tall in per_team.items()
+# Summen av de skjulte sjekkes i ALLE perioder som kan velges eller sammenlignes med,
+# så prikkingen blir lik uansett periodevalg (ellers kunne to valg trekkes fra hverandre).
+perioder = b.alle_sammenligningsperioder()
+tall_per_team = {team: [b.turnover(ansatte[ansatte["team"] == team], p_start, p_slutt)
+                        for p_start, p_slutt in perioder] for team in valgte_team}
+skjult_team = [team for team, tall in tall_per_team.items()
                if any(t["snitt_ansatte"] < b.MIN_GRUPPE or t["avganger"] < b.MIN_GRUPPE
                       for t in tall)]
 utenfor = sorted({team for i in range(len(perioder))
                   for team in b.sekundar_prikking(
-                      {team: per_team[team][i]["avganger"] for team in skjult_team})})
+                      {team: tall_per_team[team][i]["avganger"] for team in skjult_team})})
+if not hele_selskapet:
+    utenfor = []  # ett team: vanlig femregel for perioden – sekundær prikking gjelder totaler
 utvalg_fordeling = utvalg[~utvalg["team"].isin(utenfor)]
 fordeling = b.turnover(utvalg_fordeling, start, slutt)
 fordeling_forrige = (b.turnover(utvalg_fordeling, forrige_start, forrige_slutt)

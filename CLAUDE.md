@@ -74,6 +74,21 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
   - **Ikke sensitivt** – totalen tar alltid med alle: totalt antall avganger,
     total turnover og bemanning.
   - Regelen ligger i `sekundar_prikking()` i `beregninger.py`.
+  - Sekundær prikking gjelder **totaler** (visningen «hele selskapet»). Når ett
+    team er valgt, gjelder vanlig femregel for den viste perioden.
+  - Prikkingen er **lik i alle periodevalg**: et team som må holdes utenfor i én
+    av de faste periodene (eller periodene det sammenlignes med), holdes utenfor
+    i alle (`alle_sammenligningsperioder()`).
+- **Begrenset filter på sider med sensitive tall** (turnover, sykefravær, eNPS),
+  `vis_filtre_sensitiv()` i `filtre.py`:
+  - **Team:** enten «Hele selskapet» eller **ett team om gangen** – ikke fritt
+    flervalg (to utvalg som skiller seg med én liten gruppe kan trekkes fra
+    hverandre).
+  - **Periode:** bare **faste valg** – siste 12 mnd, siste 24 mnd og hvert
+    kalenderår (hele år, pluss inneværende år hittil) – ikke fri månedsglider
+    (overlappende perioder kan trekkes fra hverandre).
+  - Rekruttering og bemanning beholder det frie filteret (`vis_filtre()`).
+- **Tilgangsstyring:** Ingen tekniske regler kan helt hindre at tall utledes i et interaktivt verktøy. Den viktigste beskyttelsen er tilgangsstyring – i drift skal bare HR-ledelse og ledergruppen ha tilgang. Reglene her reduserer risikoen.
 - **Lønn** vises aldri per team. Den brukes bare i kostnadsberegningen, og
   kostnaden vises bare for hele selskapet (ikke når filteret velger enkeltteam).
 - **Stilling** blir aldri et filter i dashbordet (stilling + team kan peke ut

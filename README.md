@@ -15,8 +15,8 @@ etterprøvbart og presenteres uten å eksponere enkeltpersoner.
 
 | Side | Viser |
 |---|---|
-| **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · kostnad ved uønsket turnover med justerbar antakelse · avganger per måned · tabell per team · filter for team og periode |
-| **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned · tabell per team · filter for team og periode |
+| **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · kostnad ved uønsket turnover med justerbar antakelse · avganger per måned · tabell per team · filter: hele selskapet eller ett team, faste perioder |
+| **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team |
 | **Bemanning** | Faktisk antall ansatte mot bemanningsplanen · utvikling per måned · tabell per team med avvik, bemanningsgrad, ansettelser, avganger og tid til tiltredelse · team med mer enn 5 % avvik markeres |
 | **Engasjement** | eNPS siste kvartal mot samme kvartal i fjor og forrige kvartal · svarandel (lav markeres) · eNPS per kvartal og team · tabell per team · kobling mot langtidsfravær (sammenheng, ikke nødvendigvis årsak) |
@@ -35,6 +35,9 @@ Dashbordet er bygget som om dataene var ekte:
   synlige». For sensitive tall (sykefravær, eNPS og fordelingen på uønsket og sluttårsak)
   holdes små skjulte grupper utenfor totalen, og totalen merkes, f.eks. «Hele selskapet
   (uten ledergruppen)». Totalt antall avganger og bemanning tar med alle.
+- **Begrenset filter på sider med sensitive tall:** på turnover, sykefravær og eNPS kan du
+  bare velge hele selskapet eller ett team, og faste perioder (siste 12 mnd, siste 24 mnd,
+  kalenderår). Ellers kunne to filtervalg eller overlappende perioder trekkes fra hverandre.
 - **n vises ved siden av prosenter**, f.eks. «20,7 % (8 av 39)», så leseren ser
   hvor få personer et tall bygger på.
 - **Lønn vises aldri per team.** Kostnaden ved turnover vises bare for hele
@@ -42,6 +45,8 @@ Dashbordet er bygget som om dataene var ekte:
 - **Stilling er aldri et filter** – stilling og team sammen kan peke ut én person.
 - **Testresultater lagres aldri.** Datasettet viser bare *om* en personlighets- eller
   evnetest ble brukt, ikke resultatet.
+
+> **Tilgangsstyring:** Ingen tekniske regler kan helt hindre at tall utledes i et interaktivt verktøy. Den viktigste beskyttelsen er tilgangsstyring – i drift skal bare HR-ledelse og ledergruppen ha tilgang. Reglene her reduserer risikoen.
 
 ## Definisjoner (utvalg)
 

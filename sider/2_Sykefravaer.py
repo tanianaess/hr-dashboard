@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
-from filtre import vis_filtre
+from filtre import vis_filtre_sensitiv
 
 st.set_page_config(page_title="Sykefravær – HR-dashbord", layout="wide")
 
@@ -23,8 +23,8 @@ def hent_data():
 ansatte, fravaer = hent_data()
 
 
-# --- Filtre (felles for alle sider, se filtre.py) ---------------------------------
-start, slutt, valgte_team, hele_selskapet = vis_filtre()
+# --- Filtre: begrenset, fordi siden har sensitive tall (se filtre.py) -------------
+start, slutt, valgte_team, hele_selskapet = vis_filtre_sensitiv()
 
 # Filtrer begge tabellene til valgte team
 utvalg_ansatte = ansatte[ansatte["team"].isin(valgte_team)]
@@ -49,7 +49,8 @@ if snitt < b.MIN_GRUPPE:
 # utenfor totalen hvis de til sammen er under 5 – ellers kunne de regnes ut.
 fjor_start, fjor_slutt = b.samme_periode_i_fjor(start, slutt)
 har_fjor = fjor_start >= b.DATA_FRA
-perioder = [(start, slutt)] + ([(fjor_start, fjor_slutt)] if har_fjor else [])
+# Alle perioder som kan velges eller sammenlignes med – prikkingen blir lik i alle valg
+perioder = b.alle_sammenligningsperioder()
 snitt_per_team = {team: [b.snitt_ansatte(ansatte[ansatte["team"] == team], p_start, p_slutt)
                          for p_start, p_slutt in perioder] for team in valgte_team}
 skjult_team = [team for team, snitt_liste in snitt_per_team.items()
@@ -58,6 +59,8 @@ skjult_team = [team for team, snitt_liste in snitt_per_team.items()
 utenfor = sorted({team for i in range(len(perioder))
                   for team in b.sekundar_prikking(
                       {team: snitt_per_team[team][i] for team in skjult_team})})
+if not hele_selskapet:
+    utenfor = []  # ett team: vanlig femregel – sekundær prikking gjelder totaler
 if utenfor:
     utvalg_ansatte = utvalg_ansatte[~utvalg_ansatte["team"].isin(utenfor)]
     utvalg_fravaer = utvalg_fravaer[~utvalg_fravaer["team"].isin(utenfor)]

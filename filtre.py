@@ -29,3 +29,22 @@ def vis_filtre(standard_periode=("2025-10", "2026-09")):
     slutt = b.maanedsslutt(pd.Timestamp(f"{til_mnd}-01"))
     hele_selskapet = len(valgte_team) == len(b.TEAM)
     return start, slutt, valgte_team, hele_selskapet
+
+
+def vis_filtre_sensitiv():
+    """Begrenset filter for sider med sensitive tall (sykefravær, eNPS, turnoverfordeling):
+    - periode: bare faste valg (siste 12 mnd, siste 24 mnd, kalenderår)
+    - team: enten hele selskapet eller ett team om gangen
+    Fritt flervalg og fri periode er bevisst ikke mulig – to utvalg som skiller seg
+    med én liten gruppe kan trekkes fra hverandre. Gir tilbake det samme som vis_filtre()."""
+    st.sidebar.header("Filter")
+    periode = st.sidebar.selectbox("Periode", list(b.FASTE_PERIODER))
+    team = st.sidebar.selectbox("Team", ["Hele selskapet", *b.TEAM])
+    st.sidebar.caption(
+        "På sider med sensitive tall kan du bare velge hele selskapet eller ett team, "
+        "og faste perioder. Det gjør det vanskeligere å regne ut tall for små grupper."
+    )
+    start, slutt = b.FASTE_PERIODER[periode]
+    if team == "Hele selskapet":
+        return start, slutt, list(b.TEAM), True
+    return start, slutt, [team], False

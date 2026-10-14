@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 
 import beregninger as b
-from filtre import vis_filtre
+from filtre import vis_filtre_sensitiv
 
 st.set_page_config(page_title="Engasjement – HR-dashbord", layout="wide")
 
@@ -21,8 +21,8 @@ def hent_data():
 ansatte, fravaer, engasjement = hent_data()
 
 
-# --- Filtre (felles for alle sider, se filtre.py) ---------------------------------
-start, slutt, valgte_team, hele_selskapet = vis_filtre()
+# --- Filtre: begrenset, fordi siden har sensitive tall (se filtre.py) -------------
+start, slutt, valgte_team, hele_selskapet = vis_filtre_sensitiv()
 utvalg = engasjement[engasjement["team"].isin(valgte_team)]
 
 
@@ -40,7 +40,8 @@ forrige_k, fjor_k = b.kvartal_minus(siste, 1), b.kvartal_minus(siste, 4)
 
 # Sekundær prikking: team med under 5 svar i et av kvartalene som vises eller
 # sammenlignes med, holdes utenfor totalene hvis de til sammen er under 5 svar.
-brukte_kvartaler = set(kvartaler) | {forrige_k, fjor_k}
+# Alle kvartaler i dataene – prikkingen blir lik uansett periodevalg
+brukte_kvartaler = set(engasjement["kvartal"])
 brukt = utvalg[utvalg["kvartal"].isin(brukte_kvartaler)]
 skjult_team = sorted(brukt.loc[brukt["antall_svar"] < b.MIN_GRUPPE, "team"].unique())
 # Summen av de skjulte sjekkes i hvert kvartal
@@ -48,6 +49,8 @@ utenfor = sorted({team for kvartal in brukte_kvartaler
                   for team in b.sekundar_prikking(
                       {team: int(brukt.loc[(brukt["team"] == team) & (brukt["kvartal"] == kvartal),
                                            "antall_svar"].sum()) for team in skjult_team})})
+if not hele_selskapet:
+    utenfor = []  # ett team: vanlig femregel – sekundær prikking gjelder totaler
 utvalg_total = utvalg[~utvalg["team"].isin(utenfor)]  # brukes til alle totaler
 st.caption(
     f"Kvartaler i perioden: {kvartaler[0]}–{siste}. "
@@ -222,13 +225,15 @@ if lav or lave:
 st.subheader("Engasjement og langtidsfravær")
 st.warning(b.KOBLING_MERKNAD, icon="⚠️")
 
-fravaer_skjulte = {}
-for team in valgte_team:
-    snitt_team = b.snitt_ansatte(ansatte[ansatte["team"] == team], start, slutt)
-    if snitt_team < b.MIN_GRUPPE:
-        fravaer_skjulte[team] = snitt_team
+# Fravær: små team (etter antall ansatte) prikkes likt i alle periodevalg
+utenfor_fravaer = set()
+for p_start, p_slutt in b.alle_sammenligningsperioder():
+    snitt_per_team = {team: b.snitt_ansatte(ansatte[ansatte["team"] == team], p_start, p_slutt)
+                      for team in valgte_team}
+    utenfor_fravaer |= set(b.sekundar_prikking(
+        {team: n for team, n in snitt_per_team.items() if n < b.MIN_GRUPPE}))
 # Samme team holdes utenfor begge grafene, så de viser samme utvalg
-utenfor_kobling = sorted(set(utenfor) | set(b.sekundar_prikking(fravaer_skjulte)))
+utenfor_kobling = sorted(set(utenfor) | utenfor_fravaer)
 kobling_team = [t for t in valgte_team if t not in utenfor_kobling]
 snitt_ansatte = b.snitt_ansatte(ansatte[ansatte["team"].isin(kobling_team)], start, slutt)
 if snitt_ansatte < b.MIN_GRUPPE:

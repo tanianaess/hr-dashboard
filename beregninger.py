@@ -14,11 +14,37 @@ DATAMAPPE = Path(__file__).parent / "data"
 DATA_FRA = pd.Timestamp("2024-10-01")
 DATA_TIL = pd.Timestamp("2026-09-30")
 
+MAANEDSNAVN = {1: "jan", 2: "feb", 3: "mar", 4: "apr", 5: "mai", 6: "jun",
+               7: "jul", 8: "aug", 9: "sep", 10: "okt", 11: "nov", 12: "des"}
+
+
+def _faste_perioder():
+    """Faste periodevalg for sider med sensitive tall: siste 12 og 24 mnd, og hvert
+    kalenderår i dataene (hele år, pluss inneværende år hittil). Fri månedsglider
+    brukes ikke der, fordi overlappende perioder kan trekkes fra hverandre."""
+    etter_slutt = DATA_TIL + pd.Timedelta(days=1)
+    perioder = {
+        "Siste 12 mnd": (etter_slutt - pd.DateOffset(months=12), DATA_TIL),
+        "Siste 24 mnd": (etter_slutt - pd.DateOffset(months=24), DATA_TIL),
+    }
+    for aar in range(DATA_FRA.year, DATA_TIL.year + 1):
+        aar_start, aar_slutt = pd.Timestamp(f"{aar}-01-01"), pd.Timestamp(f"{aar}-12-31")
+        if aar_start < DATA_FRA:
+            continue  # året starter før dataene (bare noen få måneder) – tas ikke med
+        if aar_slutt <= DATA_TIL:
+            perioder[str(aar)] = (aar_start, aar_slutt)
+        else:
+            perioder[f"{aar} hittil (jan–{MAANEDSNAVN[DATA_TIL.month]})"] = (aar_start, DATA_TIL)
+    return perioder
+
+
 # Avganger som teller i turnover: stillingen må erstattes (se CLAUDE.md)
 TELLER_I_TURNOVER = ["frivillig", "ufrivillig", "pensjon"]
 
 # Femregelen: grupper med færre enn 5 skjules
 MIN_GRUPPE = 5
+
+FASTE_PERIODER = _faste_perioder()
 
 
 def sekundar_prikking(skjulte):
@@ -631,3 +657,16 @@ def langtid_per_kvartal(fravaer, kvartaler):
     per_k = f[f["kvartal"].isin(kvartaler)].groupby("kvartal")[
         ["tapte_dagsverk_langtid", "avtalte_dagsverk"]].sum()
     return (per_k["tapte_dagsverk_langtid"] / per_k["avtalte_dagsverk"]).rename("langtid_rate")
+
+
+def alle_sammenligningsperioder():
+    """Alle perioder som kan vises eller sammenlignes med på sider med faste perioder:
+    hver fast periode, perioden rett før, og samme periode i fjor (innenfor dataene).
+    Brukes til å gjøre sekundær prikking lik i alle periodevalg."""
+    perioder = set()
+    for start, slutt in FASTE_PERIODER.values():
+        for p_start, p_slutt in [(start, slutt), forrige_periode(start, slutt),
+                                 samme_periode_i_fjor(start, slutt)]:
+            if p_start >= DATA_FRA:
+                perioder.add((p_start, p_slutt))
+    return sorted(perioder)
