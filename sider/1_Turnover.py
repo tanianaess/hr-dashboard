@@ -50,17 +50,40 @@ if naa["snitt_ansatte"] < b.MIN_GRUPPE:
     st.warning("Utvalget har færre enn 5 ansatte. Tallene skjules av personvernhensyn.")
     st.stop()
 
-# Fordeling på frivillig/uønsket: alltid for hele selskapet, ellers bare med minst 5 avganger
-vis_fordeling = hele_selskapet or naa["avganger"] >= b.MIN_GRUPPE
-vis_fordeling_forrige = har_forrige and (hele_selskapet or forrige["avganger"] >= b.MIN_GRUPPE)
+# Sekundær prikking for FORDELINGEN (uønsket og sluttårsak): team der fordelingen er
+# skjult i tabellen (nå eller i forrige periode), holdes utenfor fordelingen hvis de
+# til sammen har under 5 avganger. Total turnover og antall avganger tar med alle.
+# Summen av de skjulte sjekkes i HVER periode – ellers kunne pila avsløre dem.
+perioder = [(start, slutt)] + ([(forrige_start, forrige_slutt)] if har_forrige else [])
+per_team = {team: [b.turnover(ansatte[ansatte["team"] == team], p_start, p_slutt)
+                   for p_start, p_slutt in perioder] for team in valgte_team}
+skjult_team = [team for team, tall in per_team.items()
+               if any(t["snitt_ansatte"] < b.MIN_GRUPPE or t["avganger"] < b.MIN_GRUPPE
+                      for t in tall)]
+utenfor = sorted({team for i in range(len(perioder))
+                  for team in b.sekundar_prikking(
+                      {team: per_team[team][i]["avganger"] for team in skjult_team})})
+utvalg_fordeling = utvalg[~utvalg["team"].isin(utenfor)]
+fordeling = b.turnover(utvalg_fordeling, start, slutt)
+fordeling_forrige = (b.turnover(utvalg_fordeling, forrige_start, forrige_slutt)
+                     if har_forrige else None)
+
+# Fordelingen vises bare når den bygger på minst 5 avganger
+vis_fordeling = fordeling["avganger"] >= b.MIN_GRUPPE
+vis_fordeling_forrige = har_forrige and fordeling_forrige["avganger"] >= b.MIN_GRUPPE
+if utenfor and vis_fordeling:
+    st.caption(f"Fordelingen på frivillig og uønsket gjelder **{b.med_unntak('utvalget', utenfor)}** "
+               "– små grupper holdes utenfor så de ikke kan regnes ut (sekundær prikking).")
 
 
 # --- KPI-kort -------------------------------------------------------------------------
-def endring(navn, kan_vises=True):
-    """Endring mot forrige periode i prosentpoeng, f.eks. «+3,1 pp»."""
+def endring(navn, kan_vises=True, ny=None, gammel=None):
+    """Endring mot forrige periode i prosentpoeng, f.eks. «+3,1 pp».
+    Standard er totaltallene; for fordelingen sendes de prikkede tallene inn."""
     if not (har_forrige and kan_vises):
         return None
-    return b.endring_pp(naa[navn], forrige[navn])
+    ny, gammel = ny or naa, gammel or forrige
+    return b.endring_pp(ny[navn], gammel[navn])
 
 
 snitt = b.avrund(naa["snitt_ansatte"])
@@ -75,14 +98,14 @@ kort1.metric(
 kort1.caption(f"{naa['avganger']} avganger, snitt {snitt} ansatte")
 
 if vis_fordeling:
-    kort2.metric("Frivillig turnover", b.prosent(naa["frivillig_rate"]),
-                 delta=endring("frivillig_rate", vis_fordeling_forrige),
-                 delta_color=b.pilfarge(endring("frivillig_rate", vis_fordeling_forrige)))
-    kort2.caption(f"{naa['frivillig']} sa opp selv")
-    kort3.metric("Uønsket turnover", b.prosent(naa["uønsket_rate"]),
-                 delta=endring("uønsket_rate", vis_fordeling_forrige),
-                 delta_color=b.pilfarge(endring("uønsket_rate", vis_fordeling_forrige)))
-    kort3.caption(f"{naa['uønsket']} vi ville beholdt")
+    for kort, navn, tittel, tekst in [
+        (kort2, "frivillig", "Frivillig turnover", "sa opp selv"),
+        (kort3, "uønsket", "Uønsket turnover", "vi ville beholdt"),
+    ]:
+        pil = endring(f"{navn}_rate", vis_fordeling_forrige, fordeling, fordeling_forrige)
+        kort.metric(tittel, b.prosent(fordeling[f"{navn}_rate"]), delta=pil,
+                    delta_color=b.pilfarge(pil))
+        kort.caption(f"{fordeling[navn]} {tekst}" + (f" (uten {', '.join(utenfor)})" if utenfor else ""))
 else:
     kort2.metric("Frivillig turnover", "Skjult")
     kort3.metric("Uønsket turnover", "Skjult")
@@ -104,10 +127,11 @@ if hele_selskapet:
         "Kostnad per avgang, i prosent av årslønn", min_value=50, max_value=200,
         value=75, step=5, format="%d %%",
     )
-    kostnad = naa["lønn_uønsket"] * kostnadsandel / 100
+    kostnad = fordeling["lønn_uønsket"] * kostnadsandel / 100
     st.metric("Anslått kostnad", b.kroner(kostnad))
     st.caption(
-        f"Sum årslønn for de {naa['uønsket']} uønskede avgangene × {kostnadsandel} %. "
+        f"Sum årslønn for de {fordeling['uønsket']} uønskede avgangene × {kostnadsandel} %"
+        + (f" ({b.med_unntak('hele selskapet', utenfor)})" if utenfor else "") + ". "
         "Prosentsatsen er en antakelse (dekker rekruttering, opplæring og tapt "
         "produktivitet) – juster den med glidebryteren."
     )
@@ -118,7 +142,8 @@ else:
 
 # --- Graf: avganger per måned -----------------------------------------------------------
 st.subheader("Avganger per måned")
-per_maaned = b.avganger_per_maaned(utvalg, start, slutt)
+# Delt på uønsket/øvrige = fordeling → bruker utvalget etter sekundær prikking
+per_maaned = b.avganger_per_maaned(utvalg_fordeling if vis_fordeling else utvalg, start, slutt)
 
 if vis_fordeling:
     # Stablede stolper: uønsket og øvrige oppå hverandre
@@ -127,7 +152,9 @@ else:
     # Bare totalen – fordelingen er skjult for små utvalg
     st.bar_chart(per_maaned.sum(axis=1).rename("Avganger"))
 st.caption("Avganger som teller i turnover (frivillig, ufrivillig, pensjon). "
-           "Utløpte midlertidige kontrakter er ikke med.")
+           "Utløpte midlertidige kontrakter er ikke med."
+           + (f" Grafen viser {b.med_unntak('utvalget', utenfor)} (sekundær prikking)."
+              if utenfor and vis_fordeling else ""))
 
 
 # --- Tabell per team --------------------------------------------------------------------
@@ -165,7 +192,11 @@ def tabellrad(navn, t, skjult=""):
 
 rader = [tabellrad(r["team"], r, r["skjult"]) for _, r in per_team.iterrows()]
 if hele_selskapet:
-    rader.append(tabellrad("Hele selskapet", naa))  # totalrad – alltid med fordeling
+    # Totalrad: avganger og turnover for alle, fordelingen etter sekundær prikking
+    total = {**naa, **{k: fordeling[k] for k in
+                       ["frivillig", "ufrivillig", "pensjon", "uønsket", "kontrakt_utløpt"]}}
+    navn = "Hele selskapet" + (f" (fordeling uten {', '.join(utenfor)})" if utenfor else "")
+    rader.append(tabellrad(navn, total))
 
 st.dataframe(pd.DataFrame(rader), hide_index=True, width="stretch")
 st.caption(

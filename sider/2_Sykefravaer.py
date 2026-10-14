@@ -45,11 +45,29 @@ if snitt < b.MIN_GRUPPE:
     st.warning("Utvalget har færre enn 5 ansatte. Sykefraværet skjules av personvernhensyn.")
     st.stop()
 
+# Sekundær prikking: små team som er skjult i tabellen (nå eller i fjor), holdes
+# utenfor totalen hvis de til sammen er under 5 – ellers kunne de regnes ut.
+fjor_start, fjor_slutt = b.samme_periode_i_fjor(start, slutt)
+har_fjor = fjor_start >= b.DATA_FRA
+perioder = [(start, slutt)] + ([(fjor_start, fjor_slutt)] if har_fjor else [])
+snitt_per_team = {team: [b.snitt_ansatte(ansatte[ansatte["team"] == team], p_start, p_slutt)
+                         for p_start, p_slutt in perioder] for team in valgte_team}
+skjult_team = [team for team, snitt_liste in snitt_per_team.items()
+               if min(snitt_liste) < b.MIN_GRUPPE]
+# Summen av de skjulte sjekkes i hver periode
+utenfor = sorted({team for i in range(len(perioder))
+                  for team in b.sekundar_prikking(
+                      {team: snitt_per_team[team][i] for team in skjult_team})})
+if utenfor:
+    utvalg_ansatte = utvalg_ansatte[~utvalg_ansatte["team"].isin(utenfor)]
+    utvalg_fravaer = utvalg_fravaer[~utvalg_fravaer["team"].isin(utenfor)]
+    snitt = b.snitt_ansatte(utvalg_ansatte, start, slutt)
+    st.caption(f"Totalene gjelder **{b.med_unntak('utvalget', utenfor)}** – "
+               "små team holdes utenfor så de ikke kan regnes ut (sekundær prikking).")
+
 
 # --- Regn ut tallene ----------------------------------------------------------------
 naa = b.sykefravaer(utvalg_fravaer, start, slutt)
-fjor_start, fjor_slutt = b.samme_periode_i_fjor(start, slutt)
-har_fjor = fjor_start >= b.DATA_FRA
 fjor = b.sykefravaer(utvalg_fravaer, fjor_start, fjor_slutt) if har_fjor else None
 
 
@@ -155,7 +173,7 @@ for _, r in per_team.iterrows():
     })
 if hele_selskapet:
     rader.append({
-        "Team": "Hele selskapet", "Snitt ansatte": str(b.avrund(snitt)),
+        "Team": b.med_unntak("Hele selskapet", utenfor), "Snitt ansatte": str(b.avrund(snitt)),
         "Totalt": b.prosent(naa["total_rate"], 2), "Korttid": b.prosent(naa["korttid_rate"], 2),
         "Langtid": b.prosent(naa["langtid_rate"], 2),
         "Endring mot i fjor": endring("total_rate") or "–",

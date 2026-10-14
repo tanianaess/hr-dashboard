@@ -79,6 +79,8 @@ LANGTID_KUNDESUKSESS_SISTE_HALVAAR = {"2026-04": 0.050, "2026-05": 0.060, "2026-
 ENPS_NIVAA = {"teknologi": 22, "produktutvikling": 20, "salg": 6, "markedsføring": 15,
               "økonomi og hr": 18, "ledergruppen": 40}
 ENPS_KUNDESUKSESS = [11, 10, 9, 8, 5, 0, -8, -15]  # 2024-K4 … 2026-K3
+# Lav svarandel: kundesuksess svarer bare ca. 45 % i siste kvartal
+LAV_SVARANDEL = {("kundesuksess", "2026-K3"): 0.45}
 
 # Stillinger per team: (tittel, vekt, lønn fra, lønn til) – lønn ved 100 % stilling
 STILLINGER = {
@@ -426,6 +428,9 @@ for nr, kvartalsstart in enumerate(pd.date_range(DATASTART, DATASLUTT, freq="QS"
             svar = antall
         else:
             svar = round(antall * tilfeldig.uniform(0.72, 0.90))
+        # Overstyr ETTER trekningen, så tilfeldighetsrekkefølgen (og resten av dataene) er lik
+        if (team, kvartal) in LAV_SVARANDEL:
+            svar = round(antall * LAV_SVARANDEL[(team, kvartal)])
         if team == "kundesuksess":
             enps = ENPS_KUNDESUKSESS[nr] + tilfeldig.randint(-1, 1)
         else:

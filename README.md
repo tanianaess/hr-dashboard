@@ -31,6 +31,10 @@ Dashbordet er bygget som om dataene var ekte:
   totalen alltid (at noen har sluttet er ikke sensitivt), men fordelingen på
   sluttårsak og «uønsket» bare når teamet har minst 5 avganger – det sensitive er
   ledelsens vurdering av enkeltpersoner.
+- **Sekundær prikking:** en skjult gruppe skal ikke kunne regnes ut som «total minus de
+  synlige». For sensitive tall (sykefravær, eNPS og fordelingen på uønsket og sluttårsak)
+  holdes små skjulte grupper utenfor totalen, og totalen merkes, f.eks. «Hele selskapet
+  (uten ledergruppen)». Totalt antall avganger og bemanning tar med alle.
 - **n vises ved siden av prosenter**, f.eks. «20,7 % (8 av 39)», så leseren ser
   hvor få personer et tall bygger på.
 - **Lønn vises aldri per team.** Kostnaden ved turnover vises bare for hele

@@ -61,6 +61,19 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
     selskapet (ellers kan «1 personlighetstest» peke mot én kandidat)
   
   Dette gjelder også når filtre gjør en gruppe mindre enn 5.
+- **Sekundær prikking:** en skjult gruppe må ikke kunne regnes ut som «total minus
+  de synlige gruppene». For **sensitive tall** – sykefravær, eNPS (inkl.
+  svarandel) og turnoverfordelingen (uønsket og sluttårsak) – gjelder:
+  - Hvis de skjulte teamene **til sammen** er under 5 (ansatte, svar eller
+    avganger), holdes de **utenfor totalen**. Er de til sammen 5 eller flere,
+    kan totalen ta med alle (de kan ikke skilles fra hverandre).
+  - Totaler som holder noen utenfor, merkes tydelig, f.eks. «Hele selskapet
+    (uten ledergruppen)».
+  - Gjelder også når filteret blander skjulte og synlige team, og for perioden
+    det sammenlignes med (samme team holdes utenfor i begge perioder).
+  - **Ikke sensitivt** – totalen tar alltid med alle: totalt antall avganger,
+    total turnover og bemanning.
+  - Regelen ligger i `sekundar_prikking()` i `beregninger.py`.
 - **Lønn** vises aldri per team. Den brukes bare i kostnadsberegningen, og
   kostnaden vises bare for hele selskapet (ikke når filteret velger enkeltteam).
 - **Stilling** blir aldri et filter i dashbordet (stilling + team kan peke ut
@@ -259,6 +272,8 @@ perioden.
      effekt** på turnover eller prøvetid. Trekkes med egen tilfeldighetsgenerator
      (`FRO + 1`), så resten av dataene ikke endres. Gruppen er så liten at nivå 3
      i praksis vises som «for tidlig å måle» eller «skjult» – det er poenget.
+  10. **Lav svarandel**: kundesuksess har ca. 45 % svarandel i 2026-K3 (resten
+      72–90 %). Overstyres etter trekningen, så resten av dataene ikke endres.
 
 ### Presiseringer av definisjonene
 - **Arbeidsdager** (for avtalte dagsverk) = mandag–fredag. Helligdager og ferie

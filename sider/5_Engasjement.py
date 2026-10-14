@@ -36,6 +36,19 @@ if not kvartaler:
     st.stop()
 
 siste = kvartaler[-1]
+forrige_k, fjor_k = b.kvartal_minus(siste, 1), b.kvartal_minus(siste, 4)
+
+# Sekundær prikking: team med under 5 svar i et av kvartalene som vises eller
+# sammenlignes med, holdes utenfor totalene hvis de til sammen er under 5 svar.
+brukte_kvartaler = set(kvartaler) | {forrige_k, fjor_k}
+brukt = utvalg[utvalg["kvartal"].isin(brukte_kvartaler)]
+skjult_team = sorted(brukt.loc[brukt["antall_svar"] < b.MIN_GRUPPE, "team"].unique())
+# Summen av de skjulte sjekkes i hvert kvartal
+utenfor = sorted({team for kvartal in brukte_kvartaler
+                  for team in b.sekundar_prikking(
+                      {team: int(brukt.loc[(brukt["team"] == team) & (brukt["kvartal"] == kvartal),
+                                           "antall_svar"].sum()) for team in skjult_team})})
+utvalg_total = utvalg[~utvalg["team"].isin(utenfor)]  # brukes til alle totaler
 st.caption(
     f"Kvartaler i perioden: {kvartaler[0]}–{siste}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}."
@@ -49,7 +62,9 @@ with st.expander("Slik leses eNPS"):
         "- Positive tall betyr flere anbefalere enn kritikere.\n"
         "- I små grupper kan noen få svar flytte tallet mye – derfor vises antall svar (n) "
         "og svarandel alltid.\n"
-        "- For flere team samlet vektes hvert team med antall svar."
+        "- For flere team samlet vektes hvert team med antall svar.\n"
+        "- **Lav svarandel** kan gi et skjevt bilde: de som er mest misfornøyde, svarer "
+        "ofte ikke (frafallsskjevhet)."
     )
 
 
@@ -70,7 +85,7 @@ def endring_poeng(ny, gammel):
     return "±0 poeng" if diff == 0 else f"{diff:+d} poeng"
 
 
-def hent(kvartal, data=utvalg):
+def hent(kvartal, data=utvalg_total):
     """Samlet eNPS for et kvartal (None hvis kvartalet mangler eller har under 5 svar)."""
     return b.enps_samlet(data[data["kvartal"] == kvartal])
 
@@ -81,11 +96,13 @@ if naa is None:
     st.warning("Utvalget har færre enn 5 svar. eNPS skjules av personvernhensyn.")
     st.stop()
 
-forrige_k, fjor_k = b.kvartal_minus(siste, 1), b.kvartal_minus(siste, 4)
 forrige, fjor = hent(forrige_k), hent(fjor_k)
 mot_fjor = endring_poeng(naa["enps"], fjor["enps"] if fjor else None)
 mot_forrige = endring_poeng(naa["enps"], forrige["enps"] if forrige else None)
 lav = naa["svarandel"] < b.LAV_SVARANDEL
+if utenfor:
+    st.caption(f"Totalene gjelder **{b.med_unntak('utvalget', utenfor)}** – små team holdes "
+               "utenfor så de ikke kan regnes ut (sekundær prikking).")
 
 kort1, kort2, kort3 = st.columns(3)
 kort1.metric(f"eNPS {siste}", enps_tekst(naa["enps"]), delta=mot_fjor,
@@ -176,7 +193,7 @@ for team in valgte_team:
     })
 if hele_selskapet:
     rader.append({
-        "Team": "Hele selskapet", f"eNPS {siste}": enps_tekst(naa["enps"]),
+        "Team": b.med_unntak("Hele selskapet", utenfor), f"eNPS {siste}": enps_tekst(naa["enps"]),
         "Antall svar": str(naa["svar"]), "Svarandel": b.prosent(naa["svarandel"], 0),
         "Mot forrige kvartal": mot_forrige or "–", "Mot i fjor": mot_fjor or "–",
     })
@@ -189,16 +206,40 @@ st.caption(
 )
 
 
+lave = [r["Team"] for r in rader if r["Svarandel"].endswith("(lav)")]
+if lav or lave:
+    st.info(
+        "**Lav svarandel"
+        + (f" ({', '.join(lave)})" if lave else "")
+        + ":** når mange ikke svarer, kan eNPS gi et for positivt bilde. De som er mest "
+        "misfornøyde, svarer ofte ikke (frafallsskjevhet), så det reelle engasjementet "
+        "kan være lavere enn tallet viser.",
+        icon="ℹ️",
+    )
+
+
 # --- Kobling: eNPS og langtidsfravær ------------------------------------------------------
 st.subheader("Engasjement og langtidsfravær")
 st.warning(b.KOBLING_MERKNAD, icon="⚠️")
 
-snitt_ansatte = b.snitt_ansatte(ansatte[ansatte["team"].isin(valgte_team)], start, slutt)
+fravaer_skjulte = {}
+for team in valgte_team:
+    snitt_team = b.snitt_ansatte(ansatte[ansatte["team"] == team], start, slutt)
+    if snitt_team < b.MIN_GRUPPE:
+        fravaer_skjulte[team] = snitt_team
+# Samme team holdes utenfor begge grafene, så de viser samme utvalg
+utenfor_kobling = sorted(set(utenfor) | set(b.sekundar_prikking(fravaer_skjulte)))
+kobling_team = [t for t in valgte_team if t not in utenfor_kobling]
+snitt_ansatte = b.snitt_ansatte(ansatte[ansatte["team"].isin(kobling_team)], start, slutt)
 if snitt_ansatte < b.MIN_GRUPPE:
     st.info("Utvalget har færre enn 5 ansatte. Fraværet skjules av personvernhensyn.")
 else:
-    per_kvartal = b.enps_per_kvartal(utvalg, kvartaler).set_index("kvartal")
-    langtid = b.langtid_per_kvartal(fravaer[fravaer["team"].isin(valgte_team)], kvartaler)
+    if utenfor_kobling:
+        st.caption(f"Begge grafene gjelder **{b.med_unntak('utvalget', utenfor_kobling)}** "
+                   "(sekundær prikking).")
+    per_kvartal = b.enps_per_kvartal(utvalg[utvalg["team"].isin(kobling_team)],
+                                     kvartaler).set_index("kvartal")
+    langtid = b.langtid_per_kvartal(fravaer[fravaer["team"].isin(kobling_team)], kvartaler)
     kobling = per_kvartal[["enps"]].join(langtid * 100).reset_index()
     kobling["enps"] = kobling["enps"].map(b.avrund)
     kobling["langtid_rate"] = kobling["langtid_rate"].map(lambda x: b.avrund(x, 1))

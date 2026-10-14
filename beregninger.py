@@ -20,6 +20,23 @@ TELLER_I_TURNOVER = ["frivillig", "ufrivillig", "pensjon"]
 # Femregelen: grupper med færre enn 5 skjules
 MIN_GRUPPE = 5
 
+
+def sekundar_prikking(skjulte):
+    """Sekundær prikking: hvilke skjulte team må holdes utenfor totalen?
+    `skjulte` er {team: størrelse} for team som allerede er skjult (primær prikking),
+    der størrelse er antall ansatte, svar eller avganger.
+    Er de skjulte teamene til sammen under 5, kunne de regnes ut som «total minus
+    de synlige» – da holdes de utenfor. Er de til sammen 5 eller flere, kan de ikke
+    skilles fra hverandre, og totalen kan ta med alle. Gir tilbake en sortert liste."""
+    if skjulte and sum(skjulte.values()) < MIN_GRUPPE:
+        return sorted(skjulte)
+    return []
+
+
+def med_unntak(navn, utenfor):
+    """«Hele selskapet» → «Hele selskapet (uten ledergruppen)» når noen holdes utenfor."""
+    return f"{navn} (uten {', '.join(utenfor)})" if utenfor else navn
+
 # Merking som vises øverst på alle sider (se «Presentasjon» i CLAUDE.md)
 SYNTETISK_MERKNAD = (
     "**Syntetiske data.** Alle tall i dette dashbordet er oppdiktet og konstruert "
