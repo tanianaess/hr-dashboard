@@ -99,6 +99,16 @@ STILLINGER = {
 LEDERGRUPPEN = [("Daglig leder", 2_200_000), ("Økonomidirektør", 1_800_000),
                 ("Teknologidirektør", 1_900_000), ("Kommersiell direktør", 1_700_000)]
 
+# Tilleggsmetoder i strukturert rekruttering: fra 2026 (etter utlysningsdato) får
+# ca. 25 % av de strukturerte ansettelsene én eller flere tilleggsmetoder.
+# Trekkes med en EGEN tilfeldighetsgenerator etter simuleringen, så resten av
+# dataene blir helt uendret. Metodene har ingen innebygd effekt på turnover eller
+# prøvetid – dataene skal ikke «bevise» noe forskningen allerede har undersøkt.
+TILLEGG_FRA = pd.Timestamp("2026-01-01")
+ANDEL_MED_TILLEGG = 0.25
+# Av dem som får tillegg: hvor ofte hver metode brukes (noen får flere)
+TILLEGGSMETODER = {"case_study": 0.60, "personlighetstest": 0.45, "evnetest": 0.35}
+
 DATAMAPPE = Path("data")
 
 # =============================================================================
@@ -318,6 +328,46 @@ ansatte_df.insert(0, "ansatt_id", [f"A{i:03d}" for i in range(1, len(ansatte_df)
 for kolonne in ["ansattdato", "sluttdato", "utlysningsdato", "aksept_dato"]:
     ansatte_df[kolonne] = pd.to_datetime(ansatte_df[kolonne]).dt.normalize()
 ansatte_df["årslønn"] = ansatte_df["årslønn"].astype(int)
+
+
+# =============================================================================
+# 3b. REKRUTTERINGSMETODER (strukturert intervju og tilleggsmetoder)
+# =============================================================================
+# Regler (se CLAUDE.md):
+# - strukturert_intervju = ja ⟺ rekrutteringsmetode = strukturert
+# - ustrukturerte har nei på alle fire; tomme felt før rekrutteringsdata ble registrert
+# - tilleggsmetoder bare for strukturerte ansettelser utlyst fra TILLEGG_FRA
+
+tilfeldig_tillegg = random.Random(FRO + 1)  # egen generator – påvirker ikke resten
+registrert = ansatte_df["rekrutteringsmetode"].notna()
+strukturert = ansatte_df["rekrutteringsmetode"] == "strukturert"
+
+ansatte_df["strukturert_intervju"] = None
+ansatte_df.loc[registrert, "strukturert_intervju"] = (
+    strukturert[registrert].map({True: "ja", False: "nei"})
+)
+for metode in TILLEGGSMETODER:
+    ansatte_df[metode] = None
+    ansatte_df.loc[registrert, metode] = "nei"
+
+# Jevn fordeling: omtrent hver fjerde strukturerte ansettelse fra 2026 får tillegg
+kandidater = ansatte_df[strukturert & (ansatte_df["utlysningsdato"] >= TILLEGG_FRA)]
+teller = 0.5
+for rad in kandidater.sort_values("utlysningsdato").index:
+    teller += ANDEL_MED_TILLEGG
+    if teller >= 1:
+        teller -= 1
+        valgt = [m for m, andel in TILLEGGSMETODER.items() if tilfeldig_tillegg.random() < andel]
+        if not valgt:  # minst én metode
+            valgt = [tilfeldig_tillegg.choice(list(TILLEGGSMETODER))]
+        for metode in valgt:
+            ansatte_df.loc[rad, metode] = "ja"
+
+# Flytt de nye kolonnene inn rett etter rekrutteringsmetode
+nye = ["strukturert_intervju", *TILLEGGSMETODER]
+kolonner = [k for k in ansatte_df.columns if k not in nye]
+plass = kolonner.index("rekrutteringsmetode") + 1
+ansatte_df = ansatte_df[kolonner[:plass] + nye + kolonner[plass:]]
 
 
 # =============================================================================

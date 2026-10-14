@@ -384,8 +384,9 @@ def kvalitet_kohorter(ansatte, slutt):
     }
 
 
-def kvalitet_per_metode(ansatte, slutt):
-    """Tidlig turnover og prøvetid bestått per rekrutteringsmetode, med n.
+def _kvalitet_per_gruppe(ansatte, slutt, gruppe, grupper):
+    """Felles regnestykke: tidlig turnover og prøvetid bestått for hver gruppe.
+    `gruppe` er en funksjon som gir hver ansatt en gruppe (f.eks. metode eller nivå).
     Femregelen: grupper med færre enn 5 i kohorten får None (skjules)."""
     k = kvalitet_kohorter(ansatte, slutt)
     tidlig, provetid = k["tidlig"], k["provetid"]
@@ -395,13 +396,13 @@ def kvalitet_per_metode(ansatte, slutt):
         & (tidlig["sluttdato"] < tidlig["ansattdato"] + pd.DateOffset(months=12))
         & tidlig["sluttårsak"].isin(TELLER_I_TURNOVER)
     )
+    gruppe_t, gruppe_p = gruppe(tidlig), gruppe(provetid)
     rader = []
-    for metode in ["strukturert", "ustrukturert"]:
-        er_t = tidlig["rekrutteringsmetode"] == metode
-        er_p = provetid["rekrutteringsmetode"] == metode
+    for navn in grupper:
+        er_t, er_p = gruppe_t == navn, gruppe_p == navn
         n_t, n_p = int(er_t.sum()), int(er_p.sum())
         rader.append({
-            "metode": metode,
+            "gruppe": navn,
             "tidlig_n": n_t,
             "tidlig_antall": int((sluttet_tidlig & er_t).sum()) if n_t >= MIN_GRUPPE else None,
             "provetid_n": n_p,
@@ -411,10 +412,27 @@ def kvalitet_per_metode(ansatte, slutt):
     return pd.DataFrame(rader)
 
 
+def kvalitet_per_metode(ansatte, slutt):
+    """Tidlig turnover og prøvetid bestått per rekrutteringsmetode, med n."""
+    return _kvalitet_per_gruppe(ansatte, slutt, lambda a: a["rekrutteringsmetode"],
+                                ["strukturert", "ustrukturert"])
+
+
+def kvalitet_per_nivaa(ansatte, slutt):
+    """Tidlig turnover og prøvetid bestått på tre nivåer, med n."""
+    return _kvalitet_per_gruppe(ansatte, slutt, rekrutteringsnivaa, NIVAAER)
+
+
 # --- Bemanning mot plan -----------------------------------------------------------
 
 # Team med større avvik enn dette (i begge retninger) markeres
 AVVIK_GRENSE = 0.05
+
+
+def over_avviksgrense(faktisk, plan):
+    """Sant når faktisk avviker mer enn 5 % fra plan – i begge retninger.
+    Brukes både i tabellen og på KPI-kortet, så regelen er lik overalt."""
+    return plan > 0 and abs(faktisk - plan) / plan > AVVIK_GRENSE
 
 
 def les_bemanningsplan():
@@ -464,10 +482,67 @@ def bemanning_per_team(ansatte, plan, start, slutt, team_liste=TEAM):
             "midlertidige": midlertidige,
             "avvik": avvik,
             "bemanningsgrad": faktisk / planlagt if planlagt else None,
-            "markert": planlagt > 0 and abs(avvik) / planlagt > AVVIK_GRENSE,
+            "markert": over_avviksgrense(faktisk, planlagt),
             "ansettelser": len(ansatt_i_perioden),
             "avganger": len(sluttet),
             "tiltredelse_median": dager.median() if len(dager) else None,
             "tiltredelse_n": len(dager),
         })
     return pd.DataFrame(rader)
+
+
+
+# --- Tilleggsmetoder og forskning --------------------------------------------------
+
+# Kolonnenavn → visningsnavn
+TILLEGGSMETODER = {"case_study": "case study", "personlighetstest": "personlighetstest",
+                   "evnetest": "evnetest"}
+
+NIVAAER = ["ustrukturert", "strukturert intervju alene", "strukturert + tillegg"]
+
+
+def rekrutteringsnivaa(ansatte):
+    """Gir hver ansatt ett av tre nivåer (eller tom verdi før registrering).
+    Som en HVIS-formel i en hjelpekolonne i Excel."""
+    har_tillegg = (ansatte[list(TILLEGGSMETODER)] == "ja").any(axis=1)
+    nivaa = pd.Series(None, index=ansatte.index, dtype="object")
+    nivaa[ansatte["rekrutteringsmetode"] == "ustrukturert"] = NIVAAER[0]
+    nivaa[(ansatte["rekrutteringsmetode"] == "strukturert") & ~har_tillegg] = NIVAAER[1]
+    nivaa[(ansatte["rekrutteringsmetode"] == "strukturert") & har_tillegg] = NIVAAER[2]
+    return nivaa
+
+
+def bruk_av_tilleggsmetoder(ansatte, start, slutt, hele_selskapet):
+    """Antall ansettelser i perioden per tilleggsmetode – bare antall, aldri resultater.
+    Femregelen: under 5 skjules (None) når filteret ikke viser hele selskapet."""
+    a = ansettelser_i_perioden(ansatte, start, slutt)
+    tellinger = {navn: int((a[kolonne] == "ja").sum()) for kolonne, navn in TILLEGGSMETODER.items()}
+    tellinger["minst én metode"] = int((a[list(TILLEGGSMETODER)] == "ja").any(axis=1).sum())
+    if not hele_selskapet:
+        tellinger = {k: (v if v >= MIN_GRUPPE else None) for k, v in tellinger.items()}
+    return tellinger
+
+
+# Validitet (korrigert, operasjonell) for jobbprestasjon.
+# Sackett, Zhang, Berry og Lievens (2022): «Revisiting meta-analytic estimates of
+# validity in personnel selection», Journal of Applied Psychology 107(11), 2040–2068,
+# tabell 3. Verifisert av brukeren mot tabell 3.
+# Schmidt og Hunter (1998): «The validity and utility of selection methods in
+# personnel psychology», Psychological Bulletin 124(2), 262–274, tabell 1.
+# ⚠️ Schmidt og Hunter-tallene er IKKE verifisert ennå – må sjekkes mot kilden.
+FORSKNING_KILDE = "Sackett mfl. (2022), tabell 3"
+FORSKNING_KILDE_URL = "https://doi.org/10.1037/apl0000994"
+TIDLIGERE_KILDE = "Schmidt og Hunter (1998), tabell 1"
+TIDLIGERE_KILDE_URL = "https://doi.org/10.1037/0033-2909.124.2.262"
+FORSKNING_VALIDITET = [
+    # (metode i dashbordet, kategori i forskningen, Sackett mfl. 2022, Schmidt og Hunter 1998)
+    ("Strukturert intervju", "strukturert intervju", 0.42, 0.51),
+    ("Case study", "arbeidsprøve (work sample) – nærmeste kategori", 0.33, 0.54),
+    ("Evnetest", "generell kognitiv evne", 0.31, 0.51),
+    ("Ustrukturert intervju", "ustrukturert intervju", 0.19, 0.38),
+    ("Personlighetstest (Big Five)", "planmessighet", 0.19, 0.31),
+    ("Personlighetstest (Big Five)", "ekstroversjon", 0.10, None),
+    ("Personlighetstest (Big Five)", "medmenneskelighet", 0.10, None),
+    ("Personlighetstest (Big Five)", "emosjonell stabilitet", 0.09, None),
+    ("Personlighetstest (Big Five)", "åpenhet for erfaring", 0.05, None),
+]

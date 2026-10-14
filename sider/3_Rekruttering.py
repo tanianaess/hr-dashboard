@@ -80,7 +80,7 @@ else:
 st.subheader("Kvalitet på ansettelser")
 st.warning(b.KVALITET_MERKNAD, icon="⚠️")
 
-kvalitet = b.kvalitet_per_metode(utvalg, slutt)
+kvalitet = b.kvalitet_per_nivaa(utvalg, slutt)
 kohorter = b.kvalitet_kohorter(utvalg, slutt)
 
 
@@ -96,7 +96,7 @@ def andel_tekst(antall, n):
 
 st.dataframe(
     pd.DataFrame([{
-        "Rekrutteringsmetode": r["metode"].capitalize(),
+        "Rekruttering": r["gruppe"].capitalize(),
         "Tidlig turnover (slutter innen 12 mnd)": andel_tekst(r["tidlig_antall"], r["tidlig_n"]),
         "Prøvetid bestått": andel_tekst(r["provetid_bestatt"], r["provetid_n"]),
     } for _, r in kvalitet.iterrows()]),
@@ -110,7 +110,83 @@ st.caption(
     f"(minst 12 mnd før periodeslutt). Teller avganger der stillingen må erstattes.\n"
     f"- **Prøvetid:** ansatt {b.REKRUTTERING_FRA:%d.%m.%Y}–{kohorter['provetid_til']:%d.%m.%Y} "
     f"(minst 6 mnd før periodeslutt).\n\n"
+    f"**Tre nivåer:** ustrukturert · strukturert intervju alene · strukturert intervju "
+    f"+ minst én tilleggsmetode (case study, personlighetstest eller evnetest).\n\n"
     f"**Femregelen:** grupper med færre enn 5 i kohorten skjules."
+)
+
+st.info(
+    "**Hvorfor vi ikke kan avgjøre hvilken metode som virker best:** Et selskap på "
+    "denne størrelsen ansetter for få personer til å evaluere rekrutteringsmetoder "
+    "statistisk på egne data alene – særlig de nyeste metodene, som ennå ikke har en "
+    "kohort å måle. Valg av metoder bør derfor bygge på forskning (se under), og egne "
+    "data brukes til å følge med, ikke til å bevise.",
+    icon="ℹ️",
+)
+
+
+# --- Bruk av tilleggsmetoder (bare antall, aldri resultater) -----------------------------
+st.subheader("Bruk av tilleggsmetoder")
+bruk = b.bruk_av_tilleggsmetoder(utvalg, start, slutt, hele_selskapet)
+kolonner = st.columns(len(bruk))
+for kolonne, (navn, antall) in zip(kolonner, bruk.items()):
+    kolonne.metric(navn.capitalize(), "skjult (under 5)" if antall is None else antall)
+st.caption(
+    "Antall ansettelser i perioden der metoden ble brukt (en ansettelse kan ha flere). "
+    "Tilleggsmetoder ble tatt i bruk for strukturerte ansettelser utlyst fra 2026. "
+    "Bare antall vises – aldri resultater. **Femregelen:** under 5 skjules når filteret "
+    "ikke viser hele selskapet."
+)
+
+
+# --- Forskningsboks ------------------------------------------------------------------
+def to_desimaler(verdi, fortegn=False):
+    """0.42 → «0,42» (eller «−0,09» med fortegn). Tom verdi → «–»."""
+    if verdi is None:
+        return "–"
+    tekst = f"{b.avrund(verdi, 2):{'+' if fortegn else ''}.2f}".replace(".", ",")
+    return tekst.replace("-", "−")  # ekte minustegn
+
+
+with st.container(border=True):  # ramme rundt boksen
+    st.subheader("Hva sier forskningen?")
+    st.markdown(f"Kilde: [{b.FORSKNING_KILDE}]({b.FORSKNING_KILDE_URL})")
+    st.dataframe(
+        pd.DataFrame([{
+            "Metode i dashbordet": metode,
+            "Kategori i forskningen": kategori,
+            "Sackett mfl. (2022)": to_desimaler(ny),
+            "Schmidt og Hunter (1998)": to_desimaler(gammel),
+            "Endring": to_desimaler(None if gammel is None else ny - gammel, fortegn=True),
+        } for metode, kategori, ny, gammel in b.FORSKNING_VALIDITET]),
+        hide_index=True, width="stretch",
+    )
+    st.markdown(
+        "**Validitet** er sammenhengen mellom metoden og senere jobbprestasjon, fra 0 (ingen) "
+        "til 1 (perfekt). Tallene er gjennomsnitt fra mange studier (metaanalyse).\n\n"
+        "- **Forskningen har endret seg:** Sackett mfl. (2022) korrigerer for det de mener var "
+        "overkorrigering i tidligere metaanalyser, og estimatene ble lavere – mest for evnetest "
+        "og arbeidsprøve. Strukturert intervju ligger nå øverst.\n"
+        "- **Noen forskere mener de nye estimatene er for lave**, fordi korreksjonene kan ha "
+        "gått for langt den andre veien.\n"
+        "- **Case study** finnes ikke som egen kategori i forskningen. Nærmeste kategori er "
+        "**arbeidsprøve (work sample)**.\n"
+        "- **Personlighetstest** måler alle fem Big Five-trekk. Hvilke trekk som er relevante, "
+        "**avhenger av stillingen** – et trekk med lav gjennomsnittlig validitet kan være "
+        "viktig i en bestemt rolle.\n\n"
+        f"Tidligere anslag: [{b.TIDLIGERE_KILDE}]({b.TIDLIGERE_KILDE_URL}) – "
+        "**må verifiseres mot kilden.**"
+    )
+
+
+# --- Personvern ved testbruk ---------------------------------------------------------
+st.info(
+    "**Personvern ved testbruk:** Resultater fra personlighets- og evnetester er "
+    "personopplysninger. Datasettet lagrer bare *om* en metode ble brukt – aldri "
+    "resultater, heller ikke per Big Five-trekk. Kandidater skal på forhånd informeres om "
+    "hvilke tester som brukes og hvorfor, resultatene skal bare brukes i den aktuelle "
+    "rekrutteringen, og de skal ikke lagres lenger enn nødvendig.",
+    icon="🔒",
 )
 
 

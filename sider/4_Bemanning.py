@@ -53,8 +53,13 @@ kort1.metric("Faktisk antall ansatte", faktisk)
 kort1.caption(f"Per {slutt:%d.%m.%Y}, herav {int(per_team['midlertidige'].sum())} midlertidige")
 kort2.metric("Planlagt antall", planlagt)
 kort2.caption(f"Bemanningsplan for {slutt:%m.%Y}")
-kort3.metric("Avvik mot plan", med_fortegn(avvik))
-kort3.caption(f"Bemanningsgrad {b.prosent(faktisk / planlagt if planlagt else None)}")
+# Samme 5 %-regel som i tabellen: ◆ i overskriften og forklaring under
+markert = b.over_avviksgrense(faktisk, planlagt)
+kort3.metric("Avvik mot plan ◆" if markert else "Avvik mot plan", med_fortegn(avvik))
+kort3.caption(
+    f"Bemanningsgrad {b.prosent(faktisk / planlagt if planlagt else None)}"
+    + (f" · ◆ mer enn {b.prosent(b.AVVIK_GRENSE, 0)} fra planen" if markert else "")
+)
 
 
 # --- Graf: faktisk mot plan per måned ------------------------------------------------

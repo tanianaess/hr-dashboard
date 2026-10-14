@@ -55,8 +55,10 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
       bare når teamet har **minst 5 avganger** i perioden; ellers bare for hele
       selskapet. Det sensitive er ledelsens vurdering av enkeltpersoner.
     - Samme regel gjelder når filteret velger noen team, men ikke alle.
-  - **kvalitet på ansettelser** – både per team og per rekrutteringsmetode
-    (antall ansatte som inngår i beregningen)
+  - **kvalitet på ansettelser** – både per team, per rekrutteringsmetode og per
+    nivå (antall ansatte som inngår i beregningen)
+  - **antall tilleggsmetoder** – skjules under 5 når filteret ikke viser hele
+    selskapet (ellers kan «1 personlighetstest» peke mot én kandidat)
   
   Dette gjelder også når filtre gjør en gruppe mindre enn 5.
 - **Lønn** vises aldri per team. Den brukes bare i kostnadsberegningen, og
@@ -74,6 +76,21 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
   som AVRUND i Excel – 31,25 % vises som 31,3 %. Pythons `round()` runder 5 mot
   nærmeste partall og skal **ikke** brukes til visning. Bruk alltid
   `avrund()` (eller `prosent()`, `endring_pp()`, `kroner()`) fra `beregninger.py`.
+- **Forskning om rekrutteringsmetoder:** validitetstall vises i en egen
+  forskningsboks.
+  - **Sackett mfl. (2022), tabell 3** (doi.org/10.1037/apl0000994) er
+    **verifisert av brukeren** og vises med kilde og DOI-lenke.
+  - **Schmidt og Hunter (1998), tabell 1** vises ved siden av, så endringen i
+    forskningen synes. Disse tallene er **ikke verifisert** og merkes «må
+    verifiseres mot kilden» til brukeren har sjekket dem.
+  - Nye forskningstall skrives aldri inn uten verifisering; tall som ikke er
+    funnet vises som «ikke fylt inn». Boksen nevner at noen forskere mener
+    estimatene i Sackett mfl. er for lave.
+  - Case study kobles til nærmeste kategori, arbeidsprøve (work sample).
+    Personlighet vises for alle fem Big Five-trekk, med merknad om at
+    relevansen avhenger av stillingen.
+  - Siden skal også si at et selskap på denne størrelsen ikke kan evaluere
+    metoder statistisk på egne data alene, og ha en personvernmerknad om testbruk.
 - **Dataene er syntetiske – si det tydelig.** Både dashbordet og README skal
   klart opplyse at dataene er oppdiktet og konstruert for å illustrere
   metodikk, og at tallene **ikke er ekte funn** om noe selskap.
@@ -104,6 +121,10 @@ Gjelder alle ark:
 | `sluttårsak` | tekst | frivillig, ufrivillig, pensjon, kontrakt utløpt | Tom hvis ikke sluttet. |
 | `uønsket` | tekst | ja, nei | Bare for dem som har sluttet. «ja» bare når sluttårsak = frivillig.* |
 | `rekrutteringsmetode` | tekst | strukturert, ustrukturert | Tom = ansatt før rekrutteringsdata ble registrert. |
+| `strukturert_intervju` | tekst | ja, nei | **ja ⟺ rekrutteringsmetode = strukturert.** Samme tomregel. |
+| `case_study` | tekst | ja, nei | Tilleggsmetode. Vises som «case study». Bare ja for strukturerte ansettelser. Samme tomregel. |
+| `personlighetstest` | tekst | ja, nei | Tilleggsmetode: Big Five (alle fem trekk). Bare **om** testen ble brukt – **aldri resultater** per trekk. Samme regler. |
+| `evnetest` | tekst | ja, nei | Tilleggsmetode. Samme regler. |
 | `utlysningsdato` | dato | | Samme tomregel. |
 | `aksept_dato` | dato | | Samme tomregel. Må ligge mellom utlysningsdato og ansattdato. |
 | `prøvetid_bestått` | tekst | ja, nei | Tom = ansatt før registrering, **eller** prøvetiden (6 mnd) er ikke over ennå. Python skiller de to ved hjelp av datoene (se under). |
@@ -171,7 +192,8 @@ perioden.
   - Antall personer, ikke årsverk (årsverk kan komme senere).
   - **Bemanningsgrad** = faktisk / plan ved periodeslutt.
   - Avvik vises i **nøytrale farger** (ikke rødt/grønt). Team med **mer enn
-    5 % avvik i begge retninger** markeres (◆ og nøytral bakgrunn).
+    5 % avvik i begge retninger** markeres (◆ og nøytral bakgrunn) – både i
+    tabellen og på KPI-kortet. Regelen ligger i `over_avviksgrense()`.
   - «Herav midlertidige» vises i egen kolonne. Ledergruppen vises (antall
     ansatte er ikke sensitivt).
 - **Tid til tiltredelse** = median antall dager fra `utlysningsdato` til
@@ -190,6 +212,11 @@ perioden.
   - **Prøvetid bestått** = andel med `prøvetid_bestått` = ja. Bare ansatte
     med `ansattdato` minst 6 måneder før periodeslutt tas med.
   - Ansatte uten registrert rekrutteringsmetode holdes utenfor.
+  - **Tre nivåer** til sammenligning: (1) ustrukturert, (2) strukturert intervju
+    alene (nei på alle tilleggsmetoder), (3) strukturert + tillegg (ja på minst
+    én av case study, personlighetstest, evnetest). Alltid med n og femregelen.
+- **Bruk av tilleggsmetoder** = antall ansettelser i perioden per metode – bare
+  antall, **aldri resultater**.
 
 ## Syntetiske data
 
@@ -215,6 +242,11 @@ perioden.
      regelen om at pensjon teller i total turnover blir testet.
   8. **Prøvetid**: én strukturert ansettelse stryker, så strukturert ikke
      ligger på 100 %.
+  9. **Tilleggsmetoder**: fra 2026 (etter `utlysningsdato`) har ca. 25 % av de
+     strukturerte ansettelsene én eller flere tilleggsmetoder. **Ingen innebygd
+     effekt** på turnover eller prøvetid. Trekkes med egen tilfeldighetsgenerator
+     (`FRO + 1`), så resten av dataene ikke endres. Gruppen er så liten at nivå 3
+     i praksis vises som «for tidlig å måle» eller «skjult» – det er poenget.
 
 ### Presiseringer av definisjonene
 - **Arbeidsdager** (for avtalte dagsverk) = mandag–fredag. Helligdager og ferie
