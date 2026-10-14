@@ -1,57 +1,57 @@
-team,kvartal,enps,antall_svar
-teknologi,2024-K4,26,64
-produktutvikling,2024-K4,16,13
-salg,2024-K4,7,27
-kundesuksess,2024-K4,12,36
-markedsføring,2024-K4,19,14
-økonomi og hr,2024-K4,19,11
-ledergruppen,2024-K4,38,4
-teknologi,2025-K1,22,62
-produktutvikling,2025-K1,24,15
-salg,2025-K1,10,32
-kundesuksess,2025-K1,11,33
-markedsføring,2025-K1,11,12
-økonomi og hr,2025-K1,15,12
-ledergruppen,2025-K1,42,4
-teknologi,2025-K2,18,67
-produktutvikling,2025-K2,20,16
-salg,2025-K2,5,34
-kundesuksess,2025-K2,10,37
-markedsføring,2025-K2,19,14
-økonomi og hr,2025-K2,20,12
-ledergruppen,2025-K2,38,4
-teknologi,2025-K3,21,69
-produktutvikling,2025-K3,17,14
-salg,2025-K3,9,29
-kundesuksess,2025-K3,7,33
-markedsføring,2025-K3,14,13
-økonomi og hr,2025-K3,21,12
-ledergruppen,2025-K3,36,4
-teknologi,2025-K4,26,69
-produktutvikling,2025-K4,21,14
-salg,2025-K4,9,33
-kundesuksess,2025-K4,5,37
-markedsføring,2025-K4,18,16
-økonomi og hr,2025-K4,19,13
-ledergruppen,2025-K4,44,4
-teknologi,2026-K1,22,65
-produktutvikling,2026-K1,19,15
-salg,2026-K1,6,34
-kundesuksess,2026-K1,-1,36
-markedsføring,2026-K1,15,15
-økonomi og hr,2026-K1,17,14
-ledergruppen,2026-K1,43,4
-teknologi,2026-K2,23,64
-produktutvikling,2026-K2,20,16
-salg,2026-K2,10,31
-kundesuksess,2026-K2,-8,36
-markedsføring,2026-K2,13,16
-økonomi og hr,2026-K2,18,12
-ledergruppen,2026-K2,37,4
-teknologi,2026-K3,25,66
-produktutvikling,2026-K3,23,17
-salg,2026-K3,10,30
-kundesuksess,2026-K3,-14,34
-markedsføring,2026-K3,13,15
-økonomi og hr,2026-K3,17,11
-ledergruppen,2026-K3,39,4
+team,kvartal,enps,antall_svar,antall_invitert
+teknologi,2024-K4,26,64,79
+produktutvikling,2024-K4,16,13,18
+salg,2024-K4,7,27,36
+kundesuksess,2024-K4,12,36,42
+markedsføring,2024-K4,19,14,17
+økonomi og hr,2024-K4,19,11,15
+ledergruppen,2024-K4,38,4,4
+teknologi,2025-K1,22,62,78
+produktutvikling,2025-K1,24,15,18
+salg,2025-K1,10,32,37
+kundesuksess,2025-K1,11,33,41
+markedsføring,2025-K1,11,12,16
+økonomi og hr,2025-K1,15,12,15
+ledergruppen,2025-K1,42,4,4
+teknologi,2025-K2,18,67,81
+produktutvikling,2025-K2,20,16,19
+salg,2025-K2,5,34,38
+kundesuksess,2025-K2,10,37,44
+markedsføring,2025-K2,19,14,17
+økonomi og hr,2025-K2,20,12,15
+ledergruppen,2025-K2,38,4,4
+teknologi,2025-K3,21,69,79
+produktutvikling,2025-K3,17,14,19
+salg,2025-K3,9,29,38
+kundesuksess,2025-K3,7,33,43
+markedsføring,2025-K3,14,13,16
+økonomi og hr,2025-K3,21,12,15
+ledergruppen,2025-K3,36,4,4
+teknologi,2025-K4,26,69,82
+produktutvikling,2025-K4,21,14,19
+salg,2025-K4,9,33,37
+kundesuksess,2025-K4,5,37,45
+markedsføring,2025-K4,18,16,18
+økonomi og hr,2025-K4,19,13,15
+ledergruppen,2025-K4,44,4,4
+teknologi,2026-K1,22,65,83
+produktutvikling,2026-K1,19,15,18
+salg,2026-K1,6,34,38
+kundesuksess,2026-K1,-1,36,44
+markedsføring,2026-K1,15,15,17
+økonomi og hr,2026-K1,17,14,16
+ledergruppen,2026-K1,43,4,4
+teknologi,2026-K2,23,64,83
+produktutvikling,2026-K2,20,16,20
+salg,2026-K2,10,31,40
+kundesuksess,2026-K2,-8,36,46
+markedsføring,2026-K2,13,16,18
+økonomi og hr,2026-K2,18,12,16
+ledergruppen,2026-K2,37,4,4
+teknologi,2026-K3,25,66,85
+produktutvikling,2026-K3,23,17,20
+salg,2026-K3,10,30,39
+kundesuksess,2026-K3,-14,34,44
+markedsføring,2026-K3,13,15,18
+økonomi og hr,2026-K3,17,11,15
+ledergruppen,2026-K3,39,4,4

@@ -174,8 +174,7 @@ with st.container(border=True):  # ramme rundt boksen
         "- **Personlighetstest** måler alle fem Big Five-trekk. Hvilke trekk som er relevante, "
         "**avhenger av stillingen** – et trekk med lav gjennomsnittlig validitet kan være "
         "viktig i en bestemt rolle.\n\n"
-        f"Tidligere anslag: [{b.TIDLIGERE_KILDE}]({b.TIDLIGERE_KILDE_URL}) – "
-        "**må verifiseres mot kilden.**"
+        f"Tidligere anslag: {b.TIDLIGERE_KILDE}."
     )
 
 

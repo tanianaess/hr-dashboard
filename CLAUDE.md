@@ -80,9 +80,9 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
   forskningsboks.
   - **Sackett mfl. (2022), tabell 3** (doi.org/10.1037/apl0000994) er
     **verifisert av brukeren** og vises med kilde og DOI-lenke.
-  - **Schmidt og Hunter (1998), tabell 1** vises ved siden av, så endringen i
-    forskningen synes. Disse tallene er **ikke verifisert** og merkes «må
-    verifiseres mot kilden» til brukeren har sjekket dem.
+  - **Schmidt og Hunter (1998)** vises ved siden av, så endringen i forskningen
+    synes. Kilde: «gjengitt i Sackett mfl. (2022), tabell 3» – verifisert av
+    brukeren.
   - Nye forskningstall skrives aldri inn uten verifisering; tall som ikke er
     funnet vises som «ikke fylt inn». Boksen nevner at noen forskere mener
     estimatene i Sackett mfl. er for lave.
@@ -154,6 +154,7 @@ også være uønsket.
 | `kvartal` | tekst | ÅÅÅÅ-K1 … K4 |
 | `enps` | tall | −100 til 100 |
 | `antall_svar` | tall | Femregelen bruker dette tallet. |
+| `antall_invitert` | tall | Antall ansatte som fikk undersøkelsen (alle ansatte i teamet midt i kvartalet). Brukes til svarandel. |
 
 ### Ark: Bemanningsplan (én rad per team per måned)
 
@@ -187,6 +188,17 @@ perioden.
     separat (antall).
   - Ratene **annualiseres** når perioden ikke er 12 måneder:
     rate × 12 / antall måneder i perioden.
+- **eNPS** (−100 til +100) = andel anbefalere (9–10) minus andel kritikere (0–6).
+  - For flere team samlet: gjennomsnitt **vektet med antall svar** (gir samme
+    tall som å regne eNPS på alle svarene samlet).
+  - **Svarandel** = antall svar / antall invitert. **Lav svarandel (under 50 %)
+    markeres.**
+  - Kvartaler som ligger helt innenfor perioden er med. Sammenlignes med samme
+    kvartal i fjor og med forrige kvartal.
+  - **Ingen benchmark** (ingen verifisert kilde).
+  - **Kobling mot langtidsfravær** vises med merknaden: «Sammenheng, ikke
+    nødvendigvis årsak – og den kan gå begge veier: lavt engasjement kan gi mer
+    fravær, og høyt fravær gir mer belastning på dem som er igjen.»
 - **Bemanning mot plan** = faktisk antall ansatte ved månedsslutt (alle
   ansettelsesformer) sammenlignet med `planlagt_antall`, per team og måned.
   - Antall personer, ikke årsverk (årsverk kan komme senere).

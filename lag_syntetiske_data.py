@@ -421,7 +421,7 @@ for nr, kvartalsstart in enumerate(pd.date_range(DATASTART, DATASLUTT, freq="QS"
     kvartal = f"{kvartalsstart.year}-K{kvartalsstart.quarter}"
     midt = maanedsslutt(pluss_maaneder(kvartalsstart, 1))  # slutten av midterste måned
     for team in TEAM:
-        antall = antall_ansatt_paa(team, midt)
+        antall = antall_ansatt_paa(team, midt)  # alle ansatte inviteres
         if team == "ledergruppen":
             svar = antall
         else:
@@ -431,7 +431,8 @@ for nr, kvartalsstart in enumerate(pd.date_range(DATASTART, DATASLUTT, freq="QS"
         else:
             enps = ENPS_NIVAA[team] + tilfeldig.randint(-4, 4)
         engasjement_rader.append({"team": team, "kvartal": kvartal,
-                                  "enps": max(-100, min(100, enps)), "antall_svar": svar})
+                                  "enps": max(-100, min(100, enps)), "antall_svar": svar,
+                                  "antall_invitert": antall})
 engasjement_df = pd.DataFrame(engasjement_rader)
 
 

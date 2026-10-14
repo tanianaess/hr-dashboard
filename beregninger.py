@@ -527,13 +527,11 @@ def bruk_av_tilleggsmetoder(ansatte, start, slutt, hele_selskapet):
 # Sackett, Zhang, Berry og Lievens (2022): «Revisiting meta-analytic estimates of
 # validity in personnel selection», Journal of Applied Psychology 107(11), 2040–2068,
 # tabell 3. Verifisert av brukeren mot tabell 3.
-# Schmidt og Hunter (1998): «The validity and utility of selection methods in
-# personnel psychology», Psychological Bulletin 124(2), 262–274, tabell 1.
-# ⚠️ Schmidt og Hunter-tallene er IKKE verifisert ennå – må sjekkes mot kilden.
+# Schmidt og Hunter (1998) sine tidligere anslag gjengis i samme tabell 3 i
+# Sackett mfl. (2022). Verifisert av brukeren.
 FORSKNING_KILDE = "Sackett mfl. (2022), tabell 3"
 FORSKNING_KILDE_URL = "https://doi.org/10.1037/apl0000994"
-TIDLIGERE_KILDE = "Schmidt og Hunter (1998), tabell 1"
-TIDLIGERE_KILDE_URL = "https://doi.org/10.1037/0033-2909.124.2.262"
+TIDLIGERE_KILDE = "Schmidt og Hunter (1998), gjengitt i Sackett mfl. (2022), tabell 3"
 FORSKNING_VALIDITET = [
     # (metode i dashbordet, kategori i forskningen, Sackett mfl. 2022, Schmidt og Hunter 1998)
     ("Strukturert intervju", "strukturert intervju", 0.42, 0.51),
@@ -546,3 +544,73 @@ FORSKNING_VALIDITET = [
     ("Personlighetstest (Big Five)", "emosjonell stabilitet", 0.09, None),
     ("Personlighetstest (Big Five)", "åpenhet for erfaring", 0.05, None),
 ]
+
+
+# --- Engasjement (eNPS) -----------------------------------------------------------
+
+# Svarandel under dette markeres som lav
+LAV_SVARANDEL = 0.50
+
+# Et team uthevet i eNPS-grafen bare hvis det har falt minst så mange poeng
+UTHEV_FALL = 10
+
+KOBLING_MERKNAD = (
+    "**Sammenheng, ikke nødvendigvis årsak** – og den kan gå begge veier: lavt "
+    "engasjement kan gi mer fravær, og høyt fravær gir mer belastning på dem som er igjen."
+)
+
+
+def les_engasjement():
+    """Leser engasjement.csv: eNPS, antall svar og antall invitert per team og kvartal."""
+    return pd.read_csv(DATAMAPPE / "engasjement.csv")
+
+
+def kvartaler_i_perioden(start, slutt):
+    """Kvartaler som ligger helt innenfor perioden, f.eks. ['2025-K4', '2026-K1', …]."""
+    kvartaler = []
+    for kvartal_start in pd.date_range(start, slutt, freq="QS"):
+        if maanedsslutt(kvartal_start + pd.DateOffset(months=2)) <= slutt:
+            kvartaler.append(f"{kvartal_start.year}-K{kvartal_start.quarter}")
+    return kvartaler
+
+
+def kvartal_minus(kvartal, antall):
+    """«2026-K3» minus 1 → «2026-K2», minus 4 → «2025-K3»."""
+    aar, k = int(kvartal[:4]), int(kvartal[-1])
+    nr = aar * 4 + (k - 1) - antall
+    return f"{nr // 4}-K{nr % 4 + 1}"
+
+
+def enps_samlet(engasjement):
+    """eNPS for flere team samlet: gjennomsnitt vektet med antall svar.
+    Som SUMMERPRODUKT(eNPS; svar) / SUMMER(svar) i Excel.
+    Femregelen: under 5 svar totalt gir None."""
+    svar = engasjement["antall_svar"].sum()
+    if svar < MIN_GRUPPE:
+        return None
+    return {
+        "enps": (engasjement["enps"] * engasjement["antall_svar"]).sum() / svar,
+        "svar": int(svar),
+        "invitert": int(engasjement["antall_invitert"].sum()),
+        "svarandel": svar / engasjement["antall_invitert"].sum(),
+    }
+
+
+def enps_per_kvartal(engasjement, kvartaler):
+    """Samlet eNPS (vektet) for hvert kvartal. Kvartaler med under 5 svar utelates."""
+    rader = []
+    for kvartal in kvartaler:
+        e = enps_samlet(engasjement[engasjement["kvartal"] == kvartal])
+        if e:
+            rader.append({"kvartal": kvartal, **e})
+    return pd.DataFrame(rader)
+
+
+def langtid_per_kvartal(fravaer, kvartaler):
+    """Langtidsfravær per kvartal: tapte langtid / avtalte dagsverk for kvartalets måneder."""
+    f = fravaer.copy()
+    maaned = pd.to_datetime(f["måned"], format="%Y-%m")
+    f["kvartal"] = maaned.dt.year.astype(str) + "-K" + maaned.dt.quarter.astype(str)
+    per_k = f[f["kvartal"].isin(kvartaler)].groupby("kvartal")[
+        ["tapte_dagsverk_langtid", "avtalte_dagsverk"]].sum()
+    return (per_k["tapte_dagsverk_langtid"] / per_k["avtalte_dagsverk"]).rename("langtid_rate")
