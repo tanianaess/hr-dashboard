@@ -1,10 +1,9 @@
 # Innstillinger Streamlit leser automatisk når du skriver «streamlit run app.py»
 
 [server]
-# Bare din egen maskin kan åpne siden (ikke andre på samme nettverk)
-address = "localhost"
-# Hopper over e-postspørsmålet ved oppstart. Nettleseren åpnes ikke av seg selv –
-# gå til http://localhost:8501
+# Hopper over e-postspørsmålet ved oppstart. Nettleseren åpnes ikke av seg selv,
+# så gå til http://localhost:8501. (Ingen fast «address»: den hindrer publisering
+# på Streamlit Community Cloud.)
 headless = true
 
 [browser]

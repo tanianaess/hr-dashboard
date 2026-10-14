@@ -116,7 +116,7 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
   **per punkt**: et punkt med under 5 (ansatte eller svar) vises ikke, og små
   team holdes utenfor punktet når de til sammen er under 5
   (`sykefravaer_per_maaned()`, `langtid_per_kvartal()`).
-- **Tilgangsstyring:** Ingen tekniske regler kan helt hindre at tall utledes i et interaktivt verktøy. Den viktigste beskyttelsen er tilgangsstyring – i drift skal bare HR-ledelse og ledergruppen ha tilgang. Reglene her reduserer risikoen.
+- **Hva reglene ikke gjør:** Faste perioder, femregelen og sekundær prikking reduserer risikoen for at tall om små grupper kan utledes, men de hindrer den ikke. Ingen tekniske regler kan helt hindre det i et interaktivt verktøy. Den som kjenner organisasjonen, kan dessuten koble tallene med egen kunnskap, for eksempel om hvem som sluttet i en bestemt måned. Den viktigste beskyttelsen er derfor tilgangsstyring: i drift skal bare HR-ledelse og ledergruppen ha tilgang. Skriv det like ærlig overalt (README, dashbordet): aldri at reglene «hindrer» eller «sikrer» noe.
 - **Lønn** vises aldri per team. Den brukes bare i kostnadsberegningen, og
   kostnaden vises bare i **én fast visning**: hele selskapet, **siste 12 mnd**
   (`er_siste_12()`), sammenlignet med forrige 12 mnd (den andre faste perioden),

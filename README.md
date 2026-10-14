@@ -55,7 +55,7 @@ Dashbordet er bygget som om dataene var ekte. Grunnprinsippet:
 - **Testresultater lagres aldri.** Datasettet viser bare *om* en personlighets- eller
   evnetest ble brukt, ikke resultatet.
 
-> **Tilgangsstyring:** Ingen tekniske regler kan helt hindre at tall utledes i et interaktivt verktøy. Den viktigste beskyttelsen er tilgangsstyring – i drift skal bare HR-ledelse og ledergruppen ha tilgang. Reglene her reduserer risikoen.
+> **Hva reglene ikke gjør:** Faste perioder, femregelen og sekundær prikking **reduserer** risikoen for at tall om små grupper kan utledes, men de **hindrer den ikke**. Ingen tekniske regler kan helt hindre det i et interaktivt verktøy. Den som kjenner organisasjonen, kan dessuten koble tallene med egen kunnskap, for eksempel om hvem som sluttet i en bestemt måned. Den viktigste beskyttelsen er derfor tilgangsstyring: i drift skal bare HR-ledelse og ledergruppen ha tilgang.
 
 ## Definisjoner (utvalg)
 
@@ -92,7 +92,8 @@ man ofte ser i virkeligheten, for å vise hva dashbordet kan avdekke:
 
 ## Kjør selv
 
-Krever Python 3.
+Krever **Python 3.12** eller nyere (testet med 3.12 og 3.14). Velg Python 3.12 også
+ved publisering på Streamlit Community Cloud.
 
 ```bash
 # 1. Lag et virtuelt miljø og installer pakkene
@@ -130,13 +131,22 @@ filtre.py                 Felles filtre for periode og team
 lag_syntetiske_data.py    Genererer de syntetiske dataene
 data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan
 kontroller_mot_excel.py   Sjekker Python-formlene mot en Excel-fasit
+tests/                    Automatiske tester (pytest)
 Datamodell.xlsx           Excel-utkast til datamodell med 20 testrader (fasit)
 CLAUDE.md                 Prosjektregler, datamodell og definisjoner
 ```
 
 ## Kvalitetssikring
 
-Formlene er kontrollert mot en håndregnet Excel-fasit (`Datamodell.xlsx`, 20
+Automatiske tester (pytest) sjekker nøkkeltallene, personvernreglene og at alle
+sidene kjører for alle filtervalg:
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+Formlene er også kontrollert mot en håndregnet Excel-fasit (`Datamodell.xlsx`, 20
 testrader) med `kontroller_mot_excel.py`. Avvik mellom Excel og Python er
 forklart og skyldes bevisste valg i definisjonene (f.eks. snitt ansatte per
 månedsslutt i stedet for (start + slutt) / 2).
