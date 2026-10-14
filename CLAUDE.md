@@ -168,6 +168,15 @@ perioden.
     rate × 12 / antall måneder i perioden.
 - **Bemanning mot plan** = faktisk antall ansatte ved månedsslutt (alle
   ansettelsesformer) sammenlignet med `planlagt_antall`, per team og måned.
+  - Antall personer, ikke årsverk (årsverk kan komme senere).
+  - **Bemanningsgrad** = faktisk / plan ved periodeslutt.
+  - Avvik vises i **nøytrale farger** (ikke rødt/grønt). Team med **mer enn
+    5 % avvik i begge retninger** markeres (◆ og nøytral bakgrunn).
+  - «Herav midlertidige» vises i egen kolonne. Ledergruppen vises (antall
+    ansatte er ikke sensitivt).
+- **Tid til tiltredelse** = median antall dager fra `utlysningsdato` til
+  `ansattdato` (inkluderer oppsigelsestid), for dem som ble ansatt i perioden.
+  Skiller seg fra tid til ansettelse, som stopper ved `aksept_dato`.
 - **Kostnad ved uønsket turnover** = sum årslønn for uønskede avganger × 75 %
   (antakelse).
 - **Sykefravær** = (tapte korttid + tapte langtid) / avtalte dagsverk.

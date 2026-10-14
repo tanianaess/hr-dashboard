@@ -409,3 +409,65 @@ def kvalitet_per_metode(ansatte, slutt):
                                 if n_p >= MIN_GRUPPE else None,
         })
     return pd.DataFrame(rader)
+
+
+# --- Bemanning mot plan -----------------------------------------------------------
+
+# Team med større avvik enn dette (i begge retninger) markeres
+AVVIK_GRENSE = 0.05
+
+
+def les_bemanningsplan():
+    """Leser bemanningsplan.csv: planlagt antall per team og måned."""
+    return pd.read_csv(DATAMAPPE / "bemanningsplan.csv")
+
+
+def bemanning_per_maaned(ansatte, plan, start, slutt):
+    """Faktisk og planlagt antall ansatte ved hver månedsslutt i perioden.
+    Faktisk = alle ansettelsesformer. Gjelder de team som er med i tabellene."""
+    rader = []
+    for dag in maanedsslutter(start, slutt):
+        maaned = dag.strftime("%Y-%m")
+        rader.append({
+            "måned": maaned,
+            "Faktisk": antall_ansatt_paa(ansatte, dag),
+            "Plan": int(plan.loc[plan["måned"] == maaned, "planlagt_antall"].sum()),
+        })
+    return pd.DataFrame(rader)
+
+
+def bemanning_per_team(ansatte, plan, start, slutt, team_liste=TEAM):
+    """Én rad per team: plan og faktisk ved periodeslutt, avvik, bemanningsgrad,
+    ansettelser og avganger i perioden, og median tid til tiltredelse."""
+    siste_maaned = slutt.strftime("%Y-%m")
+    rader = []
+    for team in team_liste:
+        a = ansatte[ansatte["team"] == team]
+        planlagt = int(plan.loc[(plan["team"] == team) & (plan["måned"] == siste_maaned),
+                                "planlagt_antall"].sum())
+        faktisk = antall_ansatt_paa(a, slutt)
+        midlertidige = antall_ansatt_paa(a[a["ansettelsesform"] == "midlertidig"], slutt)
+
+        # Ansettelser og avganger i perioden (alle ansettelsesformer og sluttårsaker)
+        ansatt_i_perioden = a[(a["ansattdato"] >= start) & (a["ansattdato"] <= slutt)]
+        sluttet = sluttet_i_perioden(a, start, slutt)
+
+        # Tid til tiltredelse: fra utlysning til første arbeidsdag
+        med_data = ansatt_i_perioden[ansatt_i_perioden["utlysningsdato"].notna()]
+        dager = (med_data["ansattdato"] - med_data["utlysningsdato"]).dt.days
+
+        avvik = faktisk - planlagt
+        rader.append({
+            "team": team,
+            "plan": planlagt,
+            "faktisk": faktisk,
+            "midlertidige": midlertidige,
+            "avvik": avvik,
+            "bemanningsgrad": faktisk / planlagt if planlagt else None,
+            "markert": planlagt > 0 and abs(avvik) / planlagt > AVVIK_GRENSE,
+            "ansettelser": len(ansatt_i_perioden),
+            "avganger": len(sluttet),
+            "tiltredelse_median": dager.median() if len(dager) else None,
+            "tiltredelse_n": len(dager),
+        })
+    return pd.DataFrame(rader)
