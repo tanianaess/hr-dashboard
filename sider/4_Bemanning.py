@@ -50,8 +50,8 @@ kort2.caption(f"Bemanningsplan for {slutt:%m.%Y}")
 markert = b.over_avviksgrense(faktisk, planlagt)
 kort3.metric("Avvik mot plan ◆" if markert else "Avvik mot plan", b.fortegn(avvik))
 kort3.caption(
-    f"Bemanningsgrad {b.prosent(faktisk / planlagt if planlagt else None)}"
-    + (f" · ◆ mer enn {b.prosent(b.AVVIK_GRENSE, 0)} fra planen" if markert else "")
+    f"Bemanningsgrad {b.prosent(faktisk / planlagt if planlagt else None)}."
+    + (f" ◆ Mer enn {b.prosent(b.AVVIK_GRENSE, 0)} fra planen." if markert else "")
 )
 
 

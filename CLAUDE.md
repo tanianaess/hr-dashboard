@@ -183,6 +183,10 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
 - **En-endinger, ikke a-endinger:** «pilen», «linjen», «filen», «mappen», ikke
   «pila», «linja», «fila», «mappa». Gjelder all tekst i dashbordet, README,
   CLAUDE.md og kommentarer i koden. Sjekkes av en test.
+- **Hele setninger, ikke prikker (·) som skilletegn** i forklaringer på sidene
+  (Tanias valg 16.10.2026). Det som gjelder flere nøkkeltallskort (hva pilene
+  sammenligner med, hvem som er holdt utenfor) står én gang over kortene
+  (`felles_merknad()` i `innsikter.py`). Sjekkes av en test.
 - **Dataene er syntetiske – si det tydelig.** Både dashbordet og README skal
   klart opplyse at dataene er oppdiktet og konstruert for å illustrere
   metodikk, og at de **ikke bygger på data fra noe ekte selskap**. Teksten i

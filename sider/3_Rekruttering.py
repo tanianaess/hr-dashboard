@@ -121,8 +121,8 @@ st.caption(
     f"(minst 12 mnd før periodeslutt). Teller avganger der stillingen må erstattes.\n"
     f"- **Prøvetid:** ansatt {b.REKRUTTERING_FRA:%d.%m.%Y}-{kohorter['provetid_til']:%d.%m.%Y} "
     f"(minst 6 mnd før periodeslutt).\n\n"
-    f"**Tre nivåer:** ustrukturert · strukturert intervju alene · strukturert intervju "
-    f"+ minst én tilleggsmetode (case study, personlighetstest eller evnetest).\n\n"
+    f"**Tre nivåer:** (1) ustrukturert, (2) strukturert intervju alene og (3) strukturert "
+    f"intervju + minst én tilleggsmetode (case study, personlighetstest eller evnetest).\n\n"
     f"**Femregelen:** grupper med færre enn 5 i kohorten skjules. For hele selskapet "
     f"skjules også celler der små team ellers kunne regnes ut (sekundær prikking)."
 )

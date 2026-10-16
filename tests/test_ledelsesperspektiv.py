@@ -133,3 +133,12 @@ def test_kortene_har_hele_setninger_og_felles_merknad(ansatte, fravaer, engasjem
     assert "Pilene viser endring mot forrige 12 måneder for turnover" in tekst
     assert "mot samme periode i fjor for sykefravær" in tekst
     assert "Ledergruppen er holdt utenfor" in tekst
+
+
+def test_ingen_prikker_som_skilletegn_i_sidetekst():
+    """Forklaringer skrives som hele setninger, ikke ledd skilt med «·»."""
+    rot = Path(__file__).parent.parent
+    for fil in sorted((rot / "sider").glob("*.py")):
+        for nr, linje in enumerate(fil.read_text(encoding="utf-8").splitlines(), 1):
+            if "·" in linje and "page_title" not in linje and not linje.lstrip().startswith("#"):
+                raise AssertionError(f"{fil.name}:{nr}: {linje.strip()}")

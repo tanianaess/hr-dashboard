@@ -92,8 +92,8 @@ kort1.caption(f"Pilen viser endring mot samme kvartal i fjor ({fjor_k})" if fjor
 kort2.metric("Endring mot forrige kvartal", b.minustegn(mot_forrige) or "–")
 kort2.caption(f"Fra {enps_tekst(forrige['enps'])} i {forrige_k}" if forrige else "Forrige kvartal mangler")
 kort3.metric("Lav svarandel" if lav else "Svarandel", b.prosent(naa["svarandel"], 0))
-kort3.caption(f"{naa['svar']} av {naa['invitert']} invitert"
-              + (f" · under {b.prosent(b.LAV_SVARANDEL, 0)}, så tolk eNPS med forsiktighet" if lav else ""))
+kort3.caption(f"{naa['svar']} av {naa['invitert']} invitert."
+              + (f" Under {b.prosent(b.LAV_SVARANDEL, 0)}, så tolk eNPS med forsiktighet." if lav else ""))
 
 
 # --- Graf: eNPS per kvartal og team -----------------------------------------------------

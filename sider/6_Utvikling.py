@@ -137,9 +137,9 @@ if m_f["forfremmelser"] is None:
     u.skjult_kort(k4, "Forfremmelser", "Skjult: færre enn 5 interne endringer i utvalget.")
 else:
     k4.metric("Forfremmelser", m_f["forfremmelser"])
-    k4.caption(f"{b.prosent(m_f['forfremmelsesrate'])} av snitt {b.avrund(m_f['snitt_ansatte'])} ansatte"
-               + (f" · uten {', '.join(utenfor_f)}" if utenfor_f else "")
-               + f" · {m_f['overganger']} interne overganger")
+    k4.caption(f"{b.prosent(m_f['forfremmelsesrate'])} av snitt {b.avrund(m_f['snitt_ansatte'])} ansatte."
+               + f" {m_f['overganger']} interne overganger."
+               + (f" {', '.join(utenfor_f).capitalize()} er holdt utenfor." if utenfor_f else ""))
 st.caption(
     "Interne besettelser er forfremmelser og overganger til en ny rolle i samme team. "
     "Tiden måles likt internt og eksternt, til første dag i ny rolle. Internt går "
