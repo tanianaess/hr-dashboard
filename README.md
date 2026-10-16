@@ -13,6 +13,36 @@ ansatte i 7 team, okt 2024–sep 2026. Bygget med Python, pandas og Streamlit.
 Prosjektet viser hvordan HR-nøkkeltall kan defineres presist, beregnes
 etterprøvbart og presenteres uten å eksponere enkeltpersoner.
 
+## Mine valg
+
+Jeg har bygget dashbordet for å vise hvordan jeg ville jobbet med HR-data sammen med
+en ledergruppe. Bakgrunnen min er organisasjonspsykologi, og det preger valgene.
+
+- **Få nøkkeltall som ledelsen faktisk bruker.** Turnover, sykefravær, rekruttering,
+  bemanning og engasjement svarer på tre spørsmål: Hvor er risikoen, hva koster den,
+  og har vi folkene vi trenger? Definisjonene følger ISO 30414:2025, så tallene kan
+  forklares og sammenlignes over tid.
+- **Kostnad i kroner.** Uønsket turnover vises også som anslått kostnad, fordi det er
+  språket en økonomidirektør handler på. Antakelsen (75 % av årslønn) står åpent og
+  kan justeres.
+- **Personvern styrer designet.** Grupper under fem vises ikke, og sensitive tall
+  vises bare i faste perioder, så ingen kan regne ut små grupper ved å sammenligne
+  utvalg. Reglene reduserer risikoen, men hindrer den ikke. Derfor er tilgangsstyring
+  like viktig som teknikken.
+- **Regelbaserte innsikter.** Forsiden peker på de største avvikene etter faste
+  regler. Hver innsikt kan etterprøves, og skjulte grupper nevnes aldri.
+- **Forskning før egne data.** Som organisasjonspsykolog lener jeg meg på forskning
+  når det gjelder rekruttering. Et selskap med 230 ansatte ansetter for få til å
+  avgjøre hvilken metode som virker best. Dashbordet viser derfor hva forskningen sier
+  (Sackett mfl., 2022), og bruker egne data til å følge med.
+- **Det jeg bevisst lot være:** lønn per team, testresultater og
+  kompetansevurderinger av enkeltpersoner. Det er sensitivt, og nytten står ikke i
+  forhold til risikoen.
+- **Med ekte data ville jeg** først avklart definisjoner og datakvalitet med HR og
+  økonomi, og latt ledergruppen sette tersklene for status.
+- **Teknisk:** Python, pandas og Streamlit, med automatiske tester for beregningene og
+  personvernreglene. Bygget sammen med en AI-assistent (Claude Code).
+
 ## Innhold
 
 | Side | Viser |
@@ -91,6 +121,30 @@ man ofte ser i virkeligheten, for å vise hva dashbordet kan avdekke:
 4. **Teknologi:** lang tid til ansettelse (ca. 60 dager) og under bemanningsplanen.
 5. **Totalt:** turnover ca. 14 % og sykefravær ca. 5,5 %. Problemene synes bare
    når man ser per team.
+
+## Slik kan dette tas i bruk hos dere
+
+Dashbordet er bygget for å kunne kobles på ekte data.
+
+**Data som trengs** (vanligvis eksport fra HR- og lønnssystemet):
+- Ansatte: ansatt-ID, team, ansettelsesform, stillingsprosent, årslønn, ansatt- og
+  sluttdato og sluttårsak. Om en avgang var uønsket, registreres sjelden i dag og må
+  ofte innføres.
+- Sykefravær per team og måned, delt i korttid og langtid.
+- Medarbeiderundersøkelse per team og kvartal: eNPS, antall svar og antall inviterte.
+- Bemanningsplan per team og måned.
+- Rekrutteringsdata (metode og datoer), hvis rekrutteringssiden skal brukes.
+
+**Det som tilpasses:** teamnavn, tersklene for status, kostnadsandelen og hvilke sider
+som er med.
+
+**I drift:** tilgang bare for HR-ledelse og ledergruppen, lagring i Norge eller EU,
+databehandleravtale med leverandøren, og en vurdering av om det trengs en
+personvernkonsekvensvurdering (DPIA) før oppstart.
+
+**Innføring i tre steg:** kartlegge data og definisjoner, koble på dataene og
+kontrollere tallene mot dagens rapporter, og gå gjennom dashbordet med ledergruppen og
+justere.
 
 ## Kjør selv
 

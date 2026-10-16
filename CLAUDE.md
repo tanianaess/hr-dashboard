@@ -412,6 +412,15 @@ steg (forslag)»** og lenke(r) som åpner siden med teamet forhåndsvalgt
 **Personvern:** innsiktene bruker bare tall som også vises på de andre sidene,
 med de samme reglene (femregel, sekundær prikking) – skjulte grupper nevnes aldri.
 
+## Publisering (Streamlit Community Cloud)
+
+- Appen oppdateres av seg selv fra `main` på GitHub.
+- **Start appen på nytt etter en deploy som endrer felles filer** (`filtre.py`,
+  `utseende.py`, `beregninger.py`, `datalasting.py`, `innsikter.py`): Manage app → ⋮ →
+  Reboot app. Ellers kan Streamlit Cloud holde de gamle versjonene i minnet, og alle
+  sidene feiler med ImportError (skjedde 16.10.2026). Endringer bare i README eller
+  CLAUDE.md trenger ikke omstart.
+
 ## Syntetiske data
 
 - Lages av `lag_syntetiske_data.py` med fast tilfeldighetsfrø (`FRO = 42`), så
