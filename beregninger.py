@@ -154,6 +154,8 @@ def turnover(ansatte, start, slutt):
         "frivillig_rate": rate(len(frivillig)),
         "uønsket_rate": rate(len(uonsket)),
         "lønn_uønsket": int(uonsket["årslønn"].sum()),
+        # Alle avganger der stillingen må erstattes – grunnlag for erstatningskostnad
+        "lønn_avganger": int(teller["årslønn"].sum()),
     }
 
 
@@ -179,6 +181,7 @@ def turnover_per_team(ansatte, start, slutt, team_liste=TEAM):
         else:
             rad["skjult"] = ""
         rad.pop("lønn_uønsket")  # Lønn vises aldri per team
+        rad.pop("lønn_avganger")
         rader.append(rad)
     return pd.DataFrame(rader)
 
@@ -269,10 +272,37 @@ SKJULT_UNDER_5 = "skjult (under 5)"
 SKJULT_PRIKKET = "skjult (sekundær prikking)"
 
 
-def pilfarge(endring_tekst, hoyere_er_bedre=False):
+# Endringer mindre enn dette er for små til å bety noe – pilen blir grå (ikke rød/grønn).
+# Nøkkel = enheten i endringsteksten, f.eks. «+0,4 pp» eller «-3 dager».
+VESENTLIG_ENDRING = {"pp": 1.0, "poeng": 5, "dager": 5, "dag": 5, "timer": 2, "time": 2,
+                     "mill. kr": 0.5}
+VESENTLIG_ENDRING_SYKEFRAVAER_PP = 0.5  # sykefravær er lavere tall, så grensen er lavere
+# Endringer i andeler som bygger på færre enn dette (i en av periodene), får grå pil
+MIN_N_ENDRING = 20
+VESENTLIG_TEKST = ("Grå pil = endringen er for liten til å bety noe (under 1 pp, 0,5 pp for "
+                   "sykefravær, 5 eNPS-poeng, 5 dager, 2 timer eller 0,5 mill. kr), eller "
+                   "den bygger på for få personer.")
+
+
+def er_vesentlig(endring_tekst, terskel=None):
+    """Er endringen stor nok til å vises i farge? Leser tall og enhet fra teksten,
+    f.eks. «-0,1 pp» → 0,1 pp, som er under grensen på 1 pp."""
+    if not endring_tekst:
+        return False
+    treff = re.match(r"\s*([+\-−±]?)(\d+(?:,\d+)?)\s*(.*)$", endring_tekst)
+    if not treff:
+        return True
+    verdi = float(treff.group(2).replace(",", "."))
+    grense = terskel if terskel is not None else VESENTLIG_ENDRING.get(treff.group(3).strip())
+    return grense is None or verdi >= grense
+
+
+def pilfarge(endring_tekst, hoyere_er_bedre=False, terskel=None, vesentlig=True):
     """Farge på pilen i KPI-kort. Vanligvis er økning dårlig (rød), f.eks. turnover.
-    Med hoyere_er_bedre=True er økning bra (grønn). Ingen farge når endringen er null."""
-    if endring_tekst and endring_tekst.startswith("±"):
+    Med hoyere_er_bedre=True er økning bra (grønn). Grå («off») når endringen er null,
+    for liten til å bety noe (er_vesentlig), eller bygger på for få (vesentlig=False)."""
+    if endring_tekst and (endring_tekst.startswith("±") or not vesentlig
+                          or not er_vesentlig(endring_tekst, terskel)):
         return "off"
     return "normal" if hoyere_er_bedre else "inverse"
 
@@ -300,6 +330,19 @@ def kroner(belop):
 # --- Sykefravær ---------------------------------------------------------------
 
 # Benchmark: landssnitt for sykefravær 2025 (kilde: NAV)
+# Bransjesnitt for «informasjon og kommunikasjon» (totalt sykefravær, SSB-metode).
+# Ikke fylt inn: NAVs årsnotat 2025 har bare legemeldt fravær per bransje (figur 8),
+# og det er ikke verifisert. Skrives aldri inn uten verifisering (se CLAUDE.md).
+SYKEFRAVAER_BRANSJE = None
+SYKEFRAVAER_REFERANSE_MERKNAD = (
+    "**Referanse, ikke sammenligning.** Landssnittet gjelder alle bransjer, og tech ligger "
+    "typisk lavere. Det er også beregnet annerledes: vi trekker ikke fra ferie og "
+    "helligdager, så vårt tall blir litt lavere enn med samme metode. Status styres derfor "
+    "av det interne målet (6 %), ikke av landssnittet. Bransjetall for informasjon og "
+    "kommunikasjon: ikke fylt inn (må verifiseres)."
+)
+
+SYKEFRAVAER_MAL = 0.06  # internt mål – styrer status (se innsikter.py)
 SYKEFRAVAER_LANDSSNITT = 0.0657
 SYKEFRAVAER_KILDE = "NAV, årsnotat sykefravær 2025"
 SYKEFRAVAER_KILDE_URL = (
@@ -599,6 +642,7 @@ def bemanning_per_team(ansatte, plan, start, slutt, team_liste=TEAM):
         planlagt = int(plan.loc[(plan["team"] == team) & (plan["måned"] == siste_maaned),
                                 "planlagt_antall"].sum())
         faktisk = antall_ansatt_paa(a, slutt)
+        faktisk_aarsverk = aarsverk_paa(a, slutt)
         midlertidige = antall_ansatt_paa(a[a["ansettelsesform"] == "midlertidig"], slutt)
 
         # Ansettelser og avganger i perioden (alle ansettelsesformer og sluttårsaker)
@@ -614,6 +658,7 @@ def bemanning_per_team(ansatte, plan, start, slutt, team_liste=TEAM):
             "team": team,
             "plan": planlagt,
             "faktisk": faktisk,
+            "faktisk_aarsverk": faktisk_aarsverk,
             "midlertidige": midlertidige,
             "avvik": avvik,
             "bemanningsgrad": faktisk / planlagt if planlagt else None,
@@ -1002,3 +1047,60 @@ def kompetanse_per_team(ansatte, aktiviteter, samtaler, endringer, start, slutt,
             "forfremmelser": m["forfremmelser"],
         })
     return pd.DataFrame(rader)
+
+
+# --- Kostnader som bygger på lønn ------------------------------------------------------
+# Vises bare for hele selskapet, siste 12 mnd, avrundet til 0,1 mill. kr (se CLAUDE.md).
+
+# Arbeidsdager og arbeidstimer i et årsverk (antakelse: 52 uker × 5 dager / × 37,5 timer)
+ARBEIDSDAGER_PER_AARSVERK = 260
+TIMER_PER_AARSVERK = 1950
+
+
+def aarsverk_paa(ansatte, dato):
+    """Antall årsverk denne dagen: sum stillingsprosent / 100 for alle som var ansatt."""
+    har_startet = ansatte["ansattdato"] <= dato
+    ikke_sluttet = ansatte["sluttdato"].isna() | (ansatte["sluttdato"] >= dato)
+    return float(ansatte.loc[har_startet & ikke_sluttet, "stillingsprosent"].sum() / 100)
+
+
+def lonn_per_aarsverk(ansatte, start, slutt):
+    """Snitt årslønn per årsverk i perioden (snitt av hver månedsslutt). Faktisk lønn delt
+    på stillingsandel, så deltid ikke trekker ned. Brukes bare inne i kostnadsberegninger."""
+    verdier = []
+    for dag in maanedsslutter(start, slutt):
+        ansatt = (ansatte["ansattdato"] <= dag) & (ansatte["sluttdato"].isna() | (ansatte["sluttdato"] >= dag))
+        aarsverk = ansatte.loc[ansatt, "stillingsprosent"].sum() / 100
+        if aarsverk:
+            verdier.append(ansatte.loc[ansatt, "årslønn"].sum() / aarsverk)
+    return sum(verdier) / len(verdier) if verdier else None
+
+
+def fravaerskostnad(ansatte, fravaer, start, slutt):
+    """Arbeidsgivers kostnad i arbeidsgiverperioden: tapte dagsverk korttid (1-16 dager,
+    som arbeidsgiver betaler) × dagslønn per årsverk. Er et MINIMUM: de første 16 dagene
+    av langtidsfravær betales også av arbeidsgiver, men de skilles ikke ut i dataene.
+    Arbeidsgiveravgift og feriepenger er ikke med."""
+    f = fravaer_i_perioden(fravaer, start, slutt)
+    lonn = lonn_per_aarsverk(ansatte[ansatte["team"].isin(f["team"].unique())], start, slutt)
+    if lonn is None:
+        return None
+    return f["tapte_dagsverk_korttid"].sum() * lonn / ARBEIDSDAGER_PER_AARSVERK
+
+
+def opplaering_tidskostnad(ansatte, aktiviteter, start, slutt):
+    """Verdien av arbeidstiden brukt på opplæring: timer × timelønn for hver person
+    (årslønn / (1950 timer × stillingsandel)). Bygger på lønn: bare for hele selskapet."""
+    a = aktiviteter[(aktiviteter["dato"] >= start) & (aktiviteter["dato"] <= slutt)].merge(
+        ansatte[["ansatt_id", "årslønn", "stillingsprosent"]], on="ansatt_id")
+    timelonn = a["årslønn"] / (TIMER_PER_AARSVERK * a["stillingsprosent"] / 100)
+    return float((a["timer"] * timelonn).sum())
+
+
+def tid_til_tiltredelse(ansatte, start, slutt):
+    """Median dager fra utlysning til første arbeidsdag for eksterne ansettelser i perioden
+    (samme endepunkt som interne besettelser: første dag i ny rolle). None under 5."""
+    a = ansettelser_i_perioden(ansatte, start, slutt)
+    if len(a) < MIN_GRUPPE:
+        return None
+    return (a["ansattdato"] - a["utlysningsdato"]).dt.days.median()

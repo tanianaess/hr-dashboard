@@ -22,9 +22,12 @@ en ledergruppe. Bakgrunnen min er organisasjonspsykologi, og det preger valgene.
   bemanning og engasjement svarer på tre spørsmål: Hvor er risikoen, hva koster den,
   og har vi folkene vi trenger? Definisjonene følger ISO 30414:2025, så tallene kan
   forklares og sammenlignes over tid.
-- **Kostnad i kroner.** Uønsket turnover vises også som anslått kostnad, fordi det er
-  språket en økonomidirektør handler på. Antakelsen (75 % av årslønn) står åpent og
-  kan justeres.
+- **Kostnad i kroner.** Turnover og sykefravær vises også i kroner, fordi det er
+  språket en økonomidirektør handler på: erstatningskostnad for alle som må erstattes
+  (med uønskede avganger som en del av den), og hva arbeidsgiver betaler i de første
+  16 dagene av sykefravær. Antakelsene står åpent og kan justeres.
+- **Små endringer er ikke alarmer.** Pilene får bare farge når endringen er stor nok
+  til å bety noe, og når tallet bygger på nok personer. Ellers er de grå.
 - **Personvern styrer designet.** Grupper under fem vises ikke, og sensitive tall
   vises bare i faste perioder, så ingen kan regne ut små grupper ved å sammenligne
   utvalg. Reglene reduserer risikoen, men hindrer den ikke. Derfor er tilgangsstyring
@@ -50,10 +53,10 @@ en ledergruppe. Bakgrunnen min er organisasjonspsykologi, og det preger valgene.
 | Side | Viser |
 |---|---|
 | **Oversikt** (forside) | Kort introduksjon: hvem dashbordet er for (ledergruppen i et selskap med 50-500 ansatte) og hvilke spørsmål det svarer på · de viktigste tallene for hele selskapet med endring og status (OK / følg med / kritisk) · «Hva ledelsen bør vite nå»: opptil 5 regelbaserte innsikter om de største avvikene, med mulig neste steg og lenke til detaljene |
-| **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · kostnad ved uønsket turnover med justerbar antakelse (hele selskapet, siste 12 mnd mot forrige 12 mnd) · avganger per måned (bare totalen) · tabell per team · filter: hele selskapet eller ett team, faste perioder |
-| **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned over hele dataperioden · tabell per team · filter: hele selskapet eller ett team, faste perioder |
+| **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · erstatningskostnad for alle avganger, med uønskede som en del av den, og justerbar antakelse (hele selskapet, siste 12 mnd mot forrige 12 mnd) · avganger per måned (bare totalen) · tabell per team · filter: hele selskapet eller ett team, faste perioder |
+| **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · internt mål, og landssnittet 6,57 % bare som referanse (alle bransjer, annen metode) ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · kostnad i arbeidsgiverperioden (hele selskapet) · fravær per måned over hele dataperioden · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team · filter: hele selskapet eller ett team, faste perioder |
-| **Bemanning** | Faktisk antall ansatte mot bemanningsplanen · utvikling per måned · tabell per team med avvik, bemanningsgrad, ansettelser, avganger og tid til tiltredelse · team med mer enn 5 % avvik markeres · fritt filter (ingen sensitive tall) |
+| **Bemanning** | Faktisk antall ansatte (og årsverk) mot bemanningsplanen · utvikling per måned · tabell per team med avvik, bemanningsgrad, ansettelser, avganger og tid til tiltredelse · team med mer enn 5 % avvik markeres · fritt filter (ingen sensitive tall) |
 | **Utvikling** | Opplæring (timer, kostnad og andel som har deltatt i opplæring) · jevnlige 1:1 med lederen · intern mobilitet (besatt internt, tid til besatt internt mot eksternt, forfremmelser) · tabell per team · sammenheng mellom oppfølging, frivillig turnover og eNPS · filter: hele selskapet eller ett team, faste perioder |
 | **Engasjement** | eNPS siste kvartal mot samme kvartal i fjor og forrige kvartal · svarandel (lav markeres) · eNPS per kvartal og team over hele dataperioden · tabell per team · kobling mot langtidsfravær (sammenheng, ikke nødvendigvis årsak) · filter: hele selskapet eller ett team, faste perioder |
 
@@ -84,8 +87,9 @@ Dashbordet er bygget som om dataene var ekte. Grunnprinsippet:
   kvartal viser alltid hele perioden, med femregelen per punkt.
 - **n vises ved siden av prosenter**, f.eks. «20,7 % (8 av 39)», så leseren ser
   hvor få personer et tall bygger på.
-- **Lønn vises aldri per team.** Kostnaden ved turnover vises bare for hele
-  selskapet og siste 12 mnd (mot forrige 12 mnd), avrundet til nærmeste 0,1 mill. kr.
+- **Lønn vises aldri per team.** Kostnader som bygger på lønn (turnover, fravær,
+  arbeidstid til opplæring) vises bare for hele selskapet og siste 12 mnd (mot forrige
+  12 mnd), avrundet til nærmeste 0,1 mill. kr.
 - **Stilling er aldri et filter**, fordi stilling og team sammen kan peke ut én person.
 - **Testresultater lagres aldri.** Datasettet viser bare *om* en personlighets- eller
   evnetest ble brukt, ikke resultatet.
@@ -108,7 +112,8 @@ Dashbordet er bygget som om dataene var ekte. Grunnprinsippet:
 | Svarandel | Antall svar / antall invitert. Under 50 % markeres som lav |
 | Jevnlige 1:1 | Andel med minst én 1:1 med lederen i minst 10 av 12 måneder, blant dem som var ansatt hele perioden |
 | Besatt internt | Interne besettelser (forfremmelser og overganger) / alle besatte stillinger. Forfremmelser er sensitive og vises bare med minst 5 interne endringer |
-| Kostnad ved uønsket turnover | Sum årslønn for uønskede avganger × antatt kostnadsandel (standard 75 %, justerbar 50-200 %). Bare hele selskapet, siste 12 mnd mot forrige 12 mnd |
+| Erstatningskostnad | Sum årslønn for alle avganger der stillingen må erstattes × antatt kostnadsandel (standard 75 %, justerbar 50-200 %), med uønskede avganger som «herav». Bare hele selskapet, siste 12 mnd mot forrige 12 mnd |
+| Kostnad i arbeidsgiverperioden | Tapte dagsverk korttid (1-16 dager) × dagslønn per årsverk. Et minimum. Bare hele selskapet |
 
 Alle definisjoner, med datamodell, står i [`CLAUDE.md`](CLAUDE.md).
 

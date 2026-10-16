@@ -77,8 +77,17 @@ pil = endring_timer(o["timer_per_ansatt"], o_forrige["timer_per_ansatt"]) if o_f
 k1.metric("Opplæring per ansatt", f"{b.avrund(o['timer_per_ansatt'], 1):.1f} timer".replace(".", ","),
           delta=pil, delta_color=b.pilfarge(pil, hoyere_er_bedre=True))
 k1.caption(f"{o['aktiviteter']} aktiviteter (kurs, sertifiseringer, konferanser, intern opplæring)")
-k2.metric("Kostnad per ansatt", b.kroner(o["kostnad_per_ansatt"]))
-k2.caption("Direkte kostnad (kursavgift, reise), ikke lønn i arbeidstiden")
+if hele_selskapet:
+    # Arbeidstiden er den største kostnaden. Den bygger på lønn, så den tas bare med
+    # for hele selskapet (lønn vises aldri per team).
+    tid = b.opplaering_tidskostnad(utvalg_total, aktiviteter, start, slutt) / o["snitt_ansatte"]
+    k2.metric("Kostnad per ansatt", b.kroner(o["kostnad_per_ansatt"] + tid))
+    k2.caption(f"Herav {b.kroner(o['kostnad_per_ansatt'])} direkte (kursavgift, reise) og "
+               f"{b.kroner(tid)} i arbeidstid (timer × timelønn)")
+else:
+    k2.metric("Direkte kostnad per ansatt", b.kroner(o["kostnad_per_ansatt"]))
+    k2.caption("Kursavgift og reise. Arbeidstiden vises bare for hele selskapet, "
+               "fordi den bygger på lønn.")
 pil = pp("andel_deltatt", o, o_forrige)
 k3.metric("Deltatt i opplæring", b.prosent(o["andel_deltatt"], 0), delta=pil,
           delta_color=b.pilfarge(pil, hoyere_er_bedre=True))
@@ -94,7 +103,8 @@ else:
     k4.caption(f"{s['jevnlige']} av {s['n']} hadde 1:1 i minst 10 av 12 måneder. "
                f"I snitt {snitt_1til1} samtaler per ansatt per måned.")
 if har_forrige:
-    st.caption(f"Pilene viser endring mot {forrige_start:%m.%Y}-{forrige_slutt:%m.%Y}.")
+    st.caption(f"Pilene viser endring mot {forrige_start:%m.%Y}-{forrige_slutt:%m.%Y}. "
+               + b.VESENTLIG_TEKST)
 
 
 # --- Intern mobilitet ---------------------------------------------------------------------
@@ -104,21 +114,24 @@ if m["besettelsesgrad"] is None:
     u.skjult_kort(k1, "Besatt internt")
 else:
     pil = pp("besettelsesgrad", m, m_forrige) if m_forrige and m_forrige["besettelsesgrad"] is not None else None
+    # Grå pil når en av periodene bygger på under 20 besatte stillinger (for lite til å si noe)
+    nok = m_forrige is not None and min(m["besatte"], m_forrige["besatte"]) >= b.MIN_N_ENDRING
     k1.metric("Besatt internt", b.prosent(m["besettelsesgrad"], 0), delta=pil,
-              delta_color=b.pilfarge(pil, hoyere_er_bedre=True))
+              delta_color=b.pilfarge(pil, hoyere_er_bedre=True, vesentlig=nok))
     k1.caption(f"{m['interne']} av {m['besatte']} stillinger besatt med en som allerede jobbet her")
 
-ekstern = b.rekruttering(utvalg, start, slutt)
+# Samme endepunkt internt og eksternt: første dag i ny rolle (eksternt inkluderer oppsigelsestid)
+ekstern_dager = b.tid_til_tiltredelse(utvalg, start, slutt)
 if m["median_dager_intern"] is None:
     u.skjult_kort(k2, "Tid til besatt, internt")
 else:
     k2.metric("Tid til besatt, internt", f"{b.avrund(m['median_dager_intern'])} dager")
-    k2.caption("Median dager fra utlysning til ny rolle")
-if ekstern["median_dager"] is None:
+    k2.caption("Median dager fra utlysning til første dag i ny rolle")
+if ekstern_dager is None:
     u.skjult_kort(k3, "Tid til besatt, eksternt")
 else:
-    k3.metric("Tid til besatt, eksternt", f"{b.avrund(ekstern['median_dager'])} dager")
-    k3.caption("Median dager fra utlysning til akseptert tilbud")
+    k3.metric("Tid til besatt, eksternt", f"{b.avrund(ekstern_dager)} dager")
+    k3.caption("Median dager fra utlysning til første arbeidsdag (inkluderer oppsigelsestid)")
 
 if m_f["forfremmelser"] is None:
     u.skjult_kort(k4, "Forfremmelser", "Skjult: færre enn 5 interne endringer i utvalget.")
@@ -129,7 +142,8 @@ else:
                + f" · {m_f['overganger']} interne overganger")
 st.caption(
     "Interne besettelser er forfremmelser og overganger til en ny rolle i samme team. "
-    "Internt går raskere, blant annet fordi det ikke er oppsigelsestid. "
+    "Tiden måles likt internt og eksternt, til første dag i ny rolle. Internt går "
+    "raskere, blant annet fordi det ikke er oppsigelsestid. "
     "**Forfremmelser er sensitive** (ledelsens vurdering av enkeltpersoner) og vises bare "
     "med minst 5 interne endringer i utvalget."
 )

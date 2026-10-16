@@ -108,8 +108,8 @@ else:
     st.caption("Ingen sammenligning: forrige periode ligger før datastart (okt 2024).")
 
 
-# --- Kostnad ved uønsket turnover -------------------------------------------------------
-st.subheader("Kostnad ved uønsket turnover")
+# --- Kostnad ved turnover ---------------------------------------------------------------
+st.subheader("Kostnad ved turnover")
 
 # Kostnaden bygger på lønn, så den vises bare i ÉN fast visning: hele selskapet,
 # siste 12 mnd. Flere visninger (andre perioder eller team) kunne trekkes fra
@@ -121,8 +121,8 @@ elif not b.er_siste_12(start, slutt):
     st.info("Kostnaden vises bare for siste 12 mnd. Den bygger på lønn, og to perioder "
             "kunne sammenlignes for å regne ut lønnen til noen få personer.",
             icon=":material/lock:")
-elif not vis_fordeling or fordeling["uønsket"] < b.MIN_GRUPPE:
-    st.info("Færre enn 5 uønskede avganger. Kostnaden skjules, fordi den ellers viser "
+elif naa["avganger"] < b.MIN_GRUPPE:
+    st.info("Færre enn 5 avganger. Kostnaden skjules, fordi den ellers viser "
             "lønnen til noen få personer.", icon=":material/lock:")
 else:
     # Glidebryter for antakelsen: hvor mye koster det å erstatte én person,
@@ -131,20 +131,37 @@ else:
         "Kostnad per avgang, i prosent av årslønn", min_value=50, max_value=200,
         value=b.avrund(b.KOSTNADSANDEL_STANDARD * 100), step=5, format="%d %%",
     )
-    kostnad = fordeling["lønn_uønsket"] * kostnadsandel / 100
-    # Sammenligning med forrige 12 mnd (den andre faste perioden), bare med minst 5
-    kan_sammenligne = vis_fordeling_forrige and fordeling_forrige["uønsket"] >= b.MIN_GRUPPE
-    pil = (b.endring_millioner(kostnad, fordeling_forrige["lønn_uønsket"] * kostnadsandel / 100)
-           if kan_sammenligne else None)
-    # Rundes grovt (0,1 mill.) med vilje, så lønnssummen ikke kan leses ut nøyaktig
-    st.metric("Anslått kostnad", b.millioner(kostnad), delta=pil, delta_color=b.pilfarge(pil))
+    andel = kostnadsandel / 100
+    k1, k2 = st.columns(2)
+
+    # 1) Alle avganger der stillingen må erstattes (ikke sensitivt å telle, men lønn er
+    #    med, så samme faste visning og grove avrunding)
+    total = naa["lønn_avganger"] * andel
+    pil = (b.endring_millioner(total, forrige["lønn_avganger"] * andel)
+           if har_forrige and forrige["avganger"] >= b.MIN_GRUPPE else None)
+    k1.metric("Erstatningskostnad, alle avganger", b.millioner(total), delta=pil,
+              delta_color=b.pilfarge(pil))
+    k1.caption(f"{naa['avganger']} avganger der stillingen må erstattes (frivillig, ufrivillig "
+               "og pensjon). Det koster å erstatte en person, også når man er glad for at hen sluttet.")
+
+    # 2) Herav uønsket – fordelingen er sensitiv (minst 5, sekundær prikking)
+    if vis_fordeling and fordeling["uønsket"] >= b.MIN_GRUPPE:
+        uonsket = fordeling["lønn_uønsket"] * andel
+        kan_sammenligne = vis_fordeling_forrige and fordeling_forrige["uønsket"] >= b.MIN_GRUPPE
+        pil = (b.endring_millioner(uonsket, fordeling_forrige["lønn_uønsket"] * andel)
+               if kan_sammenligne else None)
+        k2.metric("Herav uønskede avganger", b.millioner(uonsket), delta=pil,
+                  delta_color=b.pilfarge(pil))
+        k2.caption(f"{fordeling['uønsket']} avganger vi ville beholdt"
+                   + (f" ({b.med_unntak('hele selskapet', utenfor)})" if utenfor else "")
+                   + ". «Uønsket» er ledelsens vurdering, ikke et fast tall.")
+    else:
+        u.skjult_kort(k2, "Herav uønskede avganger", "Skjult: færre enn 5 uønskede avganger.")
     st.caption(
-        f"Sum årslønn for de {fordeling['uønsket']} uønskede avgangene × {kostnadsandel} %"
-        + (f" ({b.med_unntak('hele selskapet', utenfor)})" if utenfor else "") + ", "
-        "avrundet til nærmeste 0,1 mill. kr. "
-        + ("Pilen viser endring mot forrige 12 mnd. " if kan_sammenligne else "")
-        + "Prosentsatsen er en antakelse (dekker "
-        "rekruttering, opplæring og tapt produktivitet). Juster den med glidebryteren."
+        f"Sum årslønn × {kostnadsandel} %, avrundet til nærmeste 0,1 mill. kr. "
+        + ("Pilene viser endring mot forrige 12 mnd. " if har_forrige else "")
+        + "Prosentsatsen er en antakelse (dekker rekruttering, opplæring og tapt "
+        "produktivitet). Juster den med glidebryteren. " + b.VESENTLIG_TEKST
     )
 
 

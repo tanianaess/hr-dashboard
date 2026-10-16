@@ -95,17 +95,20 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
                       endring=b.endring_pp(nf["uønsket_rate"], ff["uønsket_rate"]),
                       status=st_uonsket, ekstra=_uten(utenfor) + f"{nf['uønsket']} vi ville beholdt · mot forrige 12 mnd",
                       side="Turnover"))
-    # Kostnaden bygger på lønn: bare siste 12 mnd mot forrige 12 mnd (de to faste
-    # periodene), grovt avrundet, og bare med minst 5 uønskede avganger (se CLAUDE.md)
-    if nf["uønsket"] >= b.MIN_GRUPPE:
-        kostnad = nf["lønn_uønsket"] * b.KOSTNADSANDEL_STANDARD
-        pil = (b.endring_millioner(kostnad, ff["lønn_uønsket"] * b.KOSTNADSANDEL_STANDARD)
-               if ff["uønsket"] >= b.MIN_GRUPPE else None)
-        liste.append(dict(navn="Turnoverkostnad", verdi=b.millioner(kostnad), endring=pil,
-                          status=(st_uonsket[0], "følger uønsket turnover"),
-                          ekstra=_uten(utenfor) + f"Uønskede avganger · "
-                                 f"{b.prosent(b.KOSTNADSANDEL_STANDARD, 0)} av årslønn (antakelse)"
-                                 " · mot forrige 12 mnd",
+    # Erstatningskostnad for ALLE avganger som må erstattes, med uønsket som en del av den.
+    # Bygger på lønn: bare siste 12 mnd mot forrige 12 mnd (de to faste periodene), grovt
+    # avrundet, og bare med minst 5 avganger (se CLAUDE.md).
+    st_total = liste[0]["status"]
+    if naa["avganger"] >= b.MIN_GRUPPE:
+        kostnad = naa["lønn_avganger"] * b.KOSTNADSANDEL_STANDARD
+        pil = (b.endring_millioner(kostnad, forrige["lønn_avganger"] * b.KOSTNADSANDEL_STANDARD)
+               if forrige["avganger"] >= b.MIN_GRUPPE else None)
+        herav = (f"herav uønsket {b.millioner(nf['lønn_uønsket'] * b.KOSTNADSANDEL_STANDARD)}"
+                 if nf["uønsket"] >= b.MIN_GRUPPE else "uønsket skjult (under 5)")
+        liste.append(dict(navn="Erstatningskostnad", verdi=b.millioner(kostnad), endring=pil,
+                          status=(st_total[0], "følger total turnover"),
+                          ekstra=f"{naa['avganger']} avganger · {herav} · "
+                                 f"{b.prosent(b.KOSTNADSANDEL_STANDARD, 0)} av årslønn (antakelse)",
                           side="Turnover"))
 
     # Sykefravær (sekundær prikking)
@@ -113,10 +116,21 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
     f_s = fravaer[~fravaer["team"].isin(utenfor_s)]
     sn, sj = b.sykefravaer(f_s, start, slutt), b.sykefravaer(f_s, js, je)
     v, d = _prosentpoeng(sn["total_rate"], 2), _prosentpoeng(sn["total_rate"] - sj["total_rate"], 2)
+    st_fravaer = status("Sykefravær", v, d)
     liste.append(dict(navn="Sykefravær", verdi=b.prosent(sn["total_rate"], 2),
                       endring=b.endring_pp(sn["total_rate"], sj["total_rate"]),
-                      status=status("Sykefravær", v, d),
-                      ekstra=_uten(utenfor_s) + f"Mot i fjor · landssnitt {b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2)}",
+                      terskel=b.VESENTLIG_ENDRING_SYKEFRAVAER_PP,
+                      status=st_fravaer,
+                      ekstra=_uten(utenfor_s) + f"Mot i fjor · internt mål {b.prosent(b.SYKEFRAVAER_MAL, 0)}",
+                      side="Sykefravær"))
+
+    # Kostnad i arbeidsgiverperioden (bygger på lønn: hele selskapet, siste 12 mnd)
+    a_s = ansatte[~ansatte["team"].isin(utenfor_s)]
+    fk, fk_fjor = b.fravaerskostnad(a_s, f_s, start, slutt), b.fravaerskostnad(a_s, f_s, js, je)
+    pil = b.endring_millioner(fk, fk_fjor) if fk_fjor else None
+    liste.append(dict(navn="Fraværskostnad", verdi=b.millioner(fk), endring=pil,
+                      status=(st_fravaer[0], "følger sykefravær"),
+                      ekstra=_uten(utenfor_s) + "Minst · arbeidsgiverperioden (dag 1-16) · mot i fjor",
                       side="Sykefravær"))
 
     # eNPS (sekundær prikking), siste kvartal mot samme kvartal i fjor
@@ -152,10 +166,22 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
         dager = b.avrund(rn["median_dager"])
         d_dager = (b.avrund(rn["median_dager"] - rj["median_dager"])
                    if rj["median_dager"] is not None else None)
+        st_tid = status("Tid til ansettelse", dager, d_dager)
+        # Snittet kan skjule et team som trekker ned: vis tregeste team (minst 5
+        # ansettelser, som på Rekruttering), og løft status til minst «Følg med»
+        # hvis det teamet er over grensen for kritisk.
+        per_team = b.tid_til_ansettelse_per_team(ansatte, start, slutt).dropna(subset=["median_dager"])
+        tregest = per_team.loc[per_team["median_dager"].idxmax()] if len(per_team) else None
+        tregest_tekst = ""
+        if tregest is not None:
+            t_dager = b.avrund(tregest["median_dager"])
+            tregest_tekst = f" · tregest: {tregest['team']} {t_dager} dager (n = {int(tregest['antall'])})"
+            if st_tid[0] == OK and t_dager > TERSKLER["Tid til ansettelse"]["kritisk"]:
+                st_tid = (FOLG_MED, f"{tregest['team']} over {TERSKLER['Tid til ansettelse']['kritisk']} dager")
         liste.append(dict(navn="Tid til ansettelse", verdi=f"{dager} dager",
                           endring=b.endring_antall(d_dager, "dager", "dag"),
-                          status=status("Tid til ansettelse", dager, d_dager),
-                          ekstra=f"Median, {rn['antall']} ansettelser · mot i fjor",
+                          status=st_tid,
+                          ekstra=f"Median, {rn['antall']} ansettelser{tregest_tekst} · mot i fjor",
                           side="Rekruttering"))
     return liste
 

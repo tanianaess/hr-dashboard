@@ -27,7 +27,8 @@ u.topp("Bemanning", SPORSMAL["Bemanning"], IKONER["Bemanning"])
 st.caption(
     f"Periode: {start:%d.%m.%Y}-{slutt:%d.%m.%Y}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}. "
-    "Antall personer (ikke årsverk), alle ansettelsesformer."
+    "Plan og avvik i antall personer (planen er i personer). Faktisk vises også i "
+    "årsverk, alle ansettelsesformer."
 )
 
 
@@ -41,7 +42,8 @@ avvik = faktisk - planlagt
 # --- KPI-kort (nøytrale – ingen røde/grønne piler) -----------------------------------
 kort1, kort2, kort3 = st.columns(3)
 kort1.metric("Faktisk antall ansatte", faktisk)
-kort1.caption(f"Per {slutt:%d.%m.%Y}, herav {int(per_team['midlertidige'].sum())} midlertidige")
+kort1.caption(f"Per {slutt:%d.%m.%Y}: {b.avrund(per_team['faktisk_aarsverk'].sum(), 1):.1f} årsverk".replace(".", ",")
+              + f", herav {int(per_team['midlertidige'].sum())} midlertidige ansatte")
 kort2.metric("Planlagt antall", planlagt)
 kort2.caption(f"Bemanningsplan for {slutt:%m.%Y}")
 # Samme 5 %-regel som i tabellen: ◆ i overskriften og forklaring under
@@ -101,6 +103,7 @@ for _, r in per_team.iterrows():
         "Team": r["team"],
         "Plan": int(r["plan"]),
         "Faktisk": int(r["faktisk"]),
+        "Faktisk årsverk": f"{b.avrund(r['faktisk_aarsverk'], 1):.1f}".replace(".", ","),
         "Herav midlertidige": int(r["midlertidige"]),
         "Avvik": b.fortegn(int(r["avvik"])),
         "Bemanningsgrad": b.prosent(r["bemanningsgrad"]),

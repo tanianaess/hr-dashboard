@@ -125,11 +125,13 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
   team holdes utenfor punktet når de til sammen er under 5
   (`sykefravaer_per_maaned()`, `langtid_per_kvartal()`).
 - **Hva reglene ikke gjør:** Faste perioder, femregelen og sekundær prikking reduserer risikoen for at tall om små grupper kan utledes, men de hindrer den ikke. Ingen tekniske regler kan helt hindre det i et interaktivt verktøy. Den som kjenner organisasjonen, kan dessuten koble tallene med egen kunnskap, for eksempel om hvem som sluttet i en bestemt måned. Den viktigste beskyttelsen er derfor tilgangsstyring: i drift skal bare HR-ledelse og ledergruppen ha tilgang. Skriv det like ærlig overalt (README, dashbordet): aldri at reglene «hindrer» eller «sikrer» noe.
-- **Lønn** vises aldri per team. Den brukes bare i kostnadsberegningen, og
-  kostnaden vises bare i **én fast visning**: hele selskapet, **siste 12 mnd**
+- **Lønn** vises aldri per team. Den brukes bare i kostnadsberegninger:
+  erstatningskostnad (Turnover og forsiden), kostnad i arbeidsgiverperioden
+  (Sykefravær og forsiden) og arbeidstid brukt på opplæring (Utvikling). Alle vises
+  bare i **én fast visning**: hele selskapet, **siste 12 mnd**
   (`er_siste_12()`), sammenlignet med forrige 12 mnd (den andre faste perioden),
   avrundet til nærmeste 0,1 mill. kr (`millioner()`), og bare med minst 5
-  uønskede avganger. Endringen regnes på de avrundede tallene
+  i grunnlaget (avganger, uønskede avganger). Endringen regnes på de avrundede tallene
   (`endring_millioner()`), så den ikke avslører mer enn tallene selv.
 - **Stilling** blir aldri et filter i dashbordet (stilling + team kan peke ut
   én person).
@@ -159,6 +161,16 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
     relevansen avhenger av stillingen.
   - Siden skal også si at et selskap på denne størrelsen ikke kan evaluere
     metoder statistisk på egne data alene, og ha en personvernmerknad om testbruk.
+- **Grå pil for små endringer:** pilene i KPI-kort får farge (rød/grønn) bare når
+  endringen betyr noe: minst 1 pp (0,5 pp for sykefravær), 5 eNPS-poeng, 5 dager,
+  2 timer eller 0,5 mill. kr, og når andelen bygger på minst 20 i begge perioder.
+  Ellers grå. Regelen ligger i `er_vesentlig()` og `pilfarge()` i `beregninger.py`,
+  og forklares i teksten under kortene (`VESENTLIG_TEKST`).
+- **Sykefravær sammenlignes ikke med landssnittet.** Landssnittet (NAV 2025, alle
+  bransjer) vises bare som referanse, fordi det gjelder alle bransjer og er beregnet
+  annerledes. Status styres av det interne målet (6 %). Bransjetall
+  (`SYKEFRAVAER_BRANSJE`) er ikke fylt inn: NAVs årsnotat har bare legemeldt fravær
+  per bransje, og tallet er ikke verifisert.
 - **Tankestrek:** bruk aldri lang tankestrek (—). Bruk kort tankestrek med
   mellomrom på hver side ( – ), og bruk den **sparsomt** – skriv heller om
   setningen (punktum, komma, «fordi», «så») der det blir naturlig. Gjelder all
@@ -326,7 +338,9 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
     fravær, og høyt fravær gir mer belastning på dem som er igjen.»
 - **Bemanning mot plan** = faktisk antall ansatte ved månedsslutt (alle
   ansettelsesformer) sammenlignet med `planlagt_antall`, per team og måned.
-  - Antall personer, ikke årsverk (årsverk kan komme senere).
+  - Plan og avvik i antall personer (planen er i personer). Faktisk vises også
+    i **årsverk** (sum stillingsprosent / 100, `aarsverk_paa()`), fordi økonomi
+    budsjetterer i årsverk.
   - **Bemanningsgrad** = faktisk / plan ved periodeslutt.
   - Avvik vises i **nøytrale farger** (ikke rødt/grønt). Team med **mer enn
     5 % avvik i begge retninger** markeres (◆ og nøytral bakgrunn) – både i
@@ -338,16 +352,18 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
   Skiller seg fra tid til ansettelse, som stopper ved `aksept_dato`.
 - **Kompetanseutvikling** (siden Utvikling, `beregninger.py`):
   - **Opplæring per ansatt** = sum timer / snitt ansatte. **Kostnad per ansatt** =
-    sum direkte kostnad / snitt ansatte.
+    (direkte kostnad + arbeidstid) / snitt ansatte, der arbeidstid = timer ×
+    timelønn (årslønn / (1950 timer × stillingsandel)). Arbeidstiden bygger på lønn
+    og tas bare med for hele selskapet; for ett team vises bare direkte kostnad.
   - **Deltatt i opplæring** = ansatte med minst én aktivitet / alle som var ansatt i
     perioden.
   - **Jevnlige 1:1** = andel med minst én 1:1 med lederen i minst 10 av 12
     måneder, blant dem som var ansatt (minst én dag) i alle månedene.
   - **Besatt internt** (intern besettelsesgrad) = interne besettelser /
     (interne + eksterne ansettelser med rekrutteringsdata).
-  - **Tid til besatt:** internt = median dager fra intern utlysning til ny
-    rolle; eksternt = tid til ansettelse (utlysning til aksept). Internt går
-    raskere blant annet fordi det ikke er oppsigelsestid.
+  - **Tid til besatt:** samme endepunkt internt og eksternt, første dag i ny
+    rolle. Internt = intern utlysning til ny rolle; eksternt = utlysning til
+    første arbeidsdag (`tid_til_tiltredelse()`, inkluderer oppsigelsestid).
   - **Forfremmelser** = antall, og andel av snitt ansatte. Sensitivt (se
     «Personvern»).
   - Merknad på siden: tallene viser innsats, ikke effekt.
@@ -355,9 +371,15 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
     frivillig turnover og mot eNPS (`enps_periode()`: snitt for kvartalene i
     perioden, vektet med svar, bare når alle kvartalene har minst 5 svar).
     Merknad `OPPFOLGING_MERKNAD`: sammenheng, ikke nødvendigvis årsak.
-- **Kostnad ved uønsket turnover** = sum årslønn for uønskede avganger × 75 %
-  (antakelse). Vises bare for hele selskapet, siste 12 mnd mot forrige 12 mnd
-  (se «Personvern»).
+- **Erstatningskostnad** = sum årslønn for **alle** avganger som teller i turnover
+  (frivillig, ufrivillig, pensjon) × 75 % (antakelse, justerbar 50-200 %). Det koster
+  å erstatte en person også når man er glad for at hen sluttet. **Uønsket** vises som
+  «herav» (ledelsens vurdering, sensitiv fordeling). Bare hele selskapet, siste 12
+  mnd mot forrige 12 mnd (se «Personvern»).
+- **Kostnad i arbeidsgiverperioden** (fraværskostnad) = tapte dagsverk korttid ×
+  dagslønn per årsverk (`fravaerskostnad()`; lønn per årsverk / 260). Et
+  **minimum**: de første 16 dagene av langtidsfravær, arbeidsgiveravgift og
+  feriepenger er ikke med. Bare hele selskapet, siste 12 mnd mot i fjor.
 - **Sykefravær** = (tapte korttid + tapte langtid) / avtalte dagsverk.
   **Langtidsfravær** = tapte langtid / avtalte dagsverk.
 - **Tid til ansettelse** = median antall dager fra `utlysningsdato` til
@@ -378,7 +400,8 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
 ## Utseende (gjelder alle sider)
 
 - **Retning:** rolig, profesjonelt og nordisk – et verktøy en CFO stoler på.
-- **Fiktivt selskap:** «Fjordlys Tech AS», vist øverst som «fiktivt selskap».
+- **Fiktivt selskap:** «Fjordlys Tech AS», vist øverst (bare navnet). At det er
+  fiktivt, sies av merkelappen «Syntetiske data» og merknaden under.
 - **Tema** i `.streamlit/config.toml`: hovedfarge dyp petrol `#0F4C5C`, lys nøytral
   bakgrunn, standard sans-serif-skrift.
 - **Felles utseende** i `utseende.py`: `topp()` (selskapsnavn, tittel, spørsmålet
@@ -438,11 +461,12 @@ standard, og vises åpent på siden («Slik settes status»).
 |---|---|---|---|---|
 | Total turnover | under 10 % | 10-15 % | over 15 % | +3 pp |
 | Uønsket turnover | under 3 % | 3-5 % | over 5 % | +2 pp |
-| Kostnad uønsket turnover | følger uønsket turnover | | | |
-| Sykefravær | under 5 % | 5-6 % | over 6 % (**internt mål**; landssnittet vises bare som referanse) | +1 pp |
+| Erstatningskostnad | følger total turnover | | | |
+| Sykefravær | under 5 % | 5-6 % | over 6 % (**internt mål**; landssnittet er bare en referanse: alle bransjer, annen metode) | +1 pp |
+| Fraværskostnad | følger sykefravær | | | |
 | eNPS | +10 eller høyere | 0 til +9 | under 0 | −10 poeng |
 | Bemanning mot plan | avvik inntil 5 % | 5-10 % | over 10 % | – (nøytral, ingen pil) |
-| Tid til ansettelse | inntil 45 dager | 46-60 dager | over 60 dager | +15 dager |
+| Tid til ansettelse | inntil 45 dager | 46-60 dager | over 60 dager | +15 dager. **Et team over 60 dager** (minst 5 ansettelser) gir minst «Følg med», og tregeste team står i teksten |
 
 Sammenligning som på sidene: turnover mot forrige 12 mnd; fravær, eNPS og
 rekruttering mot samme periode i fjor. Kostnaden mot forrige 12 mnd, regnet på
@@ -456,7 +480,7 @@ temaene, med de samme personvernreglene, og nevner aldri skjulte grupper.» Komm
 AI-funksjonen, må teksten skille tydelig mellom regelbasert og AI.
 
 Maks 5, viktigste først. Hver innsikt har tekst, eventuell merknad, **«Mulig neste
-steg (forslag)»** og lenke(r) som åpner siden med teamet forhåndsvalgt
+steg»** (merket «Regelbasert forslag») og lenke(r) som åpner siden med teamet forhåndsvalgt
 (`forhandsvelg()` i `filtre.py`).
 
 1. **Fravær og engasjement** (per team): sykefravær over 6 % eller +1 pp mot i

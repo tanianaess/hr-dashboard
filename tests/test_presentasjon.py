@@ -44,7 +44,8 @@ def all_tekst(at):
 def test_ingen_lange_verdier_i_kpi_kort(side, periode, team):
     at = kjor(side, periode, team)
     for m in at.metric:
-        assert len(str(m.value)) <= 12, (m.label, m.value)
+        # «17,8 mill. kr» (13 tegn) er lengste lovlige verdi; «skjult (under 5)» (16) var feilen
+        assert len(str(m.value)) <= 13, (m.label, m.value)
 
 
 def test_skjult_kort_viser_strek_og_forklaring():

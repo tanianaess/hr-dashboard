@@ -68,7 +68,8 @@ def vis_kort(k, nr):
     with st.container(border=True):
         pil = k.get("endring")
         st.metric(k["navn"], k["verdi"], delta=pil,
-                  delta_color=b.pilfarge(pil, k.get("hoyere_er_bedre", False)) if pil else "off")
+                  delta_color=b.pilfarge(pil, k.get("hoyere_er_bedre", False),
+                                         terskel=k.get("terskel")) if pil else "off")
         u.statusmerke(k["status"][0], k["status"][1].capitalize())
         st.caption(k["ekstra"])
         if st.button("Detaljer", icon=":material/arrow_forward:", type="tertiary",
@@ -82,6 +83,8 @@ for rad_start in range(0, len(nokkeltall), 4):  # fire kort per rad, med jevn lu
         with kolonne:
             vis_kort(k, nr)
 
+st.caption(b.VESENTLIG_TEKST)
+
 with st.expander("Slik settes status"):
     st.dataframe(
         pd.DataFrame([{"Nøkkeltall": navn, "OK": t["tekst"][0], "Følg med": t["tekst"][1],
@@ -90,10 +93,14 @@ with st.expander("Slik settes status"):
         hide_index=True, width="stretch",
     )
     st.markdown(
-        "- Tersklene er **skjønn** og ikke en standard. De bør settes av ledelsen.\n"
+        "- Tersklene er **skjønn** og ikke en standard. De bør settes av ledelsen, helst "
+        "med bransjetall som referanse (det som er høyt i én bransje, kan være normalt "
+        "i en annen).\n"
         "- **Sykefravær** måles mot et internt mål. Landssnittet "
-        f"({b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2)}, NAV 2025) vises bare som referanse.\n"
-        "- **Kostnad** følger statusen til uønsket turnover.\n"
+        f"({b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2)}, NAV 2025) vises bare som referanse, fordi det "
+        "gjelder alle bransjer og er beregnet annerledes.\n"
+        "- **Erstatningskostnad** følger total turnover, og **fraværskostnad** følger sykefravær.\n"
+        "- **Tid til ansettelse** blir minst «Følg med» hvis et team er over grensen for kritisk.\n"
         "- **Bemanning** vises nøytralt uten pil, fordi avvik i begge retninger teller.\n"
         "- Status settes på de avrundede tallene som vises."
     )
@@ -129,5 +136,5 @@ for nr, innsikt in enumerate(innsikt_liste):
             # key gir boksen en egen CSS-klasse, så den får lys petrol bakgrunn
             with st.container(key=f"{u.NESTE_STEG_NOKKEL}{nr}"):
                 st.markdown(":blue[:material/lightbulb: **Mulig neste steg**]")  # blå = petrol i temaet
-                st.caption("Forslag, ikke en faglig anbefaling")
+                st.caption("Regelbasert forslag")
                 st.markdown(innsikt["neste_steg"])

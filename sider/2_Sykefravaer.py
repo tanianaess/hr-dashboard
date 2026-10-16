@@ -65,15 +65,17 @@ def endring(navn):
 # --- KPI-kort -------------------------------------------------------------------------
 kort1, kort2, kort3, kort4 = st.columns(4)
 kort1.metric("Sykefravær totalt", b.prosent(naa["total_rate"], 2),
-             delta=endring("total_rate"), delta_color=b.pilfarge(endring("total_rate")))
+             delta=endring("total_rate"), delta_color=b.pilfarge(endring("total_rate"), terskel=b.VESENTLIG_ENDRING_SYKEFRAVAER_PP))
 kort1.caption(f"Snitt {b.avrund(snitt)} ansatte")
 kort2.metric("Korttid (1-16 dager)", b.prosent(naa["korttid_rate"], 2),
-             delta=endring("korttid_rate"), delta_color=b.pilfarge(endring("korttid_rate")))
+             delta=endring("korttid_rate"), delta_color=b.pilfarge(endring("korttid_rate"), terskel=b.VESENTLIG_ENDRING_SYKEFRAVAER_PP))
 kort3.metric("Langtid (over 16 dager)", b.prosent(naa["langtid_rate"], 2),
-             delta=endring("langtid_rate"), delta_color=b.pilfarge(endring("langtid_rate")))
-kort4.metric("Landssnitt 2025", b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2))
+             delta=endring("langtid_rate"), delta_color=b.pilfarge(endring("langtid_rate"), terskel=b.VESENTLIG_ENDRING_SYKEFRAVAER_PP))
+# Status styres av det interne målet. Landssnittet er bare en referanse (se infoboksen).
+kort4.metric("Internt mål", b.prosent(b.SYKEFRAVAER_MAL, 0))
 # Markdown-lenke: [tekst](adresse)
-kort4.caption(f"Kilde: [{b.SYKEFRAVAER_KILDE}]({b.SYKEFRAVAER_KILDE_URL})")
+kort4.caption(f"Referanse: alle bransjer {b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2)} "
+              f"([{b.SYKEFRAVAER_KILDE}]({b.SYKEFRAVAER_KILDE_URL})), ikke direkte sammenlignbart")
 
 if har_fjor:
     st.caption(f"Pilene viser endring mot samme periode i fjor "
@@ -81,13 +83,31 @@ if har_fjor:
 else:
     st.caption("Ingen sammenligning: samme periode i fjor ligger før datastart (okt 2024).")
 
-st.info(
-    "**Om sammenligningen med landssnittet:** Vi trekker ikke fra ferie og helligdager "
-    "fra avtalte dagsverk. Det gir flere avtalte dagsverk og derfor et litt lavere "
-    "sykefravær enn NAVs metode. Forskjellen mot landssnittet er altså litt "
-    "overdrevet i vår favør.",
-    icon=":material/info:",
-)
+if har_fjor:
+    st.caption(b.VESENTLIG_TEKST)
+st.info(b.SYKEFRAVAER_REFERANSE_MERKNAD, icon=":material/info:")
+
+# --- Kostnad i arbeidsgiverperioden (bygger på lønn: bare hele selskapet, siste 12 mnd) ---
+st.subheader("Kostnad i arbeidsgiverperioden")
+if not hele_selskapet:
+    st.info("Kostnaden vises bare for hele selskapet, fordi den bygger på lønn "
+            "(lønn vises aldri per team).", icon=":material/lock:")
+elif not b.er_siste_12(start, slutt):
+    st.info("Kostnaden vises bare for siste 12 mnd, fordi den bygger på lønn.",
+            icon=":material/lock:")
+else:
+    kostnad = b.fravaerskostnad(utvalg_ansatte, utvalg_fravaer, start, slutt)
+    kostnad_fjor = b.fravaerskostnad(utvalg_ansatte, utvalg_fravaer, fjor_start, fjor_slutt) if har_fjor else None
+    pil = b.endring_millioner(kostnad, kostnad_fjor) if kostnad_fjor else None
+    k1, _ = st.columns(2)
+    k1.metric("Minst", b.millioner(kostnad), delta=pil, delta_color=b.pilfarge(pil))
+    k1.caption(
+        "Arbeidsgiver betaler de første 16 dagene av hvert sykefravær. Kostnaden er tapte "
+        "dagsverk korttid × gjennomsnittlig dagslønn per årsverk"
+        + (f" ({b.med_unntak('hele selskapet', utenfor)})" if utenfor else "")
+        + ", avrundet til nærmeste 0,1 mill. kr. Det er et minimum: de første 16 dagene av "
+        "langtidsfravær, arbeidsgiveravgift og feriepenger er ikke med."
+    )
 
 
 # --- Graf: sykefravær per måned, med landssnitt -----------------------------------------
@@ -136,7 +156,7 @@ else:
                 {   # Tekst ved linjen
                     "mark": {"type": "text", "align": "left", "dx": 4, "dy": -8, "color": u.TEKST_DEMPET},
                     "encoding": {"y": {"datum": landssnitt}, "x": {"value": 0},
-                                 "text": {"value": f"Landssnitt {b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2)}"}},
+                                 "text": {"value": f"Alle bransjer {b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2)} (referanse)"}},
                 },
             ],
         },

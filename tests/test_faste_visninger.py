@@ -71,7 +71,7 @@ def test_millioner_rundes_grovt():
 ])
 def test_turnoverside_kostnad(periode, team, vises):
     at = kjor("sider/1_Turnover.py", periode, team)
-    kostnad = [m.value for m in at.metric if m.label == "Anslått kostnad"]
+    kostnad = [m.value for m in at.metric if m.label == "Erstatningskostnad, alle avganger"]
     assert bool(kostnad) == vises
     if vises:
         assert kostnad[0].endswith("mill. kr")
@@ -85,9 +85,10 @@ def test_endring_millioner_regnes_paa_avrundede_tall():
 
 def test_forsiden_kostnad_mot_forrige_12():
     at = kjor("app.py")
-    kort = next(m for m in at.metric if m.label == "Turnoverkostnad")
-    assert kort.value == "5,6 mill. kr"
-    assert kort.delta == "+3,1 mill. kr"
+    # Erstatningskostnad for alle avganger (uønsket står som «herav» i teksten)
+    kort = next(m for m in at.metric if m.label == "Erstatningskostnad")
+    assert kort.value == "17,8 mill. kr"
+    assert kort.delta == "+4,4 mill. kr"
 
 
 def test_turnover_avganger_vises_ogsaa_for_ledergruppen(ansatte, siste_12):

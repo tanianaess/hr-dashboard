@@ -33,7 +33,7 @@ def topp(tittel, sporsmal=None, ikon=None, merknad=True):
     """Toppen av hver side: selskapsnavn, tittel (med samme ikon som i menyen, i petrol),
     spørsmålet siden svarer på (hvis gitt) og diskret merking om syntetiske data.
     merknad=False: siden viser setningen om syntetiske data selv (forsiden, under introen)."""
-    st.caption(f"**{SELSKAP}** · fiktivt selskap · people analytics")
+    st.caption(f"**{SELSKAP}**")
     # :blue[…] er petrol i temaet (.streamlit/config.toml)
     st.title(f":blue[{ikon}] {tittel}" if ikon else tittel)
     if sporsmal:
