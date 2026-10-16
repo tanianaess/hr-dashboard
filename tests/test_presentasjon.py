@@ -161,6 +161,19 @@ def test_overskriften_har_samme_ikon_som_menyen(navn):
     assert at.title[0].value.startswith(f":blue[{IKONER[navn]}]"), at.title[0].value
 
 
+def test_skriften_er_selvhostet():
+    """Inter ligger i static/ (med lisens), og temaet peker dit, ikke til en ekstern tjeneste."""
+    konfig = (PROSJEKT / ".streamlit" / "config.toml").read_text(encoding="utf-8")
+    assert "enableStaticServing = true" in konfig
+    assert 'font = "Inter, sans-serif"' in konfig
+    for vekt in (400, 500, 600, 700):
+        fil = f"inter-latin-{vekt}-normal.woff2"
+        assert (PROSJEKT / "static" / fil).read_bytes()[:4] == b"wOF2", fil
+        assert f'url = "app/static/{fil}"' in konfig
+    lisens = (PROSJEKT / "static" / "inter-LICENSE.txt").read_text(encoding="utf-8")
+    assert "SIL Open Font License" in lisens
+
+
 def test_forsiden_merknad_og_periode_under_introen():
     at = kjor("app.py")
     # Introen ligger i en ramme, og de to setningene kommer etter den

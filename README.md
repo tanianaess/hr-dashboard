@@ -236,6 +236,7 @@ filtre.py                 Felles filtre for periode og team, sidestiene (SIDER) 
 datalasting.py            Felles innlesing av data (lest én gang, deles av alle sider)
 lag_syntetiske_data.py    Genererer de syntetiske dataene
 data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan, opplæring, 1:1, stillingsendringer, og lederbrief.json (AI)
+static/                   Skriften Inter (woff2, selvhostet) med lisens
 kontroller_mot_excel.py   Sjekker Python-formlene mot en Excel-fasit
 tests/                    Automatiske tester (pytest)
 Datamodell.xlsx           Excel-utkast til datamodell med 20 testrader (fasit)

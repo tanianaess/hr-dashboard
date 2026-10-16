@@ -5,6 +5,8 @@
 # så gå til http://localhost:8501. (Ingen fast «address»: den hindrer publisering
 # på Streamlit Community Cloud.)
 headless = true
+# Lar appen servere filene i static/ (skriften Inter) under adressen app/static/…
+enableStaticServing = true
 
 [browser]
 # Ikke send bruksstatistikk til Streamlit
@@ -29,7 +31,9 @@ borderColor = "#DCE2E1"
 linkColor = "#0F4C5C"
 baseRadius = "0.625rem"
 showSidebarBorder = true
-font = "sans-serif"
+# Inter: nøytral, lett å lese, tall som står pent under hverandre. Filene ligger i
+# static/ (se [[theme.fontFaces]] under). Faller tilbake til sans-serif om de mangler.
+font = "Inter, sans-serif"
 headingFontWeights = [600, 600, 600, 600, 600, 600]
 # Grafer: samme rekkefølge overalt – petrol, lys petrol, nøytral grå
 chartCategoricalColors = ["#0F4C5C", "#5F93A1", "#8A9499"]
@@ -50,6 +54,33 @@ redTextColor = "#8A1622"
 grayColor = "#5B6770"
 grayBackgroundColor = "#E9EDEC"
 grayTextColor = "#4A555C"
+
+# Skriften Inter (SIL Open Font License, se static/inter-LICENSE.txt), selvhostet i
+# static/, så den som åpner dashbordet ikke henter noe fra en ekstern tjeneste.
+# Fire vekter: vanlig (400), medium (500), halvfet (600) og fet (700).
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/inter-latin-400-normal.woff2"
+weight = 400
+style = "normal"
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/inter-latin-500-normal.woff2"
+weight = 500
+style = "normal"
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/inter-latin-600-normal.woff2"
+weight = 600
+style = "normal"
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/inter-latin-700-normal.woff2"
+weight = 700
+style = "normal"
 
 # Hvit sidemeny med tynn kant mot den lyse bakgrunnen
 [theme.sidebar]

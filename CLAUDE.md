@@ -414,8 +414,10 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
 - **Fiktivt selskap:** «Fjordlys Tech AS», vist øverst (bare navnet). At det er
   fiktivt, sies av merkelappen «Syntetiske data» og merknaden under.
 - **Tema** i `.streamlit/config.toml`: hovedfarge dyp petrol `#0F4C5C`, rolig lys
-  bakgrunn (`#F3F5F4`) som hvite kort står mot, hvit sidemeny med tynn kant, standard
-  sans-serif-skrift.
+  bakgrunn (`#F3F5F4`) som hvite kort står mot, hvit sidemeny med tynn kant, og
+  skriften **Inter** (SIL Open Font License), selvhostet i `static/` via
+  `[[theme.fontFaces]]` og `enableStaticServing`, så ingen henter skrift fra en
+  ekstern tjeneste. Sjekkes av en test.
 - **Felles utseende** i `utseende.py`: `topp()` (selskapsnavn, tittel, spørsmålet
   siden svarer på, og diskret merking om syntetiske data), `statusmerke()` og
   `skjult_kort()`. Nye sider bruker disse.
