@@ -7,7 +7,7 @@ import streamlit as st
 import beregninger as b
 import datalasting as d
 import utseende as u
-from filtre import SPORSMAL, vis_filtre_sensitiv
+from filtre import IKONER, SPORSMAL, vis_filtre_sensitiv
 
 st.set_page_config(page_title="Utvikling · HR-dashbord", layout="wide")
 
@@ -23,7 +23,7 @@ utvalg = ansatte[ansatte["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-u.topp("Utvikling", SPORSMAL["Utvikling"])
+u.topp("Utvikling", SPORSMAL["Utvikling"], IKONER["Utvikling"])
 st.caption(
     f"Periode: {start:%d.%m.%Y}-{slutt:%d.%m.%Y}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}."

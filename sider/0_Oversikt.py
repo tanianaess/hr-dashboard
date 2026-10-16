@@ -8,7 +8,7 @@ import beregninger as b
 import datalasting as d
 import innsikter as i
 import utseende as u
-from filtre import SIDER, forhandsvelg
+from filtre import IKONER, SIDER, forhandsvelg
 
 st.set_page_config(page_title="Oversikt · HR-dashbord", layout="wide")
 
@@ -45,7 +45,7 @@ nokkeltall, innsikt_liste = beregn_oversikt()
 
 
 # --- Toppen av siden --------------------------------------------------------------
-u.topp("Oversikt")
+u.topp("Oversikt", ikon=IKONER["Oversikt"])
 u.neste_steg_stil()  # lys petrol bakgrunn på «Mulig neste steg» (se utseende.py)
 st.markdown(INTRO)
 start, slutt = b.FASTE_PERIODER["Siste 12 mnd"]

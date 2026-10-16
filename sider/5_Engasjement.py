@@ -7,7 +7,7 @@ import streamlit as st
 import beregninger as b
 import datalasting as d
 import utseende as u
-from filtre import SPORSMAL, vis_filtre_sensitiv
+from filtre import IKONER, SPORSMAL, vis_filtre_sensitiv
 
 st.set_page_config(page_title="Engasjement · HR-dashbord", layout="wide")
 
@@ -22,7 +22,7 @@ utvalg = engasjement[engasjement["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-u.topp("Engasjement (eNPS)", SPORSMAL["Engasjement"])
+u.topp("Engasjement (eNPS)", SPORSMAL["Engasjement"], IKONER["Engasjement"])
 
 kvartaler = b.kvartaler_i_perioden(start, slutt)
 if not kvartaler:

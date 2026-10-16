@@ -26,6 +26,17 @@ SIDER = {
     "Utvikling": "sider/6_Utvikling.py",
 }
 
+# Ikon per side – brukes både i menyen (app.py) og foran overskriften (topp() i utseende.py)
+IKONER = {
+    "Oversikt": ":material/space_dashboard:",
+    "Turnover": ":material/sync_alt:",
+    "Sykefravær": ":material/healing:",
+    "Rekruttering": ":material/person_search:",
+    "Bemanning": ":material/groups:",
+    "Engasjement": ":material/forum:",
+    "Utvikling": ":material/school:",
+}
+
 # Spørsmålet hver detaljside svarer på – vises under tittelen (topp() i utseende.py)
 SPORSMAL = {
     "Turnover": "Hvem slutter, hvem ville vi beholdt, og hva koster det?",

@@ -24,11 +24,12 @@ STATUS = {
 }
 
 
-def topp(tittel, sporsmal=None):
-    """Toppen av hver side: selskapsnavn, tittel, spørsmålet siden svarer på (hvis gitt)
-    og diskret merking om syntetiske data."""
+def topp(tittel, sporsmal=None, ikon=None):
+    """Toppen av hver side: selskapsnavn, tittel (med samme ikon som i menyen, i petrol),
+    spørsmålet siden svarer på (hvis gitt) og diskret merking om syntetiske data."""
     st.caption(f"**{SELSKAP}** · fiktivt selskap · people analytics")
-    st.title(tittel)
+    # :blue[…] er petrol i temaet (.streamlit/config.toml)
+    st.title(f":blue[{ikon}] {tittel}" if ikon else tittel)
     if sporsmal:
         st.markdown(f":gray[{sporsmal}]")  # rolig grå tekst rett under tittelen
     st.badge("Syntetiske data", icon=":material/science:", color="gray")

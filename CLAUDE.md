@@ -384,6 +384,8 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
 - **Felles utseende** i `utseende.py`: `topp()` (selskapsnavn, tittel, spørsmålet
   siden svarer på, og diskret merking om syntetiske data), `statusmerke()` og
   `skjult_kort()`. Nye sider bruker disse.
+- **Ikon foran overskriften:** samme ikon som i menyen, i petrol (`IKONER` i
+  `filtre.py`, brukt av både `app.py` og `topp()`).
 - **Spørsmålet hver detaljside svarer på** står i `SPORSMAL` i `filtre.py` og vises
   i grått rett under tittelen. Spørsmålene knytter sidene til introduksjonen på
   forsiden.
