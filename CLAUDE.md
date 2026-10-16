@@ -434,7 +434,16 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
   - **Forklaringer (caption)** har full dekning, `#4A555C` (kontrast 7,2 : 1 mot
     bakgrunnen; Streamlits standard er 3,99 : 1) og 15 px.
   - Selskapsnavnet øverst er liten petrol tekst med sperring (beholder med key
-    `selskap`). Valgt side i menyen har lys petrol bakgrunn.
+    `selskap`), og som ordmerke øverst i menyen (`static/wordmark.svg`, `st.logo()`).
+    Menyen har seksjoner (`SEKSJONER` i `filtre.py`), og valgt side har lys petrol
+    bakgrunn.
+  - **Hvem og hva:** til høyre for tittelen på alle sider står én linje (`HVEM` i
+    `utseende.py`): «Porteføljeprosjekt av Tania Næss, organisasjonspsykolog.» Den som
+    åpner lenken skal ikke tro at dette er et ekte selskaps interne verktøy.
+  - **Nøkkeltallskortene er lave og tette:** navnet og pilknappen (til detaljene) øverst,
+    tallet og pilen på én linje, statusmerket med grensen på én linje (`statusmerke()`),
+    og én forklaring. Etiketten i `st.metric` er skjult (navnet står over), men ligger
+    i kortet for testene.
 - **Ikon foran overskriften:** samme ikon som i menyen, i petrol (`IKONER` i
   `filtre.py`, brukt av både `app.py` og `topp()`).
 - **Spørsmålet hver detaljside svarer på** står i `SPORSMAL` i `filtre.py` og vises
@@ -502,6 +511,20 @@ Sammenligning som på sidene: turnover mot forrige 12 mnd; fravær, eNPS og
 rekruttering mot samme periode i fjor. Kostnaden mot forrige 12 mnd, regnet på
 de avrundede tallene. Sykefravær og eNPS «uten ledergruppen»
 (sekundær prikking), som på sidene.
+
+### «Teamene på ett blikk» (rutenett)
+Ett bilde av alle teamene, rett under nøkkeltallene: én rad per team, én rute per signal
+(turnover, uønsket turnover, sykefravær, eNPS siste kvartal, bemanning mot plan, tid til
+ansettelse), med tallet og statusordet i hver rute. Status etter de samme tersklene som
+for hele selskapet, regnet på de avrundede tallene. Reglene ligger i `teamoversikt()` i
+`innsikter.py`, tegningen i `rutenett()` i `utseende.py` (ren HTML, så rutene får farge
+og to linjer; alltid ord og symbol, ikke bare farge).
+
+**Personvern:** samme femregel som detaljsidene, per rute: turnover og sykefravær krever
+minst 5 ansatte, uønsket turnover minst 5 ansatte og 5 avganger, eNPS minst 5 svar, tid
+til ansettelse minst 5 ansettelser. En skjult rute sier «skjult» og hvorfor, aldri tallet.
+Bemanning er ikke sensitivt og vises for alle team. Rutenettet har ingen totaler, så
+sekundær prikking trengs ikke. Sjekkes av tester.
 
 ### «Viktigste innsikter» (regelbaserte)
 Teksten under overskriften (`INNSIKT_FORKLARING`, Tanias formulering): «Regelbaserte
@@ -607,7 +630,8 @@ nøkternt, ingen superlativer.
   `godkjent` (dato eller tom) og eventuelt `merknad` (f.eks. hvis briefen ble laget
   på annen måte enn med skriptet).
 - Forsiden: egen seksjon «Lederbrief» under «Viktigste innsikter», med merking,
-  boksen «Hva AI-modellen fikk» og nedlasting som Markdown (én side til e-post).
+  boksen «Hva AI-modellen fikk» og nedlasting som HTML (`som_html()`, åpnes i
+  nettleseren og kan skrives ut til PDF, til vedlegg i e-post) og som Markdown.
   Mangler filen, vises ingenting.
 
 ### Tester

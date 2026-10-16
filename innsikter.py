@@ -221,6 +221,75 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
 
 
 # =============================================================================
+# TEAMENE PÅ ETT BLIKK (rutenettet på forsiden)
+# =============================================================================
+# Én rad per team, én rute per signal, med status etter de samme tersklene som for hele
+# selskapet (TERSKLER), regnet på de avrundede tallene som vises. Samme femregel som på
+# detaljsidene: en skjult rute sier «skjult» og hvorfor, aldri tallet. Det er ingen
+# totaler i rutenettet, så sekundær prikking trengs ikke her.
+
+SIGNALER = ["Turnover", "Uønsket turnover", "Sykefravær", "eNPS", "Bemanning", "Tid til ansettelse"]
+
+
+def _rute(tekst, navn, verdi):
+    """En synlig rute: teksten som vises, og status etter terskelen for `navn`."""
+    return {"tekst": tekst, "status": status(navn, verdi)[0]}
+
+
+def _skjult(grunn):
+    """En skjult rute: bare grunnen (f.eks. «under 5 ansatte»), aldri tallet."""
+    return {"tekst": grunn, "status": None}
+
+
+def teamoversikt(ansatte, fravaer, engasjement, plan):
+    """Rutenettet: [{team, ruter: [rute per signal i SIGNALER]}, …] for siste 12 mnd
+    (eNPS for siste kvartal). Bruker de samme per-team-funksjonene som detaljsidene."""
+    start, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
+    siste = b.kvartaler_i_perioden(start, slutt)[-1]
+    t = b.turnover_per_team(ansatte, start, slutt).set_index("team")
+    s = b.sykefravaer_per_team(ansatte, fravaer, start, slutt).set_index("team")
+    bt = b.bemanning_per_team(ansatte, plan, start, slutt).set_index("team")
+    r = b.tid_til_ansettelse_per_team(ansatte, start, slutt).set_index("team")
+    rader = []
+    for team in b.TEAM:
+        ruter = []
+        # Turnover (total): skjult for team med under 5 ansatte
+        rate = t.loc[team, "total_rate"]
+        ruter.append(_skjult("under 5 ansatte") if pd.isna(rate)
+                     else _rute(b.prosent(rate), "Total turnover", _prosentpoeng(rate)))
+        # Uønsket turnover: fordelingen vises bare med minst 5 ansatte og minst 5 avganger
+        rate = t.loc[team, "uønsket_rate"]
+        if pd.isna(rate):
+            ruter.append(_skjult("under 5 ansatte" if t.loc[team, "skjult"] == "lite team"
+                                 else "under 5 avganger"))
+        else:
+            ruter.append(_rute(b.prosent(rate), "Uønsket turnover", _prosentpoeng(rate)))
+        # Sykefravær: skjult for team med under 5 ansatte
+        if s.loc[team, "skjult"]:
+            ruter.append(_skjult("under 5 ansatte"))
+        else:
+            rate = s.loc[team, "total_rate"]
+            ruter.append(_rute(b.prosent(rate, 2), "Sykefravær", _prosentpoeng(rate, 2)))
+        # eNPS siste kvartal: skjult med under 5 svar
+        en = b.enps_samlet(engasjement[(engasjement["team"] == team) & (engasjement["kvartal"] == siste)])
+        ruter.append(_skjult("under 5 svar") if en is None
+                     else _rute(b.enps_tekst(en["enps"]), "eNPS", b.avrund(en["enps"])))
+        # Bemanning mot plan: ikke sensitivt, vises for alle team med en plan
+        planlagt, faktisk = int(bt.loc[team, "plan"]), int(bt.loc[team, "faktisk"])
+        if planlagt == 0:
+            ruter.append(_skjult("ingen plan"))
+        else:
+            ruter.append(_rute(f"{faktisk} av {planlagt}", "Bemanning mot plan",
+                               _prosentpoeng(abs(faktisk - planlagt) / planlagt)))
+        # Tid til ansettelse: medianen vises bare med minst 5 ansettelser
+        dager = r.loc[team, "median_dager"]
+        ruter.append(_skjult("under 5 ansettelser") if pd.isna(dager)
+                     else _rute(f"{b.avrund(dager)} dager", "Tid til ansettelse", b.avrund(dager)))
+        rader.append({"team": team, "ruter": ruter})
+    return rader
+
+
+# =============================================================================
 # INNSIKTER («Viktigste innsikter»)
 # =============================================================================
 # Hver innsikt: tittel, tekst, merknad (valgfri), neste_steg (forslag), lenker

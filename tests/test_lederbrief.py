@@ -96,6 +96,14 @@ def test_markdown_nedlasting():
     assert "Skrevet av AI-modellen" in md
 
 
+def test_html_nedlasting():
+    brief = lb.les_lederbrief()
+    side = lb.som_html(brief)
+    assert side.startswith("<!doctype html>") and "<meta charset='utf-8'>" in side
+    assert brief["brief"]["sammendrag"] in side and "Spørsmål til ledermøtet" in side
+    assert "Skrevet av AI-modellen" in side and "<script" not in side
+
+
 # --- Forsiden ---------------------------------------------------------------------------------
 
 def test_forsiden_viser_briefen_bare_naar_den_er_godkjent_og_oppdatert(tmp_path, monkeypatch):

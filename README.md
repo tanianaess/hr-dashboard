@@ -33,7 +33,9 @@ en ledergruppe. Bakgrunnen min er organisasjonspsykologi, og det preger valgene.
   utvalg. Reglene reduserer risikoen, men hindrer den ikke. Derfor er tilgangsstyring
   like viktig som teknikken.
 - **Regelbaserte innsikter.** Forsiden peker på de største avvikene etter faste
-  regler. Hver innsikt kan etterprøves, og skjulte grupper nevnes aldri.
+  regler. Hver innsikt kan etterprøves, og skjulte grupper nevnes aldri. «Teamene på
+  ett blikk» viser alle teamene mot de samme tersklene i ett rutenett, så ledergruppen
+  ser på ett blikk hvor det bør ses nærmere.
 - **AI med måte.** Lederbriefen på forsiden er skrevet av en AI-modell, men bare ut fra
   tall som allerede står der, ferdig prikkede. Teksten leses og godkjennes av et menneske
   før den vises, den er tydelig merket, og den stiller spørsmål til ledermøtet i stedet
@@ -58,7 +60,7 @@ en ledergruppe. Bakgrunnen min er organisasjonspsykologi, og det preger valgene.
 
 | Side | Viser |
 |---|---|
-| **Oversikt** (forside) | Kort introduksjon: hvem dashbordet er for (ledergruppen i et selskap med 50-500 ansatte) og hvilke spørsmål det svarer på. Nøkkeltall for hele selskapet med endring og status (OK / følg med / kritisk). «Viktigste innsikter»: opptil 5 regelbaserte funn om de største avvikene, med mulig neste steg og lenke til detaljene · «Lederbrief»: kort tekst til ledermøtet skrevet av en AI-modell ut fra tallene på siden, lest og godkjent av et menneske før den vises, med spørsmål til ledermøtet, åpen visning av hva modellen fikk, og nedlasting som Markdown |
+| **Oversikt** (forside) | Kort introduksjon: hvem dashbordet er for (ledergruppen i et selskap med 50-500 ansatte) og hvilke spørsmål det svarer på. Nøkkeltall for hele selskapet med endring og status (OK / følg med / kritisk). «Teamene på ett blikk»: ett rutenett med alle team mot seks signaler (turnover, uønsket turnover, sykefravær, eNPS, bemanning, tid til ansettelse), farget etter de samme tersklene, grått der femregelen slår inn · «Viktigste innsikter»: opptil 5 regelbaserte funn om de største avvikene, med mulig neste steg og lenke til detaljene · «Lederbrief»: kort tekst til ledermøtet skrevet av en AI-modell ut fra tallene på siden, lest og godkjent av et menneske før den vises, med spørsmål til ledermøtet, åpen visning av hva modellen fikk, og nedlasting som HTML (til vedlegg) og Markdown |
 | **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · erstatningskostnad for alle avganger, med uønskede som en del av den, og justerbar antakelse (hele selskapet, siste 12 mnd mot forrige 12 mnd) · regnestykke: hva er det verdt å redusere frivillig turnover (færre avganger × gjennomsnittlig erstatningskostnad, aldri lønn per team) · avganger per måned (bare totalen) · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · internt mål, og landssnittet 6,57 % bare som referanse (alle bransjer, annen metode) ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · kostnad i arbeidsgiverperioden (hele selskapet) · fravær per måned over hele dataperioden · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team · filter: hele selskapet eller ett team, faste perioder |
@@ -236,7 +238,7 @@ filtre.py                 Felles filtre for periode og team, sidestiene (SIDER) 
 datalasting.py            Felles innlesing av data (lest én gang, deles av alle sider)
 lag_syntetiske_data.py    Genererer de syntetiske dataene
 data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan, opplæring, 1:1, stillingsendringer, og lederbrief.json (AI)
-static/                   Skriften Inter (woff2, selvhostet) med lisens
+static/                   Skriften Inter (woff2, selvhostet) med lisens, og ordmerket i menyen (wordmark.svg)
 kontroller_mot_excel.py   Sjekker Python-formlene mot en Excel-fasit
 tests/                    Automatiske tester (pytest)
 Datamodell.xlsx           Excel-utkast til datamodell med 20 testrader (fasit)

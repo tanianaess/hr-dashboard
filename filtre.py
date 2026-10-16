@@ -27,6 +27,14 @@ SIDER = {
     "Om dashbordet": "sider/7_Om.py",
 }
 
+# Seksjonene i menyen (overskrifter i sidemenyen, brukt av app.py). Alle sider i SIDER
+# må stå her. Tom overskrift = ingen overskrift (forsiden står alene øverst).
+SEKSJONER = {
+    "": ["Oversikt"],
+    "Temaer": ["Turnover", "Sykefravær", "Rekruttering", "Bemanning", "Engasjement", "Utvikling"],
+    "Bakgrunn": ["Om dashbordet"],
+}
+
 # Ikon per side – brukes både i menyen (app.py) og foran overskriften (topp() i utseende.py)
 IKONER = {
     "Oversikt": ":material/space_dashboard:",

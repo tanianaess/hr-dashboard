@@ -159,6 +159,31 @@ def som_markdown(brief):
     return "\n".join(linjer) + "\n"
 
 
+def som_html(brief):
+    """Briefen som én selvstendig HTML-side med enkel stil, til vedlegg i e-post
+    (åpnes i nettleseren og kan skrives ut til PDF). Ingen nye biblioteker."""
+    import html as h
+    felt = brief["brief"]
+    deler = [f"<h1>Lederbrief: {h.escape(u.SELSKAP)}</h1>",
+             f"<p class='meta'>Hele selskapet, {h.escape(brief['periode'])}. "
+             f"Data per {h.escape(brief['data_per'])}.</p>",
+             "<h2>Hovedbildet</h2>", f"<p>{h.escape(felt['sammendrag'])}</p>"]
+    for tema in felt["temaer"]:
+        deler += [f"<h2>{h.escape(tema['tittel'])}</h2>", f"<p>{h.escape(tema['hva_tallene_viser'])}</p>",
+                  "<p class='sp'>Spørsmål til ledermøtet</p><ul>"
+                  + "".join(f"<li>{h.escape(s)}</li>" for s in tema["sporsmal"]) + "</ul>"]
+    deler += ["<h2>Følg med</h2>", f"<p>{h.escape(felt['folg_med'])}</p>",
+              "<h2>Forbehold</h2>", f"<p>{h.escape(felt['forbehold'])}</p>",
+              f"<p class='meta'>{h.escape(merking(brief))}</p>"]
+    stil = ("body{font-family:Inter,'Segoe UI',Helvetica,Arial,sans-serif;max-width:720px;"
+            "margin:2rem auto;padding:0 1.25rem;color:#1E2A30;line-height:1.5}"
+            "h1{font-size:1.6rem;color:#0F4C5C}h2{font-size:1.1rem;margin-top:1.4rem}"
+            ".meta{color:#4A555C;font-size:.9rem}.sp{font-weight:600;margin-bottom:.25rem}ul{margin-top:0}")
+    return (f"<!doctype html><html lang='nb'><head><meta charset='utf-8'>"
+            f"<title>Lederbrief {h.escape(u.SELSKAP)}</title><style>{stil}</style></head><body>"
+            + "".join(deler) + "</body></html>\n")
+
+
 # --- Kontroll av AI-teksten ---------------------------------------------------------
 # Grovsjekker: tall skrevet med ord fanges ikke opp. Den viktigste kontrollen er
 # mennesket som leser (se CLAUDE.md).

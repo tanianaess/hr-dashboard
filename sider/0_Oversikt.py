@@ -40,11 +40,12 @@ def beregn_oversikt():
     ansatte, fravaer = d.hent_ansatte(), d.hent_fravaer()
     engasjement, plan = d.hent_engasjement(), d.hent_bemanningsplan()
     nokkeltall = i.nokkeltall(ansatte, fravaer, engasjement, plan)
-    return nokkeltall, i.innsikter(ansatte, fravaer, engasjement, plan, nokkeltall,
-                                   samtaler=d.hent_en_til_en())
+    return (nokkeltall,
+            i.innsikter(ansatte, fravaer, engasjement, plan, nokkeltall, samtaler=d.hent_en_til_en()),
+            i.teamoversikt(ansatte, fravaer, engasjement, plan))
 
 
-nokkeltall, innsikt_liste = beregn_oversikt()
+nokkeltall, innsikt_liste, team_rader = beregn_oversikt()
 
 # Lederbriefen (AI): leses fra data/lederbrief.json og vises bare når den er lest og godkjent,
 # og bygger på nøyaktig dagens tall (fingeravtrykket stemmer). Se «Lederbrief (AI)» i CLAUDE.md.
@@ -64,7 +65,7 @@ u.lederbrief_stil()  # nøytral grå bakgrunn på lederbriefen (AI)
 # rett under.
 with st.container(border=True, key=f"{u.KORT_NOKKEL}intro"):
     hvem, sporsmal, bruk = INTRO.split("\n\n")
-    venstre, hoyre = st.columns([3, 2], gap="large")
+    venstre, hoyre = st.columns([3, 2], gap="medium")
     venstre.markdown(hvem)
     hoyre.markdown(sporsmal)
     st.caption(bruk)
@@ -81,17 +82,24 @@ st.caption(i.felles_merknad(nokkeltall))
 
 
 def vis_kort(k, nr):
-    """Ett KPI-kort: tall, endring, statusmerke, forklaring og lenke til detaljene."""
+    """Ett KPI-kort, lavt og tett: navnet og lenken til detaljene øverst, tallet og pilen
+    på én linje, statusmerket med grensen, og én forklaring."""
     with st.container(border=True, key=f"{u.KORT_NOKKEL}nokkeltall_{nr}"):  # key: kortstil, se utseende.py
+        # Navnet til venstre og pilknappen til høyre på én linje (også på mobil, der
+        # kolonner ellers stables). Knappen har ikke tekst, teksten ligger i verktøytipset.
+        with st.container(horizontal=True, horizontal_alignment="distribute",
+                          vertical_alignment="center"):
+            st.caption(k["navn"])
+            if st.button("", icon=":material/arrow_forward:", type="tertiary", help="Detaljer",
+                         key=f"detaljer_{nr}"):
+                forhandsvelg(SIDER[k["side"]])
         pil = k.get("endring")
-        st.metric(k["navn"], k["verdi"], delta=pil,
+        # Etiketten er skjult (navnet står over), men ligger i kortet for testene
+        st.metric(k["navn"], k["verdi"], delta=pil, label_visibility="collapsed",
                   delta_color=b.pilfarge(pil, k.get("hoyere_er_bedre", False),
                                          terskel=k.get("terskel")) if pil else "off")
         u.statusmerke(k["status"][0], k["status"][1].capitalize())
         st.caption(k["ekstra"])
-        if st.button("Detaljer", icon=":material/arrow_forward:", type="tertiary",
-                     key=f"detaljer_{nr}"):
-            forhandsvelg(SIDER[k["side"]])
 
 
 for rad_start in range(0, len(nokkeltall), 4):  # fire kort per rad, med jevn luft
@@ -101,6 +109,16 @@ for rad_start in range(0, len(nokkeltall), 4):  # fire kort per rad, med jevn lu
             vis_kort(k, nr)
 
 st.caption(b.VESENTLIG_TEKST)
+
+
+# --- Teamene på ett blikk ----------------------------------------------------------------
+# Ett bilde av alle teamene: samme terskler som nøkkeltallene over, samme femregel som
+# detaljsidene. Reglene ligger i teamoversikt() i innsikter.py, tegningen i utseende.py.
+st.subheader("Teamene på ett blikk")
+st.caption("Samme terskler som for hele selskapet (se «Slik settes status» under), siste 12 "
+           "måneder, eNPS for siste kvartal. En grå rute er skjult fordi gruppen er under fem, "
+           "og viser aldri tallet.")
+u.rutenett(team_rader, i.SIGNALER)
 
 with st.expander("Slik settes status"):
     st.dataframe(
@@ -184,9 +202,14 @@ def vis_lederbrief(brief):
             if brief.get("merknad"):
                 st.caption(brief["merknad"])
         _, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
-        st.download_button("Last ned som Markdown", data=lb.som_markdown(brief),
-                           file_name=f"lederbrief-{slutt:%Y-%m}.md", mime="text/markdown",
-                           icon=":material/download:")
+        # Til vedlegg i e-post: HTML (åpnes i nettleseren, kan skrives ut til PDF) eller Markdown
+        with st.container(horizontal=True):
+            st.download_button("Last ned som HTML", data=lb.som_html(brief),
+                               file_name=f"lederbrief-{slutt:%Y-%m}.html", mime="text/html",
+                               icon=":material/download:")
+            st.download_button("Last ned som Markdown", data=lb.som_markdown(brief),
+                               file_name=f"lederbrief-{slutt:%Y-%m}.md", mime="text/markdown",
+                               icon=":material/download:")
 
 
 if brief is not None:
