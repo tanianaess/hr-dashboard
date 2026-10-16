@@ -135,6 +135,11 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
   avrundet til nærmeste 0,1 mill. kr (`millioner()`), og bare med minst 5
   i grunnlaget (avganger, uønskede avganger). Endringen regnes på de avrundede tallene
   (`endring_millioner()`), så den ikke avslører mer enn tallene selv.
+  - **Regnestykket «Hva er det verdt å redusere frivillig turnover?»** (Turnover, samme
+    faste visning) bruker selskapets gjennomsnittlige erstatningskostnad per avgang
+    (sum årslønn × prosentsatsen / antall avganger), aldri lønn per team. Team kan velges
+    bare der fordelingen allerede vises i tabellen (minst 5 avganger). Det er ren
+    aritmetikk (færre avganger × kostnad per avgang), ingen prognose, og sies slik.
 - **Stilling** blir aldri et filter i dashbordet (stilling + team kan peke ut
   én person).
 - Selv om dataene er syntetiske, skal dashbordet bygges som om de var ekte.

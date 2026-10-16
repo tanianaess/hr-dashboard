@@ -7,7 +7,7 @@ import streamlit as st
 import beregninger as b
 import datalasting as d
 import utseende as u
-from filtre import IKONER, SPORSMAL, vis_filtre_sensitiv
+from filtre import HELE_SELSKAPET, IKONER, SPORSMAL, vis_filtre_sensitiv
 
 st.set_page_config(page_title="Turnover · HR-dashbord", layout="wide")
 
@@ -169,6 +169,46 @@ else:
         + "Prosentsatsen er en antakelse (dekker rekruttering, opplæring og tapt "
         "produktivitet). Juster den med glidebryteren. " + b.VESENTLIG_TEKST
     )
+
+    # --- Regnestykke: hva er det verdt å redusere frivillig turnover? ---------------------
+    # Ren aritmetikk, ingen prognose: færre avganger × selskapets gjennomsnittlige
+    # erstatningskostnad per avgang (sum årslønn × prosentsatsen over, delt på antall
+    # avganger). Lønn per team brukes aldri. Team kan velges bare der fordelingen allerede
+    # vises i tabellen under (minst 5 avganger), så regnestykket viser ingen nye tall om
+    # små grupper. Vises bare i samme faste visning som kostnaden (hele selskapet, siste 12 mnd).
+    if vis_fordeling:
+        st.markdown("##### Hva er det verdt å redusere frivillig turnover?")
+        per_avgang = naa["lønn_avganger"] / naa["avganger"] * andel
+        synlige = b.turnover_per_team(ansatte, start, slutt)
+        synlige = synlige[synlige["frivillig_rate"].notna()].set_index("team")
+        hvem = st.selectbox("Regn for", [HELE_SELSKAPET, *synlige.index], key="regnestykke_team")
+        if hvem == HELE_SELSKAPET:
+            rate, snitt_r, antall_f = fordeling["frivillig_rate"], fordeling["snitt_ansatte"], fordeling["frivillig"]
+            navn = b.med_unntak("hele selskapet", utenfor)
+        else:
+            rad = synlige.loc[hvem]
+            rate, snitt_r, antall_f, navn = rad["frivillig_rate"], rad["snitt_ansatte"], int(rad["frivillig"]), hvem
+        naa_hel = b.avrund(rate * 100)  # dagens nivå i hele prosent
+        if naa_hel < 1:
+            st.caption(f"Frivillig turnover for {navn} er allerede {b.prosent(rate)}.")
+        else:
+            # Standardmål: selskapets nivå for et team, 2 pp lavere for hele selskapet
+            selskap_hel = b.avrund(fordeling["frivillig_rate"] * 100)
+            standard = max(0, naa_hel - 2) if hvem == HELE_SELSKAPET else min(naa_hel, selskap_hel)
+            maal = st.slider("Mål for frivillig turnover", 0, naa_hel, standard, format="%d %%")
+            faerre = (rate - maal / 100) * snitt_r  # avganger per år
+            st.markdown(
+                f"Frivillig turnover for **{navn}** er {b.prosent(rate)} ({antall_f} av snitt "
+                f"{b.avrund(snitt_r)} ansatte). Ned til {maal} % betyr ca. **{b.avrund(faerre)} "
+                f"færre avganger per år**. Med en gjennomsnittlig erstatningskostnad på "
+                f"{b.millioner(per_avgang)} per avgang er det ca. **{b.millioner(faerre * per_avgang)} "
+                f"per år**."
+            )
+        st.caption(
+            "Regnestykke, ikke prognose: det sier hva færre avganger ville spart med selskapets "
+            "gjennomsnittlige erstatningskostnad per avgang, ikke hva et tiltak koster eller "
+            "oppnår. Lønn per team brukes ikke. Team kan velges der fordelingen vises i tabellen under."
+        )
 
 
 # --- Graf: avganger per måned -----------------------------------------------------------
