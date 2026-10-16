@@ -29,10 +29,29 @@ def syntetisk_merknad():
     st.caption(b.SYNTETISK_MERKNAD.replace("**Syntetiske data.** ", ""))
 
 
+# Forklaringene under kortene og grafene er «caption»-tekst. Streamlit viser den med 60 %
+# gjennomsiktighet og 14 px, som gir kontrast 3,99 : 1 mot bakgrunnen (under kravet på
+# 4,5 : 1 for liten tekst). Dashbordet har mye slik tekst, så den gjøres lettere å lese:
+# full dekning, dempet grå med kontrast 7,2 : 1 (samme som grayTextColor i temaet), 15 px.
+CAPTION_TEKST = "#4A555C"
+
+
+def lesbarhet_stil():
+    """Én CSS-regel for all caption-tekst, så kontrast og størrelse settes ett sted."""
+    st.html(
+        "<style>"
+        "[data-testid='stCaptionContainer'], [data-testid='stCaptionContainer'] * {"
+        f" opacity: 1; color: {CAPTION_TEKST}; }}"
+        "[data-testid='stCaptionContainer'] p { font-size: 0.9375rem; }"
+        "</style>"
+    )
+
+
 def topp(tittel, sporsmal=None, ikon=None, merknad=True):
     """Toppen av hver side: selskapsnavn, tittel (med samme ikon som i menyen, i petrol),
     spørsmålet siden svarer på (hvis gitt) og diskret merking om syntetiske data.
     merknad=False: siden viser setningen om syntetiske data selv (forsiden, under introen)."""
+    lesbarhet_stil()
     st.caption(f"**{SELSKAP}**")
     # :blue[…] er petrol i temaet (.streamlit/config.toml)
     st.title(f":blue[{ikon}] {tittel}" if ikon else tittel)
