@@ -154,7 +154,7 @@ def test_intervaller_med_bindestrek():
 # --- Samme ikon i menyen og foran overskriften ----------------------------------------------
 
 @pytest.mark.parametrize("navn", ["Oversikt", "Turnover", "Sykefravær", "Rekruttering",
-                                  "Bemanning", "Engasjement", "Utvikling"])
+                                  "Bemanning", "Engasjement", "Utvikling", "Om dashbordet"])
 def test_overskriften_har_samme_ikon_som_menyen(navn):
     from filtre import IKONER
     at = kjor(SIDER[navn])

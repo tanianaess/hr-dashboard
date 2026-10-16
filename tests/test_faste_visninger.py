@@ -42,7 +42,10 @@ def test_sammenligninger_er_bare_de_faste_periodene():
 
 def test_sensitive_sider_har_begrenset_filter():
     alle = {f"sider/{p.name}" for p in (PROSJEKT / "sider").glob("[1-9]_*.py")}
-    assert alle - filtre.SENSITIVE_SIDER == {"sider/4_Bemanning.py"}
+    # Bare Bemanning har fritt filter. Om-siden har ingen tall, og derfor ikke noe filter.
+    om = filtre.SIDER["Om dashbordet"]
+    assert alle - filtre.SENSITIVE_SIDER == {"sider/4_Bemanning.py", om}
+    assert "vis_filtre" not in (PROSJEKT / om).read_text(encoding="utf-8")
 
 
 # --- Turnover: månedsgraf og kostnad --------------------------------------------------

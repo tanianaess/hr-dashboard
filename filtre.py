@@ -24,6 +24,7 @@ SIDER = {
     "Bemanning": "sider/4_Bemanning.py",
     "Engasjement": "sider/5_Engasjement.py",
     "Utvikling": "sider/6_Utvikling.py",
+    "Om dashbordet": "sider/7_Om.py",
 }
 
 # Ikon per side – brukes både i menyen (app.py) og foran overskriften (topp() i utseende.py)
@@ -35,6 +36,7 @@ IKONER = {
     "Bemanning": ":material/groups:",
     "Engasjement": ":material/forum:",
     "Utvikling": ":material/school:",
+    "Om dashbordet": ":material/info:",
 }
 
 # Spørsmålet hver detaljside svarer på – vises under tittelen (topp() i utseende.py)
@@ -45,6 +47,7 @@ SPORSMAL = {
     "Bemanning": "Har vi folkene bemanningsplanen krever?",
     "Engasjement": "Hvor fornøyde er de ansatte, og henger det sammen med fraværet?",
     "Utvikling": "Utvikler vi folkene våre, og får vi det igjen i interne ansettelser og lavere turnover?",
+    "Om dashbordet": "Hvorfor er dashbordet bygget slik, og hva ville jeg gjort annerledes med ekte data?",
 }
 
 # Sider med begrenset filter (sensitive tall). Bare Bemanning har fritt filter,
