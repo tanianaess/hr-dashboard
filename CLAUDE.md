@@ -77,7 +77,7 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
     (ellers kan «1 personlighetstest» peke mot én kandidat)
   - **trendgrafer** for sykefravær (per måned) og eNPS (per kvartal) –
     femregelen gjelder **per punkt** (se under)
-  - **kompetanse** (siden Kompetanse): opplæring og 1:1 skjules for team med
+  - **utvikling** (siden Utvikling): opplæring og 1:1 skjules for team med
     under 5 ansatte (snitt), og jevnlige 1:1 når under 5 var ansatt hele
     perioden. Intern besettelsesgrad vises med minst 5 besatte stillinger.
     **Forfremmelser** er sensitive: vises bare med minst 5 interne endringer og
@@ -109,7 +109,7 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
     av de faste periodene (eller periodene det sammenlignes med), holdes utenfor
     i alle (`alle_sammenligningsperioder()`).
 - **Begrenset filter på sider med sensitive tall** (turnover, sykefravær,
-  rekruttering, eNPS, kompetanse), `vis_filtre_sensitiv()` i `filtre.py`:
+  rekruttering, eNPS, utvikling), `vis_filtre_sensitiv()` i `filtre.py`:
   - **Team:** enten «Hele selskapet» eller **ett team om gangen** – ikke fritt
     flervalg (to utvalg som skiller seg med én liten gruppe kan trekkes fra
     hverandre).
@@ -336,10 +336,10 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
 - **Tid til tiltredelse** = median antall dager fra `utlysningsdato` til
   `ansattdato` (inkluderer oppsigelsestid), for dem som ble ansatt i perioden.
   Skiller seg fra tid til ansettelse, som stopper ved `aksept_dato`.
-- **Kompetanseutvikling** (siden Kompetanse, `beregninger.py`):
+- **Kompetanseutvikling** (siden Utvikling, `beregninger.py`):
   - **Opplæring per ansatt** = sum timer / snitt ansatte. **Kostnad per ansatt** =
     sum direkte kostnad / snitt ansatte.
-  - **Har deltatt** = ansatte med minst én aktivitet / alle som var ansatt i
+  - **Deltatt i opplæring** = ansatte med minst én aktivitet / alle som var ansatt i
     perioden.
   - **Jevnlige 1:1** = andel med minst én 1:1 med lederen i minst 10 av 12
     måneder, blant dem som var ansatt (minst én dag) i alle månedene.
@@ -351,6 +351,10 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
   - **Forfremmelser** = antall, og andel av snitt ansatte. Sensitivt (se
     «Personvern»).
   - Merknad på siden: tallene viser innsats, ikke effekt.
+  - **Sammenheng:** to punktgrafer per team med jevnlige 1:1 på x-aksen, mot
+    frivillig turnover og mot eNPS (`enps_periode()`: snitt for kvartalene i
+    perioden, vektet med svar, bare når alle kvartalene har minst 5 svar).
+    Merknad `OPPFOLGING_MERKNAD`: sammenheng, ikke nødvendigvis årsak.
 - **Kostnad ved uønsket turnover** = sum årslønn for uønskede avganger × 75 %
   (antakelse). Vises bare for hele selskapet, siste 12 mnd mot forrige 12 mnd
   (se «Personvern»).
@@ -463,7 +467,7 @@ steg (forslag)»** og lenke(r) som åpner siden med teamet forhåndsvalgt
    av rekrutteringsmetode i teamet. **Har teamet også lite oppfølging** (jevnlige
    1:1 under 60 % og minst 20 pp under selskapet), blir innsikten «høy frivillig
    turnover og lite oppfølging», med merknaden om sammenheng
-   (`OPPFOLGING_TURNOVER_MERKNAD`), lenke til Kompetanse og neste steg «faste 1:1
+   (`OPPFOLGING_TURNOVER_MERKNAD`), lenke til Utvikling og neste steg «faste 1:1
    mellom teamleder og hver ansatt».
 4. **Rekruttering**: tidlig turnover ustrukturert mot strukturert intervju
    alene, når begge er synlige (etter sekundær prikking, som på

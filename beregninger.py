@@ -847,6 +847,11 @@ OPPFOLGING_TURNOVER_MERKNAD = (
     "kan gi høyere turnover, og høy turnover gir mer belastning på lederen, så det blir "
     "mindre tid til oppfølging."
 )
+OPPFOLGING_MERKNAD = (
+    "**Sammenheng, ikke nødvendigvis årsak**, og den kan gå begge veier: god oppfølging "
+    "kan gi høyere engasjement og lavere turnover, og høy turnover gir lederen mindre tid "
+    "til oppfølging. Med så få team er dette et mønster å følge med på, ikke et bevis."
+)
 EN_TIL_EN_MERKNAD = (
     "Et team har som regel én leder. Tall om 1:1 per team handler derfor i praksis om "
     "den lederens oppfølging. Bruk dem til samtale med lederen, ikke til rangering."
@@ -945,6 +950,17 @@ def intern_mobilitet(ansatte, endringer, start, slutt):
         # Dager fra utlysning til ny rolle (interne) – median bare med minst 5
         "median_dager_intern": dager_intern.median() if len(e) >= MIN_GRUPPE else None,
     }
+
+
+def enps_periode(engasjement, start, slutt):
+    """eNPS for ett team over alle hele kvartaler i perioden, vektet med antall svar.
+    Femregelen: None hvis et av kvartalene mangler eller har under 5 svar (ellers kunne
+    et skjult kvartal regnes ut fra snittet og de synlige kvartalene)."""
+    kvartaler = kvartaler_i_perioden(start, slutt)
+    e = engasjement[engasjement["kvartal"].isin(kvartaler)]
+    if not kvartaler or len(e) != len(kvartaler) or (e["antall_svar"] < MIN_GRUPPE).any():
+        return None
+    return enps_samlet(e)["enps"]
 
 
 def utenfor_forfremmelser(ansatte, endringer, team_liste):

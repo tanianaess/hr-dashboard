@@ -98,7 +98,7 @@ def test_innsikt_kobler_turnover_og_oppfolging_i_salg(ansatte, fravaer, engasjem
     liste = i.innsikter(ansatte, fravaer, engasjement, plan, samtaler=samtaler)
     salg = [x for x in liste if x["tittel"].startswith("Salg")]
     assert salg and "lite oppfølging" in salg[0]["tittel"]
-    assert ("Kompetanse", "salg") in salg[0]["lenker"]
+    assert ("Utvikling", "salg") in salg[0]["lenker"]
     assert salg[0]["merknad"] == b.OPPFOLGING_TURNOVER_MERKNAD
 
 
@@ -107,3 +107,24 @@ def test_generatoren_endrer_ikke_de_andre_dataene():
     kilde = (PROSJEKT / "lag_syntetiske_data.py").read_text(encoding="utf-8")
     assert "random.Random(FRO + 2)" in kilde
     assert kilde.index("tilfeldig_kompetanse = random.Random(FRO + 2)") > kilde.index("plan_df = pd.DataFrame(")
+
+
+def test_enps_periode_femregel(engasjement, siste_12):
+    # Ledergruppen har 4 svar per kvartal: skjult
+    assert b.enps_periode(engasjement[engasjement["team"] == "ledergruppen"], *siste_12) is None
+    salg = b.enps_periode(engasjement[engasjement["team"] == "salg"], *siste_12)
+    assert salg is not None and -100 <= salg <= 100
+    # Ett kvartal med under 5 svar skjuler hele perioden (ellers kunne det regnes ut)
+    e = engasjement[engasjement["team"] == "salg"].copy()
+    e.loc[e["kvartal"] == "2026-K1", "antall_svar"] = 4
+    assert b.enps_periode(e, *siste_12) is None
+
+
+def test_utviklingssiden_viser_begge_sammenhengene():
+    from streamlit.testing.v1 import AppTest
+    at = AppTest.from_file(str(PROSJEKT / "sider" / "6_Utvikling.py"), default_timeout=180)
+    at.run()
+    assert not at.exception
+    tekst = " ".join(m.value for m in at.markdown)
+    assert "**Frivillig turnover**" in tekst and "**eNPS**" in tekst
+    assert "Deltatt i opplæring" in [m.label for m in at.metric]

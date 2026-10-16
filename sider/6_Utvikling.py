@@ -1,4 +1,4 @@
-# Kompetansesiden: opplæring, 1:1 med lederen og intern mobilitet, og hvordan det
+# Utviklingssiden: opplæring, 1:1 med lederen og intern mobilitet, og hvordan det
 # henger sammen med turnover. Alle formler ligger i beregninger.py.
 
 import pandas as pd
@@ -9,7 +9,7 @@ import datalasting as d
 import utseende as u
 from filtre import SPORSMAL, vis_filtre_sensitiv
 
-st.set_page_config(page_title="Kompetanse · HR-dashbord", layout="wide")
+st.set_page_config(page_title="Utvikling · HR-dashbord", layout="wide")
 
 
 # --- Data (felles innlesing, lest bare én gang – se datalasting.py) ----------------
@@ -23,7 +23,7 @@ utvalg = ansatte[ansatte["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-u.topp("Kompetanse", SPORSMAL["Kompetanse"])
+u.topp("Utvikling", SPORSMAL["Utvikling"])
 st.caption(
     f"Periode: {start:%d.%m.%Y}-{slutt:%d.%m.%Y}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}."
@@ -80,9 +80,10 @@ k1.caption(f"{o['aktiviteter']} aktiviteter (kurs, sertifiseringer, konferanser,
 k2.metric("Kostnad per ansatt", b.kroner(o["kostnad_per_ansatt"]))
 k2.caption("Direkte kostnad (kursavgift, reise), ikke lønn i arbeidstiden")
 pil = pp("andel_deltatt", o, o_forrige)
-k3.metric("Har deltatt", b.prosent(o["andel_deltatt"], 0), delta=pil,
+k3.metric("Deltatt i opplæring", b.prosent(o["andel_deltatt"], 0), delta=pil,
           delta_color=b.pilfarge(pil, hoyere_er_bedre=True))
-k3.caption(f"{o['deltatt']} av {o['personer']} ansatte i perioden")
+k3.caption(f"{o['deltatt']} av {o['personer']} ansatte i perioden hadde minst én aktivitet: "
+           "kurs, sertifisering, konferanse, intern opplæring eller mentorordning")
 if s is None:
     u.skjult_kort(k4, "Jevnlige 1:1 med leder")
 else:
@@ -151,7 +152,7 @@ for _, r in per_team.iterrows():
         "Snitt ansatte": tall(r["snitt_ansatte"], lambda v: str(b.avrund(v))) if pd.notna(r["snitt_ansatte"]) else "under 5",
         "Opplæring per ansatt": tall(r["timer_per_ansatt"], lambda v: f"{b.avrund(v, 1):.1f} t".replace(".", ",")),
         "Kostnad per ansatt": tall(r["kostnad_per_ansatt"], b.kroner),
-        "Har deltatt": tall(r["andel_deltatt"], lambda v: b.prosent(v, 0)),
+        "Deltatt i opplæring": tall(r["andel_deltatt"], lambda v: b.prosent(v, 0)),
         "Jevnlige 1:1": (b.SKJULT if pd.isna(r["andel_jevnlige"])
                          else b.prosent_med_n(int(r["jevnlige"]), int(r["n_1til1"]))),
         "Besatt internt": (b.SKJULT_UNDER_5 if pd.isna(r["besettelsesgrad"])
@@ -168,50 +169,75 @@ st.info(b.EN_TIL_EN_MERKNAD, icon=":material/info:")
 
 
 # --- Kobling: oppfølging og turnover ---------------------------------------------------------------
-st.subheader("Oppfølging og frivillig turnover")
-st.info(b.OPPFOLGING_TURNOVER_MERKNAD, icon=":material/info:")
+st.subheader("Oppfølging, turnover og engasjement")
+st.info(b.OPPFOLGING_MERKNAD, icon=":material/info:")
 turnover = b.turnover_per_team(ansatte, start, slutt, valgte_team).set_index("team")
+engasjement = d.hent_engasjement()
+
 punkter = []
 for _, r in per_team.iterrows():
+    if pd.isna(r["andel_jevnlige"]):
+        continue  # 1:1 skjult (femregelen)
     frivillig = turnover.loc[r["team"], "frivillig_rate"]
-    if pd.isna(r["andel_jevnlige"]) or frivillig is None or pd.isna(frivillig):
-        continue  # bare team der begge tallene kan vises
-    punkter.append({"team": r["team"], "jevnlige": r["andel_jevnlige"] * 100,
-                    "frivillig": frivillig * 100,
-                    "jevnlige_tekst": b.prosent(r["andel_jevnlige"], 0),
-                    "frivillig_tekst": b.prosent(frivillig)})
-if len(punkter) < 2:
-    st.info("For få team med synlige tall til å vise sammenhengen. Velg hele selskapet.",
-            icon=":material/lock:")
-else:
-    st.vega_lite_chart(
-        pd.DataFrame(punkter),
+    enps = b.enps_periode(engasjement[engasjement["team"] == r["team"]], start, slutt)
+    punkter.append({
+        "team": r["team"],
+        "jevnlige": r["andel_jevnlige"] * 100,
+        "jevnlige_tekst": b.prosent(r["andel_jevnlige"], 0),
+        # Frivillig turnover er None for team med under 5 avganger (fordelingen er sensitiv)
+        "frivillig": None if frivillig is None or pd.isna(frivillig) else frivillig * 100,
+        "frivillig_tekst": None if frivillig is None or pd.isna(frivillig) else b.prosent(frivillig),
+        "enps": enps,
+        "enps_tekst": None if enps is None else b.enps_tekst(enps),
+    })
+punkter = pd.DataFrame(punkter)
+
+
+def punktgraf(beholder, y_felt, y_tittel, nullinje=False):
+    """Ett punkt per team: jevnlige 1:1 (x) mot et annet tall (y). Bare synlige punkter."""
+    data = punkter.dropna(subset=[y_felt]) if len(punkter) else punkter
+    if len(data) < 2:
+        beholder.info("For få team med synlige tall. Velg hele selskapet.", icon=":material/lock:")
+        return
+    lag = [{"mark": {"type": "point", "filled": True, "size": 120, "color": u.PETROL}},
+           # Navnet til høyre for punktet, eller til venstre nær høyre kant (så det ikke kuttes)
+           {"transform": [{"filter": "datum.jevnlige <= 75"}],
+            "mark": {"type": "text", "align": "left", "dx": 9, "color": u.TEKST_DEMPET},
+            "encoding": {"text": {"field": "team"}}},
+           {"transform": [{"filter": "datum.jevnlige > 75"}],
+            "mark": {"type": "text", "align": "right", "dx": -9, "color": u.TEKST_DEMPET},
+            "encoding": {"text": {"field": "team"}}}]
+    if nullinje:  # eNPS: like mange anbefalere som kritikere
+        lag.insert(0, {"mark": {"type": "rule", "color": u.NOYTRAL, "strokeDash": [4, 4]},
+                       "encoding": {"y": {"datum": 0}}})
+    beholder.markdown(f"**{y_tittel}**")
+    beholder.vega_lite_chart(
+        data,
         {
-            "height": 300,
+            "height": 280,
             "encoding": {
                 "x": {"field": "jevnlige", "type": "quantitative", "title": "Jevnlige 1:1 med leder (%)",
                       "scale": {"domain": [0, 100]}},
-                "y": {"field": "frivillig", "type": "quantitative", "title": "Frivillig turnover (%)",
-                      "scale": {"zero": True}},
+                "y": {"field": y_felt, "type": "quantitative", "title": None, "scale": {"zero": True}},
                 "tooltip": [{"field": "team", "title": "Team"},
                             {"field": "jevnlige_tekst", "title": "Jevnlige 1:1"},
-                            {"field": "frivillig_tekst", "title": "Frivillig turnover"}],
+                            {"field": f"{y_felt}_tekst", "title": y_tittel}],
             },
-            "layer": [
-                {"mark": {"type": "point", "filled": True, "size": 120, "color": u.PETROL}},
-                # Navnet til høyre for punktet, eller til venstre nær høyre kant (så det ikke kuttes)
-                {"transform": [{"filter": "datum.jevnlige <= 80"}],
-                 "mark": {"type": "text", "align": "left", "dx": 9, "color": u.TEKST_DEMPET},
-                 "encoding": {"text": {"field": "team"}}},
-                {"transform": [{"filter": "datum.jevnlige > 80"}],
-                 "mark": {"type": "text", "align": "right", "dx": -9, "color": u.TEKST_DEMPET},
-                 "encoding": {"text": {"field": "team"}}},
-            ],
+            "layer": lag,
         },
         width="stretch",
     )
-    st.caption("Hvert punkt er et team. Bare team der begge tallene kan vises etter femregelen, "
-               "er med (frivillig turnover krever minst 5 avganger).")
+
+
+venstre, hoyre = st.columns(2, gap="large")
+punktgraf(venstre, "frivillig", "Frivillig turnover")
+punktgraf(hoyre, "enps", "eNPS", nullinje=True)
+st.caption(
+    "Hvert punkt er et team. eNPS er snittet for kvartalene i perioden, vektet med antall svar. "
+    "Bare team der tallene kan vises etter femregelen, er med: frivillig turnover krever minst "
+    "5 avganger, og eNPS minst 5 svar i hvert kvartal. Team som avviker fra mønsteret, er like "
+    "viktige å se på. Se Engasjement for utviklingen kvartal for kvartal."
+)
 
 
 # --- Hva vi ikke måler ---------------------------------------------------------------------------

@@ -23,7 +23,7 @@ SIDER = {
     "Rekruttering": "sider/3_Rekruttering.py",
     "Bemanning": "sider/4_Bemanning.py",
     "Engasjement": "sider/5_Engasjement.py",
-    "Kompetanse": "sider/6_Kompetanse.py",
+    "Utvikling": "sider/6_Utvikling.py",
 }
 
 # Spørsmålet hver detaljside svarer på – vises under tittelen (topp() i utseende.py)
@@ -33,13 +33,13 @@ SPORSMAL = {
     "Rekruttering": "Hvor raskt ansetter vi, og gir strukturert rekruttering bedre ansettelser?",
     "Bemanning": "Har vi folkene bemanningsplanen krever?",
     "Engasjement": "Hvor fornøyde er de ansatte, og henger det sammen med fraværet?",
-    "Kompetanse": "Utvikler vi folkene våre, og får vi det igjen i interne ansettelser og lavere turnover?",
+    "Utvikling": "Utvikler vi folkene våre, og får vi det igjen i interne ansettelser og lavere turnover?",
 }
 
 # Sider med begrenset filter (sensitive tall). Bare Bemanning har fritt filter,
 # fordi ingen av tallene der er sensitive (se CLAUDE.md).
 SENSITIVE_SIDER = {SIDER[navn] for navn in ["Turnover", "Sykefravær", "Rekruttering", "Engasjement",
-                                             "Kompetanse"]}
+                                             "Utvikling"]}
 
 
 def forhandsvelg(side, team=None):

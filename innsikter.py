@@ -249,7 +249,7 @@ def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None, samtal
     # --- Regel 3: turnover – høy frivillig turnover i et team ---------------------------
     utenfor = b.utenfor_turnoverfordeling(ansatte, b.TEAM)
     selskap = b.turnover(ansatte[~ansatte["team"].isin(utenfor)], start, slutt)
-    # 1:1 med lederen for hele selskapet (små team holdes utenfor, som på Kompetanse-siden)
+    # 1:1 med lederen for hele selskapet (små team holdes utenfor, som på Utvikling-siden)
     utenfor_s = b.utenfor_sykefravaer(ansatte, b.TEAM)
     s_selskap = (b.en_til_en(ansatte[~ansatte["team"].isin(utenfor_s)], samtaler, start, slutt)
                  if samtaler is not None else None)
@@ -283,7 +283,7 @@ def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None, samtal
                 innsikt["merknad"] = b.OPPFOLGING_TURNOVER_MERKNAD
                 innsikt["neste_steg"] = ("Sluttsamtaler, og avtal faste 1:1 mellom teamleder og "
                                          "hver ansatt i teamet.")
-                innsikt["lenker"] = [("Turnover", team), ("Kompetanse", team)]
+                innsikt["lenker"] = [("Turnover", team), ("Utvikling", team)]
             liste.append(innsikt)
 
     # --- Regel 4: rekruttering – tidlig turnover etter metode -----------------------------

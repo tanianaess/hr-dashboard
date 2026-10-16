@@ -19,7 +19,7 @@ IKONER = {
     "Rekruttering": ":material/person_search:",
     "Bemanning": ":material/groups:",
     "Engasjement": ":material/forum:",
-    "Kompetanse": ":material/school:",
+    "Utvikling": ":material/school:",
 }
 meny = st.navigation([
     st.Page(fil, title=navn, icon=IKONER[navn], default=(navn == "Oversikt"))

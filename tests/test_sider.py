@@ -11,7 +11,7 @@ import beregninger as b
 
 PROSJEKT = Path(__file__).resolve().parent.parent
 SENSITIVE = ["sider/1_Turnover.py", "sider/2_Sykefravaer.py", "sider/3_Rekruttering.py",
-             "sider/5_Engasjement.py", "sider/6_Kompetanse.py"]
+             "sider/5_Engasjement.py", "sider/6_Utvikling.py"]
 FRIE = ["sider/4_Bemanning.py"]
 
 

@@ -54,7 +54,7 @@ en ledergruppe. Bakgrunnen min er organisasjonspsykologi, og det preger valgene.
 | **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned over hele dataperioden · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team · filter: hele selskapet eller ett team, faste perioder |
 | **Bemanning** | Faktisk antall ansatte mot bemanningsplanen · utvikling per måned · tabell per team med avvik, bemanningsgrad, ansettelser, avganger og tid til tiltredelse · team med mer enn 5 % avvik markeres · fritt filter (ingen sensitive tall) |
-| **Kompetanse** | Opplæring (timer, kostnad og andel som har deltatt) · jevnlige 1:1 med lederen · intern mobilitet (besatt internt, tid til besatt internt mot eksternt, forfremmelser) · tabell per team · sammenheng mellom oppfølging og frivillig turnover · filter: hele selskapet eller ett team, faste perioder |
+| **Utvikling** | Opplæring (timer, kostnad og andel som har deltatt i opplæring) · jevnlige 1:1 med lederen · intern mobilitet (besatt internt, tid til besatt internt mot eksternt, forfremmelser) · tabell per team · sammenheng mellom oppfølging, frivillig turnover og eNPS · filter: hele selskapet eller ett team, faste perioder |
 | **Engasjement** | eNPS siste kvartal mot samme kvartal i fjor og forrige kvartal · svarandel (lav markeres) · eNPS per kvartal og team over hele dataperioden · tabell per team · kobling mot langtidsfravær (sammenheng, ikke nødvendigvis årsak) · filter: hele selskapet eller ett team, faste perioder |
 
 ## Personvern
@@ -77,7 +77,7 @@ Dashbordet er bygget som om dataene var ekte. Grunnprinsippet:
   holdes små skjulte grupper utenfor totalen, og totalen merkes, f.eks. «Hele selskapet
   (uten ledergruppen)». Totalt antall avganger og bemanning tar med alle.
 - **Begrenset filter på sider med sensitive tall:** på turnover, sykefravær, rekruttering,
-  eNPS og kompetanse kan du bare velge hele selskapet eller ett team, og to faste perioder som ikke
+  eNPS og utvikling kan du bare velge hele selskapet eller ett team, og to faste perioder som ikke
   overlapper (siste 12 mnd og forrige 12 mnd). Ellers kunne to filtervalg eller
   overlappende perioder trekkes fra hverandre. Bare bemanning har fritt filter.
 - **Trendgrafer over hele dataperioden:** grafene for sykefravær per måned og eNPS per
@@ -126,7 +126,7 @@ man ofte ser i virkeligheten, for å vise hva dashbordet kan avdekke:
 4. **Teknologi:** lang tid til ansettelse (ca. 60 dager) og under bemanningsplanen.
 5. **Totalt:** turnover ca. 14 % og sykefravær ca. 5,5 %. Problemene synes bare
    når man ser per team.
-6. **Kompetanse:** salg har minst opplæring og færrest med jevnlige 1:1 med lederen,
+6. **Utvikling:** salg har minst opplæring og færrest med jevnlige 1:1 med lederen,
    og høyest frivillig turnover. Forsiden kobler de to, med merknad om at det er en
    sammenheng og ikke nødvendigvis årsak.
 
@@ -142,7 +142,7 @@ Dashbordet er bygget for å kunne kobles på ekte data.
 - Medarbeiderundersøkelse per team og kvartal: eNPS, antall svar og antall inviterte.
 - Bemanningsplan per team og måned.
 - Rekrutteringsdata (metode og datoer), hvis rekrutteringssiden skal brukes.
-- Kompetanse: opplæringsaktiviteter (timer og kostnad), 1:1 med lederen per måned, og
+- Utvikling: opplæringsaktiviteter (timer og kostnad), 1:1 med lederen per måned, og
   forfremmelser og interne overganger. 1:1-data finnes ofte ikke i HR-systemet i dag og
   må registreres.
 
@@ -193,7 +193,7 @@ sider/2_Sykefravaer.py    Sykefraværssiden
 sider/3_Rekruttering.py   Rekrutteringssiden
 sider/4_Bemanning.py      Bemanningssiden
 sider/5_Engasjement.py    Engasjementssiden (eNPS)
-sider/6_Kompetanse.py     Kompetansesiden (opplæring, 1:1 og intern mobilitet)
+sider/6_Utvikling.py      Utviklingssiden (opplæring, 1:1 og intern mobilitet)
 beregninger.py            Alle formler (brukes av alle sider)
 filtre.py                 Felles filtre for periode og team, sidestiene (SIDER) og spørsmålene per side
 .github/workflows/        Kjører testene automatisk på GitHub (GitHub Actions)
