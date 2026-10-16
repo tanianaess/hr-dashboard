@@ -29,6 +29,16 @@ def syntetisk_merknad():
     st.caption(b.SYNTETISK_MERKNAD.replace("**Syntetiske data.** ", ""))
 
 
+# --- Grunnstil: flater, luft og typografi ---------------------------------------------
+# Alt utseende utover temaet i config.toml settes her, ett sted. Retningen er den samme
+# (rolig, nordisk, petrol), men med tydeligere hierarki: hvite kort på en rolig bakgrunn,
+# mindre tittel, tall som ikke kuttes, og forklaringer som er lette å lese.
+FLATE = "#FFFFFF"             # kortenes bakgrunn
+KORT_KANT = "#E3E8E7"         # tynn kant rundt kort
+KORT_SKYGGE = "0 1px 2px rgba(15, 76, 92, 0.05), 0 6px 16px rgba(15, 76, 92, 0.05)"
+KORT_NOKKEL = "kort_"         # beholdere med key som starter slik, vises som kort
+SELSKAP_NOKKEL = "selskap"    # beholderen rundt selskapsnavnet øverst (liten, petrol)
+MAKS_BREDDE = "1240px"        # lange linjer er tunge å lese på brede skjermer
 # Forklaringene under kortene og grafene er «caption»-tekst. Streamlit viser den med 60 %
 # gjennomsiktighet og 14 px, som gir kontrast 3,99 : 1 mot bakgrunnen (under kravet på
 # 4,5 : 1 for liten tekst). Dashbordet har mye slik tekst, så den gjøres lettere å lese:
@@ -36,23 +46,72 @@ def syntetisk_merknad():
 CAPTION_TEKST = "#4A555C"
 
 
-def lesbarhet_stil():
-    """Én CSS-regel for all caption-tekst, så kontrast og størrelse settes ett sted."""
-    st.html(
-        "<style>"
-        "[data-testid='stCaptionContainer'], [data-testid='stCaptionContainer'] * {"
-        f" opacity: 1; color: {CAPTION_TEKST}; }}"
-        "[data-testid='stCaptionContainer'] p { font-size: 0.9375rem; }"
-        "</style>"
-    )
+def grunnstil():
+    """Én CSS-blokk for hele dashbordet, kalt fra topp() på alle sider."""
+    st.html(f"""<style>
+    /* Innholdet: smalere og høyere opp på siden */
+    [data-testid="stMainBlockContainer"] {{ max-width: {MAKS_BREDDE}; padding: 2rem 3rem 5rem; }}
+    @media (max-width: 760px) {{
+        /* Mer luft øverst på mobil, så selskapsnavnet ikke havner under Streamlits topplinje */
+        [data-testid="stMainBlockContainer"] {{ padding: 3.5rem 1rem 4rem; }}
+    }}
+
+    /* Overskrifter: mindre tittel, luft over hver seksjon */
+    h1 {{ font-size: 2.1rem !important; letter-spacing: -0.02em; padding: 0.25rem 0 0.5rem !important; }}
+    h3 {{ font-size: 1.3rem !important; letter-spacing: -0.01em; padding: 1.75rem 0 0.5rem !important; }}
+    h5 {{ font-size: 1.05rem !important; padding: 0.25rem 0 0.4rem !important; }}
+
+    /* Forklaringer (caption): full dekning, mørkere, 15 px */
+    [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * {{ opacity: 1; color: {CAPTION_TEKST}; }}
+    [data-testid="stCaptionContainer"] p {{ font-size: 0.9375rem; }}
+
+    /* Selskapsnavnet øverst: liten, petrol, med sperring */
+    [class*='st-key-{SELSKAP_NOKKEL}'] p {{
+        text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.75rem !important;
+        font-weight: 700; color: {PETROL} !important;
+    }}
+
+    /* Kort: hvit flate med tynn kant og myk skygge. Gjelder beholdere med key «kort_…»
+       (forsiden) og kolonner som inneholder et nøkkeltall (KPI-kortene på detaljsidene). */
+    [class*='st-key-{KORT_NOKKEL}'],
+    [data-testid="stColumn"]:has([data-testid="stMetric"]):not(:has([class*='st-key-{KORT_NOKKEL}'])) {{
+        background: {FLATE}; border: 1px solid {KORT_KANT} !important; border-radius: 12px !important;
+        box-shadow: {KORT_SKYGGE}; padding: 1rem 1.15rem !important;
+    }}
+
+    /* Kort i samme rad får lik høyde (kortet fyller kolonnen sin) */
+    [data-testid="stColumn"] > [data-testid="stVerticalBlock"]:has([class*='st-key-{KORT_NOKKEL}']),
+    [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"]:has(> [class*='st-key-{KORT_NOKKEL}']),
+    [data-testid="stColumn"] [class*='st-key-{KORT_NOKKEL}'] {{ height: 100%; }}
+
+    /* Sidemenyen: valgt side i lys petrol med petrol tekst */
+    [data-testid="stSidebarNavLink"] {{ border-radius: 8px; }}
+    [data-testid="stSidebarNavLink"][aria-current="page"] {{ background: {MARKERT_BAKGRUNN} !important; }}
+    [data-testid="stSidebarNavLink"][aria-current="page"] * {{ color: {PETROL} !important; }}
+
+    /* Nøkkeltall: dempet etikett, tydelig tall som krymper i stedet for å kuttes, fet pil */
+    [data-testid="stMetricLabel"] p {{ font-size: 0.85rem !important; font-weight: 600; color: {TEKST_DEMPET} !important; }}
+    [data-testid="stMetricValue"] {{
+        font-size: clamp(1.6rem, 1.2vw + 0.9rem, 2.25rem) !important; font-weight: 600;
+        letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.15;
+    }}
+    [data-testid="stMetricValue"] > div {{ overflow: visible !important; white-space: normal !important; }}
+    [data-testid="stMetricDelta"] {{ font-weight: 600; }}
+
+    /* Knapper, infobokser, utvidbare bokser og tabeller: samme avrunding som kortene */
+    [data-testid="stBaseButton-tertiary"] {{ font-weight: 600; }}
+    [data-testid="stAlert"], [data-testid="stExpander"] {{ border-radius: 10px; }}
+    [data-testid="stDataFrame"] {{ border-radius: 10px; overflow: hidden; }}
+    </style>""")
 
 
 def topp(tittel, sporsmal=None, ikon=None, merknad=True):
     """Toppen av hver side: selskapsnavn, tittel (med samme ikon som i menyen, i petrol),
     spørsmålet siden svarer på (hvis gitt) og diskret merking om syntetiske data.
     merknad=False: siden viser setningen om syntetiske data selv (forsiden, under introen)."""
-    lesbarhet_stil()
-    st.caption(f"**{SELSKAP}**")
+    grunnstil()
+    with st.container(key=SELSKAP_NOKKEL):  # key gir en CSS-klasse, se grunnstil()
+        st.caption(f"**{SELSKAP}**")
     # :blue[…] er petrol i temaet (.streamlit/config.toml)
     st.title(f":blue[{ikon}] {tittel}" if ikon else tittel)
     if sporsmal:
@@ -87,16 +146,18 @@ def neste_steg_stil():
 
 # CSS-klassen Streamlit gir boksen med lederbriefen (AI) på forsiden
 LEDERBRIEF_NOKKEL = "lederbrief"
-AI_BAKGRUNN = "#EDF1F0"  # samme nøytrale tone som sidemenyen
+AI_BAKGRUNN = "#F4F8F9"  # svakt petrol-tonet, lysere enn «Mulig neste steg»
+AI_KANT = "#B9D0D6"      # petrol-tonet kant, så boksen skiller seg fra de hvite kortene
 
 
 def lederbrief_stil():
-    """Nøytral grå bakgrunn på lederbriefen (AI) på forsiden, så den ser annerledes ut enn
-    de regelbaserte kortene (hvite) og «Mulig neste steg» (lys petrol).
-    Kontrast: tekst #1E2A30 på #EDF1F0 = 12,9 : 1 (krav: minst 4,5 : 1)."""
+    """Lederbriefen (AI) på forsiden ser annerledes ut enn de regelbaserte kortene (hvite
+    med grå kant): svakt petrol-tonet flate og petrol-tonet kant.
+    Kontrast: tekst #1E2A30 på #F4F8F9 = 13,5 : 1 (krav: minst 4,5 : 1)."""
     st.html(
         f"<style>[class*='st-key-{LEDERBRIEF_NOKKEL}'] {{"
-        f"background-color: {AI_BAKGRUNN};"
+        f"background-color: {AI_BAKGRUNN}; border: 1px solid {AI_KANT} !important;"
+        f"border-radius: 12px !important; box-shadow: {KORT_SKYGGE}; padding: 1.25rem 1.4rem !important;"
         f"}}</style>"
     )
 

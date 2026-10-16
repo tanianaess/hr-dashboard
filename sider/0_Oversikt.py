@@ -58,10 +58,16 @@ u.topp("Oversikt", ikon=IKONER["Oversikt"], merknad=False)
 u.neste_steg_stil()  # lys petrol bakgrunn på «Mulig neste steg» (se utseende.py)
 u.lederbrief_stil()  # nøytral grå bakgrunn på lederbriefen (AI)
 
-# Introduksjonen i en ramme, så den skiller seg ut som en innledning.
-# Setningen om syntetiske data og periodelinjen står rett under.
-with st.container(border=True):
-    st.markdown(INTRO)
+# Introduksjonen i et kort: hvem dashbordet er for (venstre) og spørsmålene (høyre), så
+# den tar mindre plass og nøkkeltallene kommer høyere opp. Teksten (INTRO) er Tanias og
+# uendret, bare delt på avsnittene. Setningen om syntetiske data og periodelinjen står
+# rett under.
+with st.container(border=True, key=f"{u.KORT_NOKKEL}intro"):
+    hvem, sporsmal, bruk = INTRO.split("\n\n")
+    venstre, hoyre = st.columns([3, 2], gap="large")
+    venstre.markdown(hvem)
+    hoyre.markdown(sporsmal)
+    st.caption(bruk)
 u.syntetisk_merknad()
 start, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
 st.caption(f"Tallene gjelder hele selskapet de siste 12 månedene "
@@ -76,7 +82,7 @@ st.caption(i.felles_merknad(nokkeltall))
 
 def vis_kort(k, nr):
     """Ett KPI-kort: tall, endring, statusmerke, forklaring og lenke til detaljene."""
-    with st.container(border=True):
+    with st.container(border=True, key=f"{u.KORT_NOKKEL}nokkeltall_{nr}"):  # key: kortstil, se utseende.py
         pil = k.get("endring")
         st.metric(k["navn"], k["verdi"], delta=pil,
                   delta_color=b.pilfarge(pil, k.get("hoyere_er_bedre", False),
@@ -84,7 +90,7 @@ def vis_kort(k, nr):
         u.statusmerke(k["status"][0], k["status"][1].capitalize())
         st.caption(k["ekstra"])
         if st.button("Detaljer", icon=":material/arrow_forward:", type="tertiary",
-                     key=f"kort_{nr}"):
+                     key=f"detaljer_{nr}"):
             forhandsvelg(SIDER[k["side"]])
 
 
@@ -125,7 +131,7 @@ if not innsikt_liste:
     st.success("Ingen store avvik akkurat nå.")
 
 for nr, innsikt in enumerate(innsikt_liste):
-    with st.container(border=True):
+    with st.container(border=True, key=f"{u.KORT_NOKKEL}innsikt_{nr}"):
         funn, steg = st.columns([3, 2], gap="large")
 
         # Venstre: selve funnet

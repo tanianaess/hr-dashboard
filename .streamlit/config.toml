@@ -16,17 +16,19 @@ gatherUsageStats = false
 toolbarMode = "minimal"
 
 # --- Tema: rolig, profesjonelt og nordisk ---------------------------------------
-# Én hovedfarge (dyp petrol), lys nøytral bakgrunn. Statusfargene (grønn/oransje/rød)
+# Én hovedfarge (dyp petrol), rolig lys bakgrunn som hvite kort står mot (kortene og
+# resten av utseendet settes i utseende.py). Statusfargene (grønn/oransje/rød)
 # brukes bare til status. Fargene er kontrollert for kontrast og fargeblindhet.
 [theme]
 base = "light"
 primaryColor = "#0F4C5C"
-backgroundColor = "#F7F8F6"
+backgroundColor = "#F3F5F4"
 secondaryBackgroundColor = "#EDF1F0"
 textColor = "#1E2A30"
 borderColor = "#DCE2E1"
 linkColor = "#0F4C5C"
-baseRadius = "0.5rem"
+baseRadius = "0.625rem"
+showSidebarBorder = true
 font = "sans-serif"
 headingFontWeights = [600, 600, 600, 600, 600, 600]
 # Grafer: samme rekkefølge overalt – petrol, lys petrol, nøytral grå
@@ -49,5 +51,6 @@ grayColor = "#5B6770"
 grayBackgroundColor = "#E9EDEC"
 grayTextColor = "#4A555C"
 
+# Hvit sidemeny med tynn kant mot den lyse bakgrunnen
 [theme.sidebar]
-backgroundColor = "#EDF1F0"
+backgroundColor = "#FFFFFF"

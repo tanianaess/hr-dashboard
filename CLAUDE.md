@@ -413,11 +413,26 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
 - **Retning:** rolig, profesjonelt og nordisk – et verktøy en CFO stoler på.
 - **Fiktivt selskap:** «Fjordlys Tech AS», vist øverst (bare navnet). At det er
   fiktivt, sies av merkelappen «Syntetiske data» og merknaden under.
-- **Tema** i `.streamlit/config.toml`: hovedfarge dyp petrol `#0F4C5C`, lys nøytral
-  bakgrunn, standard sans-serif-skrift.
+- **Tema** i `.streamlit/config.toml`: hovedfarge dyp petrol `#0F4C5C`, rolig lys
+  bakgrunn (`#F3F5F4`) som hvite kort står mot, hvit sidemeny med tynn kant, standard
+  sans-serif-skrift.
 - **Felles utseende** i `utseende.py`: `topp()` (selskapsnavn, tittel, spørsmålet
   siden svarer på, og diskret merking om syntetiske data), `statusmerke()` og
   `skjult_kort()`. Nye sider bruker disse.
+- **Flater, luft og typografi** settes i `grunnstil()` i `utseende.py` (kalt fra
+  `topp()`, så alle sider får det). Alt utseende utover temaet settes der, aldri i
+  sidene:
+  - Innholdet er maks 1240 px bredt (lange linjer er tunge å lese) og starter høyt
+    på siden, så tallene synes med en gang.
+  - **Kort** er hvite med tynn kant og myk skygge: beholdere med key som starter med
+    `kort_` (forsiden), og kolonner som inneholder et nøkkeltall (detaljsidene). Kort i
+    samme rad får lik høyde.
+  - Tittelen er 2,1 rem, seksjonsoverskrifter 1,3 rem med luft over. Tall i
+    nøkkeltallskort er halvfete med tabulære sifre, og krymper i stedet for å kuttes.
+  - **Forklaringer (caption)** har full dekning, `#4A555C` (kontrast 7,2 : 1 mot
+    bakgrunnen; Streamlits standard er 3,99 : 1) og 15 px.
+  - Selskapsnavnet øverst er liten petrol tekst med sperring (beholder med key
+    `selskap`). Valgt side i menyen har lys petrol bakgrunn.
 - **Ikon foran overskriften:** samme ikon som i menyen, i petrol (`IKONER` i
   `filtre.py`, brukt av både `app.py` og `topp()`).
 - **Spørsmålet hver detaljside svarer på** står i `SPORSMAL` i `filtre.py` og vises
@@ -450,8 +465,10 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
 terskler ligger i `innsikter.py`.
 
 **Øverst på forsiden** (under toppen, før «Nøkkeltall»), i denne rekkefølgen:
-introduksjonen i en ramme (`st.container(border=True)`), så setningen om syntetiske
-data og periodelinjen i liten grå tekst rett under (Tanias ønske 16.10.2026).
+introduksjonen i et kort (`st.container(border=True, key="kort_intro")`) med teksten
+i to spalter (hvem dashbordet er for til venstre, spørsmålene til høyre, og setningen
+om bruk i liten tekst under, ordlyden uendret), så setningen om syntetiske data og
+periodelinjen i liten grå tekst rett under (Tanias ønske 16.10.2026).
 - **Introduksjon** (`INTRO`, Tanias formulering, gjengis ordrett): hvem dashbordet
   er for (ledergruppen i et selskap med 50-500 ansatte: daglig leder,
   økonomidirektør og HR), hvilke spørsmål ledelsen og HR-leder har, og hvordan
