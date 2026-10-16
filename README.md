@@ -34,6 +34,10 @@ en ledergruppe. Bakgrunnen min er organisasjonspsykologi, og det preger valgene.
   like viktig som teknikken.
 - **Regelbaserte innsikter.** Forsiden peker på de største avvikene etter faste
   regler. Hver innsikt kan etterprøves, og skjulte grupper nevnes aldri.
+- **AI med måte.** Lederbriefen på forsiden er skrevet av en AI-modell, men bare ut fra
+  tall som allerede står der, ferdig prikkede. Teksten leses og godkjennes av et menneske
+  før den vises, den er tydelig merket, og den stiller spørsmål til ledermøtet i stedet
+  for å foreslå tiltak. Tiltakene forblir regelbaserte, så de kan etterprøves.
 - **Forskning før egne data.** Som organisasjonspsykolog lener jeg meg på forskning
   når det gjelder rekruttering. Et selskap med 230 ansatte ansetter for få til å
   avgjøre hvilken metode som virker best. Dashbordet viser derfor hva forskningen sier
@@ -45,20 +49,23 @@ en ledergruppe. Bakgrunnen min er organisasjonspsykologi, og det preger valgene.
   lederen sier mer.
 - **Med ekte data ville jeg** først avklart definisjoner og datakvalitet med HR og
   økonomi, og latt ledergruppen sette tersklene for status.
-- **Teknisk:** Python, pandas og Streamlit, med automatiske tester for beregningene og
-  personvernreglene. Bygget sammen med en AI-assistent (Claude Code).
+- **Teknisk:** Python, pandas og Streamlit, med automatiske tester for beregningene,
+  personvernreglene og tekstreglene. Bygget sammen med en AI-assistent (Claude Code):
+  reglene i `CLAUDE.md` er skrevet av meg, koden er skrevet etter dem, og testene vokter
+  at de holdes.
 
 ## Innhold
 
 | Side | Viser |
 |---|---|
-| **Oversikt** (forside) | Kort introduksjon: hvem dashbordet er for (ledergruppen i et selskap med 50-500 ansatte) og hvilke spørsmål det svarer på. Nøkkeltall for hele selskapet med endring og status (OK / følg med / kritisk). «Viktigste innsikter»: opptil 5 regelbaserte funn om de største avvikene, med mulig neste steg og lenke til detaljene |
-| **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · erstatningskostnad for alle avganger, med uønskede som en del av den, og justerbar antakelse (hele selskapet, siste 12 mnd mot forrige 12 mnd) · avganger per måned (bare totalen) · tabell per team · filter: hele selskapet eller ett team, faste perioder |
+| **Oversikt** (forside) | Kort introduksjon: hvem dashbordet er for (ledergruppen i et selskap med 50-500 ansatte) og hvilke spørsmål det svarer på. Nøkkeltall for hele selskapet med endring og status (OK / følg med / kritisk). «Viktigste innsikter»: opptil 5 regelbaserte funn om de største avvikene, med mulig neste steg og lenke til detaljene · «Lederbrief»: kort tekst til ledermøtet skrevet av en AI-modell ut fra tallene på siden, lest og godkjent av et menneske før den vises, med spørsmål til ledermøtet, åpen visning av hva modellen fikk, og nedlasting som Markdown |
+| **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · erstatningskostnad for alle avganger, med uønskede som en del av den, og justerbar antakelse (hele selskapet, siste 12 mnd mot forrige 12 mnd) · regnestykke: hva er det verdt å redusere frivillig turnover (færre avganger × gjennomsnittlig erstatningskostnad, aldri lønn per team) · avganger per måned (bare totalen) · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · internt mål, og landssnittet 6,57 % bare som referanse (alle bransjer, annen metode) ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · kostnad i arbeidsgiverperioden (hele selskapet) · fravær per måned over hele dataperioden · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team · filter: hele selskapet eller ett team, faste perioder |
 | **Bemanning** | Faktisk antall ansatte (og årsverk) mot bemanningsplanen · utvikling per måned · tabell per team med avvik, bemanningsgrad, ansettelser, avganger og tid til tiltredelse · team med mer enn 5 % avvik markeres · fritt filter (ingen sensitive tall) |
 | **Utvikling** | Opplæring (timer, kostnad og andel som har deltatt i opplæring) · jevnlige 1:1 med lederen · intern mobilitet (besatt internt, tid til besatt internt mot eksternt, forfremmelser) · tabell per team · sammenheng mellom oppfølging, frivillig turnover og eNPS · filter: hele selskapet eller ett team, faste perioder |
 | **Engasjement** | eNPS siste kvartal mot samme kvartal i fjor og forrige kvartal · svarandel (lav markeres) · eNPS per kvartal og team over hele dataperioden · tabell per team · kobling mot langtidsfravær (sammenheng, ikke nødvendigvis årsak) · filter: hele selskapet eller ett team, faste perioder |
+| **Om dashbordet** | Hvorfor det er bygget slik (valgene over), hvordan det er bygget sammen med AI, hva som måtte vært på plass med ekte data, og hva reglene ikke gjør. Ingen tall, ingen filter |
 
 ## Personvern
 
@@ -93,6 +100,13 @@ Dashbordet er bygget som om dataene var ekte. Grunnprinsippet:
 - **Stilling er aldri et filter**, fordi stilling og team sammen kan peke ut én person.
 - **Testresultater lagres aldri.** Datasettet viser bare *om* en personlighets- eller
   evnetest ble brukt, ikke resultatet.
+- **AI får bare prikkede tall.** Lederbriefen skrives av en AI-modell ut fra nøkkeltallene
+  og innsiktene på forsiden, som allerede følger femregelen og sekundær prikking. Aldri
+  rådata, ansatt-ID eller lønn. Et menneske leser og godkjenner teksten før den vises, og
+  et fingeravtrykk av grunnlaget viser om den bygger på dagens tall. Det finnes ingen fri
+  «chat med dataene»: et fritt spørsmål er et fritt filter.
+- **Regnestykket for frivillig turnover** bruker selskapets gjennomsnittlige
+  erstatningskostnad per avgang, aldri lønn per team.
 
 > **Hva reglene ikke gjør:** Faste perioder, femregelen og sekundær prikking **reduserer** risikoen for at tall om små grupper kan utledes, men de **hindrer den ikke**. Ingen tekniske regler kan helt hindre det i et interaktivt verktøy. Den som kjenner organisasjonen, kan dessuten koble tallene med egen kunnskap, for eksempel om hvem som sluttet i en bestemt måned. Den viktigste beskyttelsen er derfor tilgangsstyring: i drift skal bare HR-ledelse og ledergruppen ha tilgang.
 
@@ -156,7 +170,9 @@ som er med.
 
 **I drift:** tilgang bare for HR-ledelse og ledergruppen, lagring i Norge eller EU,
 databehandleravtale med leverandøren, og en vurdering av om det trengs en
-personvernkonsekvensvurdering (DPIA) før oppstart.
+personvernkonsekvensvurdering (DPIA) før oppstart. Tall sendes ikke til en ekstern
+AI-tjeneste før det er vurdert og dokumentert, selv om aggregerte, prikkede tall i
+utgangspunktet ikke er personopplysninger.
 
 **Innføring i tre steg:** kartlegge data og definisjoner, koble på dataene og
 kontrollere tallene mot dagens rapporter, og gå gjennom dashbordet med ledergruppen og
@@ -186,6 +202,18 @@ python lag_syntetiske_data.py
 Generatoren bruker et fast tilfeldighetsfrø, så du får nøyaktig de samme dataene
 hver gang.
 
+**Lederbriefen (AI)** lages på forhånd, på egen maskin, aldri i den publiserte appen:
+
+```bash
+pip install -r requirements-dev.txt
+# Sett ANTHROPIC_API_KEY som miljøvariabel (nøkkelen ligger aldri i repoet)
+python lag_lederbrief.py             # lager et utkast i data/lederbrief.json
+python lag_lederbrief.py --godkjenn  # etter at du har lest teksten
+```
+
+Forsiden viser briefen bare når den er godkjent og bygger på dagens tall. Boksen
+«Hva AI-modellen fikk» på forsiden viser instruksen og grunnlaget ordrett.
+
 ## Prosjektstruktur
 
 ```
@@ -199,12 +227,15 @@ sider/3_Rekruttering.py   Rekrutteringssiden
 sider/4_Bemanning.py      Bemanningssiden
 sider/5_Engasjement.py    Engasjementssiden (eNPS)
 sider/6_Utvikling.py      Utviklingssiden (opplæring, 1:1 og intern mobilitet)
+sider/7_Om.py             Om dashbordet (valgene, AI-historien, hva som trengs med ekte data)
+lederbrief.py             Lederbrief (AI): instruksen, grunnlaget, kontrollene og lesing av data/lederbrief.json
+lag_lederbrief.py         Lager lederbriefen med Claude (bare på egen maskin, med API-nøkkel)
 beregninger.py            Alle formler (brukes av alle sider)
 filtre.py                 Felles filtre for periode og team, sidestiene (SIDER) og spørsmålene per side
 .github/workflows/        Kjører testene automatisk på GitHub (GitHub Actions)
 datalasting.py            Felles innlesing av data (lest én gang, deles av alle sider)
 lag_syntetiske_data.py    Genererer de syntetiske dataene
-data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan, opplæring, 1:1, stillingsendringer
+data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan, opplæring, 1:1, stillingsendringer, og lederbrief.json (AI)
 kontroller_mot_excel.py   Sjekker Python-formlene mot en Excel-fasit
 tests/                    Automatiske tester (pytest)
 Datamodell.xlsx           Excel-utkast til datamodell med 20 testrader (fasit)
@@ -213,8 +244,9 @@ CLAUDE.md                 Prosjektregler, datamodell og definisjoner
 
 ## Kvalitetssikring
 
-Automatiske tester (pytest) sjekker nøkkeltallene, personvernreglene og at alle
-sidene kjører for alle filtervalg. De kjører også automatisk på GitHub ved hver
+Automatiske tester (pytest) sjekker nøkkeltallene, personvernreglene, tekstreglene,
+lederbriefen (bare tall fra forsiden, bare team som nevnes der, vises bare når den er
+godkjent) og at alle sidene kjører for alle filtervalg. De kjører også automatisk på GitHub ved hver
 push (GitHub Actions, se merket øverst). Slik kjører du dem selv:
 
 ```bash

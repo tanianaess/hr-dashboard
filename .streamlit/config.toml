@@ -10,6 +10,11 @@ headless = true
 # Ikke send bruksstatistikk til Streamlit
 gatherUsageStats = false
 
+[client]
+# Skjuler «Deploy»-knappen og utviklermenyen øverst til høyre, så den som åpner
+# lenken bare ser dashbordet
+toolbarMode = "minimal"
+
 # --- Tema: rolig, profesjonelt og nordisk ---------------------------------------
 # Én hovedfarge (dyp petrol), lys nøytral bakgrunn. Statusfargene (grønn/oransje/rød)
 # brukes bare til status. Fargene er kontrollert for kontrast og fargeblindhet.
