@@ -8,7 +8,7 @@ import streamlit as st
 import beregninger as b
 import datalasting as d
 import utseende as u
-from filtre import vis_filtre_sensitiv
+from filtre import SPORSMAL, vis_filtre_sensitiv
 
 st.set_page_config(page_title="Rekruttering · HR-dashbord", layout="wide")
 
@@ -25,7 +25,7 @@ utvalg = ansatte[ansatte["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-u.topp("Rekruttering")
+u.topp("Rekruttering", SPORSMAL["Rekruttering"])
 st.caption(
     f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}. "
@@ -64,9 +64,9 @@ kort1, kort2, kort3 = st.columns(3)
 kort1.metric("Ansettelser", naa["antall"], delta=endring_antall, delta_color="off")
 kort1.caption("Alle ansettelsesformer, med registrerte rekrutteringsdata")
 if naa["median_dager"] is None:
-    kort2.metric("Median tid til ansettelse", SKJULT_UNDER_5)
-    kort3.metric("Andel strukturert rekruttering", SKJULT_UNDER_5)
-    kort2.caption("Færre enn 5 ansettelser i utvalget, så tallene skjules (femregelen).")
+    forklaring = "Skjult: færre enn 5 ansettelser i utvalget (femregelen)."
+    u.skjult_kort(kort2, "Median tid til ansettelse", forklaring)
+    u.skjult_kort(kort3, "Andel strukturert rekruttering", forklaring)
 else:
     kort2.metric("Median tid til ansettelse", f"{b.avrund(naa['median_dager'])} dager",
                  delta=endring_dager(), delta_color=b.pilfarge(endring_dager()))
@@ -142,7 +142,10 @@ st.subheader("Bruk av tilleggsmetoder")
 bruk = b.bruk_av_tilleggsmetoder(utvalg, start, slutt)
 kolonner = st.columns(len(bruk))
 for kolonne, (navn, antall) in zip(kolonner, bruk.items()):
-    kolonne.metric(navn.capitalize(), SKJULT_UNDER_5 if antall is None else antall)
+    if antall is None:
+        u.skjult_kort(kolonne, navn.capitalize())  # «–» og «Skjult (under 5)» under
+    else:
+        kolonne.metric(navn.capitalize(), antall)
 st.caption(
     "Antall ansettelser i perioden der metoden ble brukt (en ansettelse kan ha flere). "
     "Tilleggsmetoder ble tatt i bruk for strukturerte ansettelser utlyst fra 2026. "

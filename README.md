@@ -1,8 +1,10 @@
 # HR-dashbord for people analytics
 
+[![Tester](https://github.com/tanianaess/hr-dashboard/actions/workflows/tester.yml/badge.svg)](https://github.com/tanianaess/hr-dashboard/actions/workflows/tester.yml)
+
 > ⚠️ **Syntetiske data.** Alle tall i dette prosjektet er oppdiktet og
-> konstruert for å illustrere metodikk. Selskapet finnes ikke, og tallene er
-> **ikke ekte funn** om noe selskap. Mønstrene i dataene er lagt inn med vilje
+> konstruert for å illustrere metodikk, og bygger ikke på data fra noe ekte
+> selskap. Selskapet finnes ikke. Mønstrene i dataene er lagt inn med vilje
 > (se [Historien i dataene](#historien-i-dataene)).
 
 Et people analytics-dashbord for **Fjordlys Tech AS**, et fiktivt norsk tech-selskap med ca. 230
@@ -15,7 +17,7 @@ etterprøvbart og presenteres uten å eksponere enkeltpersoner.
 
 | Side | Viser |
 |---|---|
-| **Oversikt** (forside) | De viktigste tallene for hele selskapet med endring og status (OK / følg med / kritisk) · «Hva ledelsen bør vite nå»: opptil 5 regelbaserte innsikter om de største avvikene, med mulig neste steg og lenke til detaljene |
+| **Oversikt** (forside) | Kort introduksjon: hvem dashbordet er for (ledergruppen i et selskap med 50–500 ansatte) og hvilke spørsmål det svarer på · de viktigste tallene for hele selskapet med endring og status (OK / følg med / kritisk) · «Hva ledelsen bør vite nå»: opptil 5 regelbaserte innsikter om de største avvikene, med mulig neste steg og lenke til detaljene |
 | **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · kostnad ved uønsket turnover med justerbar antakelse (hele selskapet, siste 12 mnd mot forrige 12 mnd) · avganger per måned (bare totalen) · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned over hele dataperioden · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team · filter: hele selskapet eller ett team, faste perioder |
@@ -120,14 +122,15 @@ hver gang.
 app.py                    Startfil: menyen
 sider/0_Oversikt.py       Oversikt (forside)
 innsikter.py              Terskler for status og regler for innsikter
-utseende.py               Felles utseende: palett, toppen av sidene, statusmerker
+utseende.py               Felles utseende: palett, toppen av sidene, statusmerker, skjulte KPI-kort
 sider/1_Turnover.py       Turnoversiden
 sider/2_Sykefravaer.py    Sykefraværssiden
 sider/3_Rekruttering.py   Rekrutteringssiden
 sider/4_Bemanning.py      Bemanningssiden
 sider/5_Engasjement.py    Engasjementssiden (eNPS)
 beregninger.py            Alle formler (brukes av alle sider)
-filtre.py                 Felles filtre for periode og team, og sidestiene (SIDER)
+filtre.py                 Felles filtre for periode og team, sidestiene (SIDER) og spørsmålene per side
+.github/workflows/        Kjører testene automatisk på GitHub (GitHub Actions)
 datalasting.py            Felles innlesing av data (lest én gang, deles av alle sider)
 lag_syntetiske_data.py    Genererer de syntetiske dataene
 data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan
@@ -140,7 +143,8 @@ CLAUDE.md                 Prosjektregler, datamodell og definisjoner
 ## Kvalitetssikring
 
 Automatiske tester (pytest) sjekker nøkkeltallene, personvernreglene og at alle
-sidene kjører for alle filtervalg:
+sidene kjører for alle filtervalg. De kjører også automatisk på GitHub ved hver
+push (GitHub Actions, se merket øverst). Slik kjører du dem selv:
 
 ```bash
 pip install -r requirements-dev.txt

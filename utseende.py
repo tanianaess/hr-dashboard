@@ -24,12 +24,38 @@ STATUS = {
 }
 
 
-def topp(tittel):
-    """Toppen av hver side: selskapsnavn, tittel og diskret merking om syntetiske data."""
+def topp(tittel, sporsmal=None):
+    """Toppen av hver side: selskapsnavn, tittel, spørsmålet siden svarer på (hvis gitt)
+    og diskret merking om syntetiske data."""
     st.caption(f"**{SELSKAP}** · fiktivt selskap · people analytics")
     st.title(tittel)
+    if sporsmal:
+        st.markdown(f":gray[{sporsmal}]")  # rolig grå tekst rett under tittelen
     st.badge("Syntetiske data", icon=":material/science:", color="gray")
     st.caption(b.SYNTETISK_MERKNAD.replace("**Syntetiske data.** ", ""))
+
+
+def skjult_kort(beholder, tittel, forklaring=b.SKJULT_UNDER_5.capitalize()):
+    """KPI-kort for et tall som er skjult av personvernhensyn: «–» som verdi og
+    forklaringen i liten tekst under. (Lang tekst som verdi får stor tallskrift og
+    blir kuttet, f.eks. «skjult (unde…».)"""
+    beholder.metric(tittel, "–")
+    beholder.caption(forklaring)
+
+
+# CSS-klassen Streamlit gir beholdere med key="neste_steg_…" (se forsiden)
+NESTE_STEG_NOKKEL = "neste_steg_"
+
+
+def neste_steg_stil():
+    """Lys petrol bakgrunn på «Mulig neste steg»-boksene på forsiden.
+    Én CSS-regel her, så fargen ikke spres rundt i sidene.
+    Kontrast: tekst #1E2A30 på #E4EEF0 = 12,4 : 1 (krav: minst 4,5 : 1)."""
+    st.html(
+        f"<style>[class*='st-key-{NESTE_STEG_NOKKEL}'] {{"
+        f"background-color: {MARKERT_BAKGRUNN}; border-radius: 0.5rem; padding: 1rem 1.25rem;"
+        f"}}</style>"
+    )
 
 
 def statusmerke(status, forklaring=None):

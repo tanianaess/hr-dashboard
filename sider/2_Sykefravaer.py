@@ -7,7 +7,7 @@ import streamlit as st
 import beregninger as b
 import datalasting as d
 import utseende as u
-from filtre import vis_filtre_sensitiv
+from filtre import SPORSMAL, vis_filtre_sensitiv
 
 st.set_page_config(page_title="Sykefravær · HR-dashbord", layout="wide")
 
@@ -26,7 +26,7 @@ utvalg_fravaer = fravaer[fravaer["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-u.topp("Sykefravær")
+u.topp("Sykefravær", SPORSMAL["Sykefravær"])
 st.caption(
     f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}."
@@ -133,7 +133,7 @@ else:
                     "mark": {"type": "rule", "strokeDash": [6, 4], "color": u.TEKST_DEMPET},
                     "encoding": {"y": {"datum": landssnitt}},
                 },
-                {   # Tekst ved linja
+                {   # Tekst ved linjen
                     "mark": {"type": "text", "align": "left", "dx": 4, "dy": -8, "color": u.TEKST_DEMPET},
                     "encoding": {"y": {"datum": landssnitt}, "x": {"value": 0},
                                  "text": {"value": f"Landssnitt {b.prosent(b.SYKEFRAVAER_LANDSSNITT, 2)}"}},

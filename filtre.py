@@ -25,6 +25,15 @@ SIDER = {
     "Engasjement": "sider/5_Engasjement.py",
 }
 
+# Spørsmålet hver detaljside svarer på – vises under tittelen (topp() i utseende.py)
+SPORSMAL = {
+    "Turnover": "Hvem slutter, hvem ville vi beholdt, og hva koster det?",
+    "Sykefravær": "Hvor høyt er fraværet, og hvilke team trenger oppfølging?",
+    "Rekruttering": "Hvor raskt ansetter vi, og gir strukturert rekruttering bedre ansettelser?",
+    "Bemanning": "Har vi folkene bemanningsplanen krever?",
+    "Engasjement": "Hvor fornøyde er de ansatte, og henger det sammen med fraværet?",
+}
+
 # Sider med begrenset filter (sensitive tall). Bare Bemanning har fritt filter,
 # fordi ingen av tallene der er sensitive (se CLAUDE.md).
 SENSITIVE_SIDER = {SIDER[navn] for navn in ["Turnover", "Sykefravær", "Rekruttering", "Engasjement"]}

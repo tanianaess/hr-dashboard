@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-# Mappa med CSV-filene (ligger ved siden av denne fila)
+# Mappen med CSV-filene (ligger ved siden av denne filen)
 DATAMAPPE = Path(__file__).parent / "data"
 
 # Første og siste dag dataene dekker
@@ -67,7 +67,7 @@ KOSTNADSANDEL_STANDARD = 0.75
 # Merking som vises øverst på alle sider (se «Presentasjon» i CLAUDE.md)
 SYNTETISK_MERKNAD = (
     "**Syntetiske data.** Alle tall i dette dashbordet er oppdiktet og konstruert "
-    "for å illustrere metodikk. De er ikke ekte funn om noe selskap."
+    "for å illustrere metodikk, og bygger ikke på data fra noe ekte selskap."
 )
 
 TEAM = ["teknologi", "produktutvikling", "salg", "kundesuksess",
@@ -235,7 +235,7 @@ def endring_pp(ny, gammel):
 def minustegn(tekst):
     """Bytter bindestrek foran tall med ekte minustegn: «-14» → «−14».
     Brukes på tall som VISES. Ikke på pilene i st.metric (delta), der Streamlit
-    bruker bindestreken til å avgjøre retningen på pila."""
+    bruker bindestreken til å avgjøre retningen på pilen."""
     return re.sub(r"(^|[\s(])-(?=\d)", lambda m: m.group(1) + "−", tekst) if tekst else tekst
 
 
@@ -252,9 +252,9 @@ def enps_tekst(verdi):
 
 
 def endring_antall(diff, enhet, entall=None):
-    """Endring i hele enheter til pila i KPI-kort: «+3 poeng», «-6 dager», «±0 dager».
+    """Endring i hele enheter til pilen i KPI-kort: «+3 poeng», «-6 dager», «±0 dager».
     `entall` brukes når endringen er 1 («+1 dag»). Tom verdi → None (ingen pil).
-    Bindestrek, ikke minustegn: Streamlit bruker den til å avgjøre retningen på pila."""
+    Bindestrek, ikke minustegn: Streamlit bruker den til å avgjøre retningen på pilen."""
     if diff is None or pd.isna(diff):
         return None
     tall = avrund(diff)
@@ -270,7 +270,7 @@ SKJULT_PRIKKET = "skjult (sekundær prikking)"
 
 
 def pilfarge(endring_tekst, hoyere_er_bedre=False):
-    """Farge på pila i KPI-kort. Vanligvis er økning dårlig (rød), f.eks. turnover.
+    """Farge på pilen i KPI-kort. Vanligvis er økning dårlig (rød), f.eks. turnover.
     Med hoyere_er_bedre=True er økning bra (grønn). Ingen farge når endringen er null."""
     if endring_tekst and endring_tekst.startswith("±"):
         return "off"
@@ -286,7 +286,7 @@ def millioner(belop, desimaler=1):
 def endring_millioner(ny, gammel):
     """Endring i grovt avrundet kostnad, f.eks. «+3,1 mill. kr». Regnes på de avrundede
     tallene som vises, så endringen ikke avslører mer enn tallene selv.
-    Bindestrek, ikke minustegn: Streamlit bruker den til å avgjøre retningen på pila."""
+    Bindestrek, ikke minustegn: Streamlit bruker den til å avgjøre retningen på pilen."""
     diff = avrund(ny / 1_000_000, 1) - avrund(gammel / 1_000_000, 1)
     tekst = f"{abs(diff):.1f}".replace(".", ",")
     return "±0,0 mill. kr" if diff == 0 else f"{'+' if diff > 0 else '-'}{tekst} mill. kr"

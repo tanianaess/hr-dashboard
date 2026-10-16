@@ -1,4 +1,4 @@
-# Startfila for dashbordet: lager menyen. Forsiden (oversikten) ligger i
+# Startfilen for dashbordet: lager menyen. Forsiden (oversikten) ligger i
 # sider/0_Oversikt.py.
 #
 # Start dashbordet med:  streamlit run app.py

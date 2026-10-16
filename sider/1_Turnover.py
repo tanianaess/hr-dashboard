@@ -7,7 +7,7 @@ import streamlit as st
 import beregninger as b
 import datalasting as d
 import utseende as u
-from filtre import vis_filtre_sensitiv
+from filtre import SPORSMAL, vis_filtre_sensitiv
 
 st.set_page_config(page_title="Turnover · HR-dashbord", layout="wide")
 
@@ -25,7 +25,7 @@ utvalg = ansatte[ansatte["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-u.topp("Turnover")
+u.topp("Turnover", SPORSMAL["Turnover"])
 st.caption(
     f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y} ({antall_mnd} mnd). "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}. "
@@ -98,9 +98,9 @@ if vis_fordeling:
                     delta_color=b.pilfarge(pil))
         kort.caption(f"{fordeling[navn]} {tekst}" + (f" (uten {', '.join(utenfor)})" if utenfor else ""))
 else:
-    kort2.metric("Frivillig turnover", "Skjult")
-    kort3.metric("Uønsket turnover", "Skjult")
-    kort2.caption("Færre enn 5 avganger i utvalget, så fordelingen vises bare for hele selskapet.")
+    forklaring = "Skjult: færre enn 5 avganger i utvalget, så fordelingen vises bare for hele selskapet."
+    u.skjult_kort(kort2, "Frivillig turnover", forklaring)
+    u.skjult_kort(kort3, "Uønsket turnover", forklaring)
 
 if har_forrige:
     st.caption(f"Pilene viser endring mot {forrige_start:%m.%Y}–{forrige_slutt:%m.%Y}, i prosentpoeng (pp).")
@@ -142,7 +142,7 @@ else:
         f"Sum årslønn for de {fordeling['uønsket']} uønskede avgangene × {kostnadsandel} %"
         + (f" ({b.med_unntak('hele selskapet', utenfor)})" if utenfor else "") + ", "
         "avrundet til nærmeste 0,1 mill. kr. "
-        + ("Pila viser endring mot forrige 12 mnd. " if kan_sammenligne else "")
+        + ("Pilen viser endring mot forrige 12 mnd. " if kan_sammenligne else "")
         + "Prosentsatsen er en antakelse (dekker "
         "rekruttering, opplæring og tapt produktivitet). Juster den med glidebryteren."
     )

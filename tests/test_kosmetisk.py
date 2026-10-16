@@ -23,7 +23,7 @@ def test_enps_tekst():
 
 def test_endring_antall():
     assert b.endring_antall(2.5, "poeng") == "+3 poeng"
-    assert b.endring_antall(-6.4, "dager", "dag") == "-6 dager"  # bindestrek: retning på pila
+    assert b.endring_antall(-6.4, "dager", "dag") == "-6 dager"  # bindestrek: retning på pilen
     assert b.endring_antall(1, "dager", "dag") == "+1 dag"
     assert b.endring_antall(0.4, "dager") == "±0 dager"
     assert b.endring_antall(None, "poeng") is None

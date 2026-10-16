@@ -1,4 +1,4 @@
-# Felles oppsett for testene: legger prosjektmappa til i Pythons søkesti og leser
+# Felles oppsett for testene: legger prosjektmappen til i Pythons søkesti og leser
 # dataene én gang (fixtures = ferdige «inndata» som testene kan be om).
 
 import sys

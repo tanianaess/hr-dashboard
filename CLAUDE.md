@@ -157,9 +157,19 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
   tekst i dashbordet og README. Unntak: intervaller og perioder skrives med kort
   tankestrek uten mellomrom (10–15 %, 01.10.2025–30.09.2026), og negative tall
   bruker minustegn (−14). Tekst brukeren selv har formulert, gjengis ordrett.
+- **En-endinger, ikke a-endinger:** «pilen», «linjen», «filen», «mappen», ikke
+  «pila», «linja», «fila», «mappa». Gjelder all tekst i dashbordet, README,
+  CLAUDE.md og kommentarer i koden. Sjekkes av en test.
 - **Dataene er syntetiske – si det tydelig.** Både dashbordet og README skal
   klart opplyse at dataene er oppdiktet og konstruert for å illustrere
-  metodikk, og at tallene **ikke er ekte funn** om noe selskap.
+  metodikk, og at de **ikke bygger på data fra noe ekte selskap**. Teksten i
+  dashbordet (`SYNTETISK_MERKNAD`, vist på alle sider): «Alle tall i dette
+  dashbordet er oppdiktet og konstruert for å illustrere metodikk, og bygger ikke
+  på data fra noe ekte selskap.»
+- **Skjulte tall i KPI-kort:** aldri tekst som verdi (lang tekst får stor tallskrift
+  og blir kuttet). Bruk `skjult_kort()` i `utseende.py`: «–» som verdi og
+  forklaringen i liten tekst under. En test sjekker at ingen verdi i et KPI-kort
+  er lengre enn 12 tegn.
 
 ## Datamodell
 
@@ -169,8 +179,8 @@ Gjelder alle ark:
 - Alle metrikker beregnes i Python, og alltid for en valgt periode
   (periodestart og periodeslutt).
 - `Datamodell.xlsx` er brukerens Excel-utkast og **fasit for de 20
-  testradene**. Fila oppdateres ikke (den har derfor ikke de nye kolonnene).
-  Python-versjonen følger denne beskrivelsen, ikke formlene i Excel-fila.
+  testradene**. Filen oppdateres ikke (den har derfor ikke de nye kolonnene).
+  Python-versjonen følger denne beskrivelsen, ikke formlene i Excel-filen.
 - `kontroller_mot_excel.py` regner testradene med **de samme funksjonene som
   dashbordet** (`beregninger.py`) og sammenligner med Excel. Hvert avvik skal
   ha en forklaring i skriptet (f.eks. snitt ansatte per månedsslutt, og tid til
@@ -307,8 +317,12 @@ perioden.
 - **Fiktivt selskap:** «Fjordlys Tech AS», vist øverst som «fiktivt selskap».
 - **Tema** i `.streamlit/config.toml`: hovedfarge dyp petrol `#0F4C5C`, lys nøytral
   bakgrunn, standard sans-serif-skrift.
-- **Felles utseende** i `utseende.py`: `topp()` (selskapsnavn, tittel og diskret
-  merking om syntetiske data) og `statusmerke()`. Nye sider bruker disse.
+- **Felles utseende** i `utseende.py`: `topp()` (selskapsnavn, tittel, spørsmålet
+  siden svarer på, og diskret merking om syntetiske data), `statusmerke()` og
+  `skjult_kort()`. Nye sider bruker disse.
+- **Spørsmålet hver detaljside svarer på** står i `SPORSMAL` i `filtre.py` og vises
+  i grått rett under tittelen. Spørsmålene knytter sidene til introduksjonen på
+  forsiden.
 - **Felles kode, ett sted:** data leses via `datalasting.py` (lagres i cache, så
   avtalte dagsverk regnes ut én gang). Sidestiene står bare i `SIDER` i
   `filtre.py`. Visningstekster som `enps_tekst()`, `fortegn()`, `endring_antall()`
@@ -325,11 +339,25 @@ perioden.
   vises i rolige infobokser (`st.info`), ikke gule varselbokser.
 - KPI-kort i `st.container(border=True)` med jevn luft. Innsikter som egne kort
   der «Mulig neste steg» er skilt fra funnet.
+- **«Mulig neste steg»** har lys petrol bakgrunn (`MARKERT_BAKGRUNN`, `#E4EEF0`)
+  uten ramme, og lyspæren og overskriften i petrol. Fargen settes på ett sted:
+  `neste_steg_stil()` i `utseende.py` (CSS for beholdere med key `neste_steg_…`).
+  Kontrast: tekst `#1E2A30` på `#E4EEF0` er 12,4 : 1.
 
 ## Oversikt (forsiden)
 
 `sider/0_Oversikt.py` viser hele selskapet, **siste 12 mnd**, uten filter. Regler og
 terskler ligger i `innsikter.py`.
+
+**Øverst på forsiden** (under toppen, før «Nøkkeltall»):
+- **Introduksjon** (`INTRO`, Tanias formulering, gjengis ordrett): hvem dashbordet
+  er for (ledergruppen i et selskap med 50–500 ansatte: daglig leder,
+  økonomidirektør og HR), hvilke spørsmål ledelsen og HR-leder har, og hvordan
+  dashbordet brukes. Sier også at tallene gjelder grupper og at tilgangen er
+  begrenset.
+- **Periodelinjen:** «Tallene gjelder hele selskapet de siste 12 månedene (…).
+  Velg et tema i menyen til venstre for detaljer. Data per 30.09.2026.
+  Oppdateres månedlig.» Datoene hentes fra `FASTE_PERIODER` og `DATA_TIL`.
 
 ### Status for nøkkeltall (OK / Følg med / Kritisk)
 Vises med ord, ikon og farge i `statusmerke()` (`utseende.py`): hake (OK), øye
@@ -353,7 +381,12 @@ rekruttering mot samme periode i fjor. Kostnaden mot forrige 12 mnd, regnet på
 de avrundede tallene. Sykefravær og eNPS «uten ledergruppen»
 (sekundær prikking), som på sidene.
 
-### «Hva ledelsen bør vite nå» – regelbaserte innsikter (ikke AI)
+### «Hva ledelsen bør vite nå» – regelbaserte innsikter
+Teksten under overskriften (`INNSIKT_FORKLARING`, Tanias formulering): «Regelbaserte
+innsikter om de største avvikene. De bruker bare tall som også vises under de andre
+temaene, med de samme personvernreglene, og nevner aldri skjulte grupper.» Kommer
+AI-funksjonen, må teksten skille tydelig mellom regelbasert og AI.
+
 Maks 5, viktigste først. Hver innsikt har tekst, eventuell merknad, **«Mulig neste
 steg (forslag)»** og lenke(r) som åpner siden med teamet forhåndsvalgt
 (`forhandsvelg()` i `filtre.py`).

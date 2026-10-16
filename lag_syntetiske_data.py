@@ -1,5 +1,5 @@
 # Lager syntetiske HR-data for et fiktivt norsk tech-selskap, okt 2024–sep 2026,
-# og lagrer dem som CSV-filer i mappa data/.
+# og lagrer dem som CSV-filer i mappen data/.
 #
 # Kjør slik:  python lag_syntetiske_data.py
 #
@@ -457,7 +457,7 @@ plan_df = pd.DataFrame([
 # 7. LAGRE SOM CSV
 # =============================================================================
 
-DATAMAPPE.mkdir(exist_ok=True)  # lager mappa hvis den ikke finnes
+DATAMAPPE.mkdir(exist_ok=True)  # lager mappen hvis den ikke finnes
 ansatte_df.to_csv(DATAMAPPE / "ansatte.csv", index=False, date_format="%Y-%m-%d")
 fravaer_df.to_csv(DATAMAPPE / "fravaer.csv", index=False)
 engasjement_df.to_csv(DATAMAPPE / "engasjement.csv", index=False)

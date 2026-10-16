@@ -7,7 +7,7 @@ import streamlit as st
 import beregninger as b
 import datalasting as d
 import utseende as u
-from filtre import vis_filtre_sensitiv
+from filtre import SPORSMAL, vis_filtre_sensitiv
 
 st.set_page_config(page_title="Engasjement · HR-dashbord", layout="wide")
 
@@ -22,7 +22,7 @@ utvalg = engasjement[engasjement["team"].isin(valgte_team)]
 
 
 # --- Overskrift og merking --------------------------------------------------------
-u.topp("Engasjement (eNPS)")
+u.topp("Engasjement (eNPS)", SPORSMAL["Engasjement"])
 
 kvartaler = b.kvartaler_i_perioden(start, slutt)
 if not kvartaler:
@@ -87,7 +87,7 @@ if utenfor:
 kort1, kort2, kort3 = st.columns(3)
 kort1.metric(f"eNPS {siste}", enps_tekst(naa["enps"]), delta=mot_fjor,
              delta_color=b.pilfarge(mot_fjor, hoyere_er_bedre=True))
-kort1.caption(f"Pila viser endring mot samme kvartal i fjor ({fjor_k})" if fjor
+kort1.caption(f"Pilen viser endring mot samme kvartal i fjor ({fjor_k})" if fjor
               else "Ingen sammenligning med i fjor (mangler data)")
 kort2.metric("Endring mot forrige kvartal", b.minustegn(mot_forrige) or "–")
 kort2.caption(f"Fra {enps_tekst(forrige['enps'])} i {forrige_k}" if forrige else "Forrige kvartal mangler")

@@ -10,7 +10,7 @@ import pandas as pd
 
 import beregninger as b
 
-# Fila ligger ved siden av dette skriptet
+# Filen ligger ved siden av dette skriptet
 FIL = Path(__file__).parent / "Datamodell.xlsx"
 
 # Perioden vi måler – samme startdato som Excel-utkastet bruker (1.10.2025).

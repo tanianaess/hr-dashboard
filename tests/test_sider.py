@@ -54,7 +54,7 @@ def test_oversikt():
 @pytest.mark.parametrize("side", ["app.py", *SENSITIVE, *FRIE])
 def test_negative_tall_har_minustegn(side):
     # Viste tall skal bruke minustegn (−), ikke bindestrek. Pilene (delta) er unntatt,
-    # fordi Streamlit bruker bindestreken til å avgjøre retningen på pila.
+    # fordi Streamlit bruker bindestreken til å avgjøre retningen på pilen.
     at = kjor(side)
     tekster = [str(m.value) for m in at.metric]
     for tabell in at.dataframe:

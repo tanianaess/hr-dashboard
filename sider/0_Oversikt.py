@@ -12,6 +12,24 @@ from filtre import SIDER, forhandsvelg
 
 st.set_page_config(page_title="Oversikt · HR-dashbord", layout="wide")
 
+# Kort introduksjon: hvem dashbordet er for, og hva de trenger (Tanias formulering)
+INTRO = (
+    "**For ledergruppen i et selskap med 50–500 ansatte.** Dashbordet gir daglig leder, "
+    "økonomidirektør og HR et felles bilde av de viktigste innsiktene rundt ansatte og HR "
+    "før ledermøtet.\n\n"
+    "- **Ledelsen:** Hvor er risikoen nå, hva koster den, og har vi folkene planen krever?\n"
+    "- **HR-leder:** Hvilke team trenger oppfølging, og virker endringene i "
+    "rekrutteringsprosessen?\n\n"
+    "Start med statusen og innsiktene under, og gå til detaljsidene ved behov. Tallene "
+    "gjelder alltid grupper, aldri enkeltpersoner, og tilgangen er begrenset til HR-ledelse "
+    "og ledergruppen."
+)
+
+INNSIKT_FORKLARING = (
+    "Regelbaserte innsikter om de største avvikene. De bruker bare tall som også vises "
+    "under de andre temaene, med de samme personvernreglene, og nevner aldri skjulte grupper."
+)
+
 
 # --- Data ---------------------------------------------------------------------
 @st.cache_data
@@ -27,9 +45,12 @@ nokkeltall, innsikt_liste = beregn_oversikt()
 
 # --- Toppen av siden --------------------------------------------------------------
 u.topp("Oversikt")
+u.neste_steg_stil()  # lys petrol bakgrunn på «Mulig neste steg» (se utseende.py)
+st.markdown(INTRO)
 start, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
-st.caption(f"Hele selskapet, siste 12 måneder ({start:%d.%m.%Y}–{slutt:%d.%m.%Y}). "
-           "Velg et tema i menyen til venstre for detaljer.")
+st.caption(f"Tallene gjelder hele selskapet de siste 12 månedene "
+           f"({start:%d.%m.%Y}–{slutt:%d.%m.%Y}). Velg et tema i menyen til venstre for detaljer. "
+           f"Data per {b.DATA_TIL:%d.%m.%Y}. Oppdateres månedlig.")
 
 
 # --- Nøkkeltall med status --------------------------------------------------------------
@@ -74,10 +95,7 @@ with st.expander("Slik settes status"):
 
 # --- Hva ledelsen bør vite nå -------------------------------------------------------------
 st.subheader("Hva ledelsen bør vite nå")
-st.caption(
-    "Regelbaserte innsikter (ikke AI) om de største avvikene. De bruker bare tall som også "
-    "vises på de andre sidene, med de samme personvernreglene, og nevner aldri skjulte grupper."
-)
+st.caption(INNSIKT_FORKLARING)
 
 if not innsikt_liste:
     st.success("Ingen store avvik akkurat nå.")
@@ -102,7 +120,8 @@ for nr, innsikt in enumerate(innsikt_liste):
 
         # Høyre: forslag til neste steg, tydelig skilt fra funnet
         with steg:
-            with st.container(border=True):
-                st.markdown(":material/lightbulb: **Mulig neste steg**")
+            # key gir boksen en egen CSS-klasse, så den får lys petrol bakgrunn
+            with st.container(key=f"{u.NESTE_STEG_NOKKEL}{nr}"):
+                st.markdown(":blue[:material/lightbulb: **Mulig neste steg**]")  # blå = petrol i temaet
                 st.caption("Forslag, ikke en faglig anbefaling")
                 st.markdown(innsikt["neste_steg"])
