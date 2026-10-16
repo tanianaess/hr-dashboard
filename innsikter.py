@@ -218,7 +218,7 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
 
 
 # =============================================================================
-# INNSIKTER («Hva ledelsen bør vite nå»)
+# INNSIKTER («Viktigste innsikter»)
 # =============================================================================
 # Hver innsikt: tittel, tekst, merknad (valgfri), neste_steg (forslag), lenker
 # [(sidenavn, team eller None)], alvor (høyere = viktigere).

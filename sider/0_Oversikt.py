@@ -107,8 +107,8 @@ with st.expander("Slik settes status"):
     )
 
 
-# --- Hva ledelsen bør vite nå -------------------------------------------------------------
-st.subheader("Hva ledelsen bør vite nå")
+# --- Viktigste innsikter -------------------------------------------------------------------
+st.subheader("Viktigste innsikter")
 st.caption(INNSIKT_FORKLARING)
 
 if not innsikt_liste:

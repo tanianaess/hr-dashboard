@@ -477,7 +477,7 @@ rekruttering mot samme periode i fjor. Kostnaden mot forrige 12 mnd, regnet på
 de avrundede tallene. Sykefravær og eNPS «uten ledergruppen»
 (sekundær prikking), som på sidene.
 
-### «Hva ledelsen bør vite nå» – regelbaserte innsikter
+### «Viktigste innsikter» (regelbaserte)
 Teksten under overskriften (`INNSIKT_FORKLARING`, Tanias formulering): «Regelbaserte
 innsikter om de største avvikene. De bruker bare tall som også vises under de andre
 temaene, med de samme personvernreglene, og nevner aldri skjulte grupper.» Kommer
