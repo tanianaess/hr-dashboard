@@ -61,6 +61,7 @@ st.caption(f"Tallene gjelder hele selskapet de siste 12 månedene "
 
 # --- Nøkkeltall med status --------------------------------------------------------------
 st.subheader("Nøkkeltall")
+st.caption(i.felles_merknad(nokkeltall))
 
 
 def vis_kort(k, nr):

@@ -100,7 +100,7 @@ else:
     kostnad_fjor = b.fravaerskostnad(utvalg_ansatte, utvalg_fravaer, fjor_start, fjor_slutt) if har_fjor else None
     pil = b.endring_millioner(kostnad, kostnad_fjor) if kostnad_fjor else None
     k1, _ = st.columns(2)
-    k1.metric("Minst", b.millioner(kostnad), delta=pil, delta_color=b.pilfarge(pil))
+    k1.metric("Lønn for korttidsfravær", b.millioner(kostnad), delta=pil, delta_color=b.pilfarge(pil))
     k1.caption(
         "Arbeidsgiver betaler de første 16 dagene av hvert sykefravær. Kostnaden er tapte "
         "dagsverk korttid × gjennomsnittlig dagslønn per årsverk"

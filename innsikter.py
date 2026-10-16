@@ -59,9 +59,31 @@ def _prosentpoeng(andel, desimaler=1):
     return b.avrund(andel * 100, desimaler)
 
 
-def _uten(utenfor):
-    """«Uten ledergruppen · » foran forklaringen når noen holdes utenfor totalen."""
-    return f"Uten {', '.join(utenfor)} · " if utenfor else ""
+def _liste(navn):
+    """['a', 'b', 'c'] → «a, b og c»."""
+    return navn[0] if len(navn) == 1 else f"{', '.join(navn[:-1])} og {navn[-1]}"
+
+
+def felles_merknad(liste):
+    """Det som gjelder flere kort, sagt én gang over kortene i stedet for på hvert kort:
+    hva pilene sammenligner med, og hvilke grupper som er holdt utenfor."""
+    forrige = [k["kortnavn"] for k in liste if k.get("sammenligning") == "forrige"]
+    fjor = [k["kortnavn"] for k in liste if k.get("sammenligning") == "fjor"]
+    deler = []
+    if forrige and fjor:
+        deler.append(f"Pilene viser endring mot forrige 12 måneder for {_liste(forrige)}, "
+                     f"og mot samme periode i fjor for {_liste(fjor)}.")
+    elif forrige or fjor:
+        deler.append("Pilene viser endring mot "
+                     + ("forrige 12 måneder." if forrige else "samme periode i fjor."))
+    grupper = {}
+    for k in liste:
+        if k.get("utenfor"):
+            grupper.setdefault(tuple(k["utenfor"]), []).append(k["kortnavn"])
+    for utenfor, navn in grupper.items():
+        deler.append(f"{_liste(list(utenfor)).capitalize()} er holdt utenfor {_liste(navn)}, "
+                     "fordi gruppen er for liten til å vises.")
+    return " ".join(deler)
 
 
 # =============================================================================
@@ -82,7 +104,8 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
     liste.append(dict(navn="Total turnover", verdi=b.prosent(naa["total_rate"]),
                       endring=b.endring_pp(naa["total_rate"], forrige["total_rate"]),
                       status=status("Total turnover", v, d),
-                      ekstra=f"{naa['avganger']} avganger · mot forrige 12 mnd",
+                      ekstra=f"{naa['avganger']} avganger.",
+                      kortnavn="turnover", sammenligning="forrige",
                       side="Turnover"))
 
     # Uønsket turnover og kostnad (fordeling – sekundær prikking)
@@ -93,7 +116,8 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
     st_uonsket = status("Uønsket turnover", v, d)
     liste.append(dict(navn="Uønsket turnover", verdi=b.prosent(nf["uønsket_rate"]),
                       endring=b.endring_pp(nf["uønsket_rate"], ff["uønsket_rate"]),
-                      status=st_uonsket, ekstra=_uten(utenfor) + f"{nf['uønsket']} vi ville beholdt · mot forrige 12 mnd",
+                      status=st_uonsket, ekstra=f"{nf['uønsket']} vi ville beholdt.",
+                      kortnavn="uønsket turnover", sammenligning="forrige", utenfor=utenfor,
                       side="Turnover"))
     # Erstatningskostnad for ALLE avganger som må erstattes, med uønsket som en del av den.
     # Bygger på lønn: bare siste 12 mnd mot forrige 12 mnd (de to faste periodene), grovt
@@ -103,12 +127,13 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
         kostnad = naa["lønn_avganger"] * b.KOSTNADSANDEL_STANDARD
         pil = (b.endring_millioner(kostnad, forrige["lønn_avganger"] * b.KOSTNADSANDEL_STANDARD)
                if forrige["avganger"] >= b.MIN_GRUPPE else None)
-        herav = (f"herav uønsket {b.millioner(nf['lønn_uønsket'] * b.KOSTNADSANDEL_STANDARD)}"
-                 if nf["uønsket"] >= b.MIN_GRUPPE else "uønsket skjult (under 5)")
+        herav = (f"Herav uønsket {b.millioner(nf['lønn_uønsket'] * b.KOSTNADSANDEL_STANDARD)}."
+                 if nf["uønsket"] >= b.MIN_GRUPPE else "Uønsket er skjult (under 5).")
         liste.append(dict(navn="Erstatningskostnad", verdi=b.millioner(kostnad), endring=pil,
                           status=(st_total[0], "følger total turnover"),
-                          ekstra=f"{naa['avganger']} avganger · {herav} · "
-                                 f"{b.prosent(b.KOSTNADSANDEL_STANDARD, 0)} av årslønn (antakelse)",
+                          ekstra=f"{naa['avganger']} avganger. {herav} Antar "
+                                 f"{b.prosent(b.KOSTNADSANDEL_STANDARD, 0)} av årslønn per avgang.",
+                          kortnavn="erstatningskostnad", sammenligning="forrige",
                           side="Turnover"))
 
     # Sykefravær (sekundær prikking)
@@ -121,7 +146,8 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
                       endring=b.endring_pp(sn["total_rate"], sj["total_rate"]),
                       terskel=b.VESENTLIG_ENDRING_SYKEFRAVAER_PP,
                       status=st_fravaer,
-                      ekstra=_uten(utenfor_s) + f"Mot i fjor · internt mål {b.prosent(b.SYKEFRAVAER_MAL, 0)}",
+                      ekstra=f"Internt mål {b.prosent(b.SYKEFRAVAER_MAL, 0)}.",
+                      kortnavn="sykefravær", sammenligning="fjor", utenfor=utenfor_s,
                       side="Sykefravær"))
 
     # Kostnad i arbeidsgiverperioden (bygger på lønn: hele selskapet, siste 12 mnd)
@@ -130,7 +156,8 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
     pil = b.endring_millioner(fk, fk_fjor) if fk_fjor else None
     liste.append(dict(navn="Fraværskostnad", verdi=b.millioner(fk), endring=pil,
                       status=(st_fravaer[0], "følger sykefravær"),
-                      ekstra=_uten(utenfor_s) + "Minst · arbeidsgiverperioden (dag 1-16) · mot i fjor",
+                      ekstra="Bare lønn for korttidsfravær (dag 1-16). Reell kostnad er høyere.",
+                      kortnavn="fraværskostnad", sammenligning="fjor", utenfor=utenfor_s,
                       side="Sykefravær"))
 
     # eNPS (sekundær prikking), siste kvartal mot samme kvartal i fjor
@@ -145,7 +172,8 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
                       endring=b.endring_antall(d_poeng, "poeng"),
                       hoyere_er_bedre=True,
                       status=status("eNPS", b.avrund(en["enps"]), d_poeng),
-                      ekstra=_uten(utenfor_e) + f"Mot {fjor_k} · svarandel {b.prosent(en['svarandel'], 0)}",
+                      ekstra=f"Svarandel {b.prosent(en['svarandel'], 0)}.",
+                      kortnavn="eNPS", sammenligning="fjor", utenfor=utenfor_e,
                       side="Engasjement"))
 
     # Bemanning mot plan (alle team – ikke sensitivt), nøytral visning uten pil
@@ -155,8 +183,9 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
     v = _prosentpoeng(abs(avvik) / planlagt)
     liste.append(dict(navn="Bemanning mot plan", verdi=b.fortegn(avvik),
                       endring=None, status=status("Bemanning mot plan", v),
-                      ekstra=f"{faktisk} av {planlagt} ({b.prosent(faktisk / planlagt)}) · "
-                             f"avvik {b.fortegn(avvik_for)} for ett år siden",
+                      ekstra=f"{faktisk} ansatte av {planlagt} planlagt ({b.prosent(faktisk / planlagt)}). "
+                             f"Avvik for ett år siden: {b.fortegn(avvik_for)}.",
+                      kortnavn="bemanning",
                       side="Bemanning"))
 
     # Tid til ansettelse, mot samme periode i fjor
@@ -175,13 +204,15 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
         tregest_tekst = ""
         if tregest is not None:
             t_dager = b.avrund(tregest["median_dager"])
-            tregest_tekst = f" · tregest: {tregest['team']} {t_dager} dager (n = {int(tregest['antall'])})"
+            tregest_tekst = (f" Tregest: {tregest['team']}, {t_dager} dager "
+                             f"({int(tregest['antall'])} ansettelser).")
             if st_tid[0] == OK and t_dager > TERSKLER["Tid til ansettelse"]["kritisk"]:
                 st_tid = (FOLG_MED, f"{tregest['team']} over {TERSKLER['Tid til ansettelse']['kritisk']} dager")
         liste.append(dict(navn="Tid til ansettelse", verdi=f"{dager} dager",
                           endring=b.endring_antall(d_dager, "dager", "dag"),
                           status=st_tid,
-                          ekstra=f"Median, {rn['antall']} ansettelser{tregest_tekst} · mot i fjor",
+                          ekstra=f"Median av {rn['antall']} ansettelser.{tregest_tekst}",
+                          kortnavn="tid til ansettelse", sammenligning="fjor",
                           side="Rekruttering"))
     return liste
 

@@ -114,9 +114,22 @@ def test_aarsverk(ansatte, plan, siste_12):
 
 def test_tid_til_ansettelse_viser_tregeste_team(ansatte, fravaer, engasjement, plan):
     kort = next(k for k in i.nokkeltall(ansatte, fravaer, engasjement, plan) if k["navn"] == "Tid til ansettelse")
-    assert "tregest: teknologi" in kort["ekstra"]
+    assert "Tregest: teknologi" in kort["ekstra"]
 
 
 def test_toppen_viser_bare_selskapsnavnet():
     at = kjor("app.py")
     assert at.caption[0].value == "**Fjordlys Tech AS**"
+
+
+def test_kortene_har_hele_setninger_og_felles_merknad(ansatte, fravaer, engasjement, plan):
+    """Det som gjelder flere kort står én gang over kortene, ikke med prikker på hvert kort."""
+    kort = i.nokkeltall(ansatte, fravaer, engasjement, plan)
+    for k in kort:
+        assert "·" not in k["ekstra"], k["navn"]
+        assert "Minst" not in k["ekstra"]
+        assert "Uten " not in k["ekstra"]
+    tekst = i.felles_merknad(kort)
+    assert "Pilene viser endring mot forrige 12 måneder for turnover" in tekst
+    assert "mot samme periode i fjor for sykefravær" in tekst
+    assert "Ledergruppen er holdt utenfor" in tekst
