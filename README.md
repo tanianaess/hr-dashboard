@@ -37,7 +37,9 @@ en ledergruppe. Bakgrunnen min er organisasjonspsykologi, og det preger valgene.
   (Sackett mfl., 2022), og bruker egne data til å følge med.
 - **Det jeg bevisst lot være:** lønn per team, testresultater og
   kompetansevurderinger av enkeltpersoner. Det er sensitivt, og nytten står ikke i
-  forhold til risikoen.
+  forhold til risikoen. Jeg måler heller ikke formelle medarbeidersamtaler to ganger i
+  året. De sier om en rutine er fulgt, ikke om noen utvikler seg. Jevnlige 1:1 med
+  lederen sier mer.
 - **Med ekte data ville jeg** først avklart definisjoner og datakvalitet med HR og
   økonomi, og latt ledergruppen sette tersklene for status.
 - **Teknisk:** Python, pandas og Streamlit, med automatiske tester for beregningene og
@@ -52,6 +54,7 @@ en ledergruppe. Bakgrunnen min er organisasjonspsykologi, og det preger valgene.
 | **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned over hele dataperioden · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team · filter: hele selskapet eller ett team, faste perioder |
 | **Bemanning** | Faktisk antall ansatte mot bemanningsplanen · utvikling per måned · tabell per team med avvik, bemanningsgrad, ansettelser, avganger og tid til tiltredelse · team med mer enn 5 % avvik markeres · fritt filter (ingen sensitive tall) |
+| **Kompetanse** | Opplæring (timer, kostnad og andel som har deltatt) · jevnlige 1:1 med lederen · intern mobilitet (besatt internt, tid til besatt internt mot eksternt, forfremmelser) · tabell per team · sammenheng mellom oppfølging og frivillig turnover · filter: hele selskapet eller ett team, faste perioder |
 | **Engasjement** | eNPS siste kvartal mot samme kvartal i fjor og forrige kvartal · svarandel (lav markeres) · eNPS per kvartal og team over hele dataperioden · tabell per team · kobling mot langtidsfravær (sammenheng, ikke nødvendigvis årsak) · filter: hele selskapet eller ett team, faste perioder |
 
 ## Personvern
@@ -73,8 +76,8 @@ Dashbordet er bygget som om dataene var ekte. Grunnprinsippet:
   kvalitet på ansettelser)
   holdes små skjulte grupper utenfor totalen, og totalen merkes, f.eks. «Hele selskapet
   (uten ledergruppen)». Totalt antall avganger og bemanning tar med alle.
-- **Begrenset filter på sider med sensitive tall:** på turnover, sykefravær, rekruttering
-  og eNPS kan du bare velge hele selskapet eller ett team, og to faste perioder som ikke
+- **Begrenset filter på sider med sensitive tall:** på turnover, sykefravær, rekruttering,
+  eNPS og kompetanse kan du bare velge hele selskapet eller ett team, og to faste perioder som ikke
   overlapper (siste 12 mnd og forrige 12 mnd). Ellers kunne to filtervalg eller
   overlappende perioder trekkes fra hverandre. Bare bemanning har fritt filter.
 - **Trendgrafer over hele dataperioden:** grafene for sykefravær per måned og eNPS per
@@ -103,6 +106,8 @@ Dashbordet er bygget som om dataene var ekte. Grunnprinsippet:
 | Tid til tiltredelse | Median antall dager fra utlysning til første arbeidsdag (inkluderer oppsigelsestid) |
 | eNPS | Andel anbefalere (9-10) minus andel kritikere (0-6), fra −100 til +100. For flere team: vektet med antall svar |
 | Svarandel | Antall svar / antall invitert. Under 50 % markeres som lav |
+| Jevnlige 1:1 | Andel med minst én 1:1 med lederen i minst 10 av 12 måneder, blant dem som var ansatt hele perioden |
+| Besatt internt | Interne besettelser (forfremmelser og overganger) / alle besatte stillinger. Forfremmelser er sensitive og vises bare med minst 5 interne endringer |
 | Kostnad ved uønsket turnover | Sum årslønn for uønskede avganger × antatt kostnadsandel (standard 75 %, justerbar 50-200 %). Bare hele selskapet, siste 12 mnd mot forrige 12 mnd |
 
 Alle definisjoner, med datamodell, står i [`CLAUDE.md`](CLAUDE.md).
@@ -121,6 +126,9 @@ man ofte ser i virkeligheten, for å vise hva dashbordet kan avdekke:
 4. **Teknologi:** lang tid til ansettelse (ca. 60 dager) og under bemanningsplanen.
 5. **Totalt:** turnover ca. 14 % og sykefravær ca. 5,5 %. Problemene synes bare
    når man ser per team.
+6. **Kompetanse:** salg har minst opplæring og færrest med jevnlige 1:1 med lederen,
+   og høyest frivillig turnover. Forsiden kobler de to, med merknad om at det er en
+   sammenheng og ikke nødvendigvis årsak.
 
 ## Slik kan dette tas i bruk hos dere
 
@@ -134,6 +142,9 @@ Dashbordet er bygget for å kunne kobles på ekte data.
 - Medarbeiderundersøkelse per team og kvartal: eNPS, antall svar og antall inviterte.
 - Bemanningsplan per team og måned.
 - Rekrutteringsdata (metode og datoer), hvis rekrutteringssiden skal brukes.
+- Kompetanse: opplæringsaktiviteter (timer og kostnad), 1:1 med lederen per måned, og
+  forfremmelser og interne overganger. 1:1-data finnes ofte ikke i HR-systemet i dag og
+  må registreres.
 
 **Det som tilpasses:** teamnavn, tersklene for status, kostnadsandelen og hvilke sider
 som er med.
@@ -182,12 +193,13 @@ sider/2_Sykefravaer.py    Sykefraværssiden
 sider/3_Rekruttering.py   Rekrutteringssiden
 sider/4_Bemanning.py      Bemanningssiden
 sider/5_Engasjement.py    Engasjementssiden (eNPS)
+sider/6_Kompetanse.py     Kompetansesiden (opplæring, 1:1 og intern mobilitet)
 beregninger.py            Alle formler (brukes av alle sider)
 filtre.py                 Felles filtre for periode og team, sidestiene (SIDER) og spørsmålene per side
 .github/workflows/        Kjører testene automatisk på GitHub (GitHub Actions)
 datalasting.py            Felles innlesing av data (lest én gang, deles av alle sider)
 lag_syntetiske_data.py    Genererer de syntetiske dataene
-data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan
+data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan, opplæring, 1:1, stillingsendringer
 kontroller_mot_excel.py   Sjekker Python-formlene mot en Excel-fasit
 tests/                    Automatiske tester (pytest)
 Datamodell.xlsx           Excel-utkast til datamodell med 20 testrader (fasit)

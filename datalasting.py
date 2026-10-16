@@ -26,3 +26,18 @@ def hent_engasjement():
 @st.cache_data
 def hent_bemanningsplan():
     return b.les_bemanningsplan()
+
+
+@st.cache_data
+def hent_opplaering():
+    return b.les_opplaering()
+
+
+@st.cache_data
+def hent_en_til_en():
+    return b.les_en_til_en()
+
+
+@st.cache_data
+def hent_stillingsendringer():
+    return b.les_stillingsendringer()

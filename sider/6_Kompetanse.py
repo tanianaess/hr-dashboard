@@ -1,0 +1,223 @@
+# Kompetansesiden: opplæring, 1:1 med lederen og intern mobilitet, og hvordan det
+# henger sammen med turnover. Alle formler ligger i beregninger.py.
+
+import pandas as pd
+import streamlit as st
+
+import beregninger as b
+import datalasting as d
+import utseende as u
+from filtre import SPORSMAL, vis_filtre_sensitiv
+
+st.set_page_config(page_title="Kompetanse · HR-dashbord", layout="wide")
+
+
+# --- Data (felles innlesing, lest bare én gang – se datalasting.py) ----------------
+ansatte = d.hent_ansatte()
+aktiviteter, samtaler, endringer = d.hent_opplaering(), d.hent_en_til_en(), d.hent_stillingsendringer()
+
+
+# --- Filtre: begrenset, fordi forfremmelser er sensitive (se filtre.py) -------------
+start, slutt, valgte_team, hele_selskapet = vis_filtre_sensitiv()
+utvalg = ansatte[ansatte["team"].isin(valgte_team)]
+
+
+# --- Overskrift og merking --------------------------------------------------------
+u.topp("Kompetanse", SPORSMAL["Kompetanse"])
+st.caption(
+    f"Periode: {start:%d.%m.%Y}-{slutt:%d.%m.%Y}. "
+    f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}."
+)
+st.info(b.KOMPETANSE_MERKNAD, icon=":material/info:")
+
+# Sekundær prikking (se beregninger.py):
+# - opplæring og 1:1: små team (ledergruppen) holdes utenfor totalen
+# - forfremmelser: team med under 5 interne endringer holdes utenfor hvis de til sammen er under 5
+utenfor = b.utenfor_sykefravaer(ansatte, valgte_team)
+utvalg_total = utvalg[~utvalg["team"].isin(utenfor)]
+utenfor_f = b.utenfor_forfremmelser(ansatte, endringer, valgte_team)
+
+forrige_start, forrige_slutt = b.forrige_periode(start, slutt)
+har_forrige = forrige_start >= b.DATA_FRA
+
+o = b.opplaering(utvalg_total, aktiviteter, start, slutt)
+if o is None:
+    st.info("Utvalget har færre enn 5 ansatte. Tallene skjules av personvernhensyn.",
+            icon=":material/lock:")
+    st.stop()
+o_forrige = b.opplaering(utvalg_total, aktiviteter, forrige_start, forrige_slutt) if har_forrige else None
+s = b.en_til_en(utvalg_total, samtaler, start, slutt)
+s_forrige = b.en_til_en(utvalg_total, samtaler, forrige_start, forrige_slutt) if har_forrige else None
+m = b.intern_mobilitet(utvalg, endringer, start, slutt)
+m_forrige = b.intern_mobilitet(utvalg, endringer, forrige_start, forrige_slutt) if har_forrige else None
+m_f = b.intern_mobilitet(utvalg[~utvalg["team"].isin(utenfor_f)], endringer, start, slutt)
+
+if utenfor:
+    st.caption(f"Opplæring og 1:1 gjelder **{b.med_unntak('utvalget', utenfor)}**. Små team holdes "
+               "utenfor, så de ikke kan regnes ut (sekundær prikking).")
+
+
+def pp(navn, ny, gammel):
+    """Endring i prosentpoeng mot forrige periode, eller None."""
+    if ny is None or gammel is None or ny.get(navn) is None or gammel.get(navn) is None:
+        return None
+    return b.endring_pp(ny[navn], gammel[navn])
+
+
+# --- Opplæring og oppfølging ------------------------------------------------------------
+st.subheader("Opplæring og oppfølging")
+k1, k2, k3, k4 = st.columns(4)
+def endring_timer(ny, gammel):
+    """Endring i timer med én desimal, f.eks. «-0,7 timer» (bindestrek: retning på pilen)."""
+    diff = b.avrund(ny - gammel, 1)
+    return "±0,0 timer" if diff == 0 else f"{diff:+.1f} timer".replace(".", ",")
+
+
+pil = endring_timer(o["timer_per_ansatt"], o_forrige["timer_per_ansatt"]) if o_forrige else None
+k1.metric("Opplæring per ansatt", f"{b.avrund(o['timer_per_ansatt'], 1):.1f} timer".replace(".", ","),
+          delta=pil, delta_color=b.pilfarge(pil, hoyere_er_bedre=True))
+k1.caption(f"{o['aktiviteter']} aktiviteter (kurs, sertifiseringer, konferanser, intern opplæring)")
+k2.metric("Kostnad per ansatt", b.kroner(o["kostnad_per_ansatt"]))
+k2.caption("Direkte kostnad (kursavgift, reise), ikke lønn i arbeidstiden")
+pil = pp("andel_deltatt", o, o_forrige)
+k3.metric("Har deltatt", b.prosent(o["andel_deltatt"], 0), delta=pil,
+          delta_color=b.pilfarge(pil, hoyere_er_bedre=True))
+k3.caption(f"{o['deltatt']} av {o['personer']} ansatte i perioden")
+if s is None:
+    u.skjult_kort(k4, "Jevnlige 1:1 med leder")
+else:
+    pil = pp("andel_jevnlige", s, s_forrige)
+    k4.metric("Jevnlige 1:1 med leder", b.prosent(s["andel_jevnlige"], 0), delta=pil,
+              delta_color=b.pilfarge(pil, hoyere_er_bedre=True))
+    snitt_1til1 = f"{b.avrund(s['per_ansatt_per_maaned'], 1):.1f}".replace(".", ",")
+    k4.caption(f"{s['jevnlige']} av {s['n']} hadde 1:1 i minst 10 av 12 måneder. "
+               f"I snitt {snitt_1til1} samtaler per ansatt per måned.")
+if har_forrige:
+    st.caption(f"Pilene viser endring mot {forrige_start:%m.%Y}-{forrige_slutt:%m.%Y}.")
+
+
+# --- Intern mobilitet ---------------------------------------------------------------------
+st.subheader("Intern mobilitet")
+k1, k2, k3, k4 = st.columns(4)
+if m["besettelsesgrad"] is None:
+    u.skjult_kort(k1, "Besatt internt")
+else:
+    pil = pp("besettelsesgrad", m, m_forrige) if m_forrige and m_forrige["besettelsesgrad"] is not None else None
+    k1.metric("Besatt internt", b.prosent(m["besettelsesgrad"], 0), delta=pil,
+              delta_color=b.pilfarge(pil, hoyere_er_bedre=True))
+    k1.caption(f"{m['interne']} av {m['besatte']} stillinger besatt med en som allerede jobbet her")
+
+ekstern = b.rekruttering(utvalg, start, slutt)
+if m["median_dager_intern"] is None:
+    u.skjult_kort(k2, "Tid til besatt, internt")
+else:
+    k2.metric("Tid til besatt, internt", f"{b.avrund(m['median_dager_intern'])} dager")
+    k2.caption("Median dager fra utlysning til ny rolle")
+if ekstern["median_dager"] is None:
+    u.skjult_kort(k3, "Tid til besatt, eksternt")
+else:
+    k3.metric("Tid til besatt, eksternt", f"{b.avrund(ekstern['median_dager'])} dager")
+    k3.caption("Median dager fra utlysning til akseptert tilbud")
+
+if m_f["forfremmelser"] is None:
+    u.skjult_kort(k4, "Forfremmelser", "Skjult: færre enn 5 interne endringer i utvalget.")
+else:
+    k4.metric("Forfremmelser", m_f["forfremmelser"])
+    k4.caption(f"{b.prosent(m_f['forfremmelsesrate'])} av snitt {b.avrund(m_f['snitt_ansatte'])} ansatte"
+               + (f" · uten {', '.join(utenfor_f)}" if utenfor_f else "")
+               + f" · {m_f['overganger']} interne overganger")
+st.caption(
+    "Interne besettelser er forfremmelser og overganger til en ny rolle i samme team. "
+    "Internt går raskere, blant annet fordi det ikke er oppsigelsestid. "
+    "**Forfremmelser er sensitive** (ledelsens vurdering av enkeltpersoner) og vises bare "
+    "med minst 5 interne endringer i utvalget."
+)
+
+
+# --- Tabell per team --------------------------------------------------------------------------
+st.subheader("Per team")
+per_team = b.kompetanse_per_team(ansatte, aktiviteter, samtaler, endringer, start, slutt, valgte_team)
+
+
+def tall(verdi, format_):
+    """Skjult tall (None) blir «skjult», ellers formatert tekst."""
+    return b.SKJULT if verdi is None or pd.isna(verdi) else format_(verdi)
+
+
+rader = []
+for _, r in per_team.iterrows():
+    rader.append({
+        "Team": r["team"],
+        "Snitt ansatte": tall(r["snitt_ansatte"], lambda v: str(b.avrund(v))) if pd.notna(r["snitt_ansatte"]) else "under 5",
+        "Opplæring per ansatt": tall(r["timer_per_ansatt"], lambda v: f"{b.avrund(v, 1):.1f} t".replace(".", ",")),
+        "Kostnad per ansatt": tall(r["kostnad_per_ansatt"], b.kroner),
+        "Har deltatt": tall(r["andel_deltatt"], lambda v: b.prosent(v, 0)),
+        "Jevnlige 1:1": (b.SKJULT if pd.isna(r["andel_jevnlige"])
+                         else b.prosent_med_n(int(r["jevnlige"]), int(r["n_1til1"]))),
+        "Besatt internt": (b.SKJULT_UNDER_5 if pd.isna(r["besettelsesgrad"])
+                           else f"{b.prosent(r['besettelsesgrad'], 0)} ({r['interne']} av {r['besatte']})"),
+        "Forfremmelser": tall(r["forfremmelser"], lambda v: str(int(v))),
+    })
+st.dataframe(pd.DataFrame(rader), hide_index=True, width="stretch")
+st.caption(
+    "**Femregelen:** team med under 5 ansatte skjules. Jevnlige 1:1 gjelder dem som var ansatt "
+    "hele perioden, og skjules under 5. Besatt internt vises med minst 5 besatte stillinger. "
+    "Forfremmelser vises bare med minst 5 interne endringer i teamet."
+)
+st.info(b.EN_TIL_EN_MERKNAD, icon=":material/info:")
+
+
+# --- Kobling: oppfølging og turnover ---------------------------------------------------------------
+st.subheader("Oppfølging og frivillig turnover")
+st.info(b.OPPFOLGING_TURNOVER_MERKNAD, icon=":material/info:")
+turnover = b.turnover_per_team(ansatte, start, slutt, valgte_team).set_index("team")
+punkter = []
+for _, r in per_team.iterrows():
+    frivillig = turnover.loc[r["team"], "frivillig_rate"]
+    if pd.isna(r["andel_jevnlige"]) or frivillig is None or pd.isna(frivillig):
+        continue  # bare team der begge tallene kan vises
+    punkter.append({"team": r["team"], "jevnlige": r["andel_jevnlige"] * 100,
+                    "frivillig": frivillig * 100,
+                    "jevnlige_tekst": b.prosent(r["andel_jevnlige"], 0),
+                    "frivillig_tekst": b.prosent(frivillig)})
+if len(punkter) < 2:
+    st.info("For få team med synlige tall til å vise sammenhengen. Velg hele selskapet.",
+            icon=":material/lock:")
+else:
+    st.vega_lite_chart(
+        pd.DataFrame(punkter),
+        {
+            "height": 300,
+            "encoding": {
+                "x": {"field": "jevnlige", "type": "quantitative", "title": "Jevnlige 1:1 med leder (%)",
+                      "scale": {"domain": [0, 100]}},
+                "y": {"field": "frivillig", "type": "quantitative", "title": "Frivillig turnover (%)",
+                      "scale": {"zero": True}},
+                "tooltip": [{"field": "team", "title": "Team"},
+                            {"field": "jevnlige_tekst", "title": "Jevnlige 1:1"},
+                            {"field": "frivillig_tekst", "title": "Frivillig turnover"}],
+            },
+            "layer": [
+                {"mark": {"type": "point", "filled": True, "size": 120, "color": u.PETROL}},
+                # Navnet til høyre for punktet, eller til venstre nær høyre kant (så det ikke kuttes)
+                {"transform": [{"filter": "datum.jevnlige <= 80"}],
+                 "mark": {"type": "text", "align": "left", "dx": 9, "color": u.TEKST_DEMPET},
+                 "encoding": {"text": {"field": "team"}}},
+                {"transform": [{"filter": "datum.jevnlige > 80"}],
+                 "mark": {"type": "text", "align": "right", "dx": -9, "color": u.TEKST_DEMPET},
+                 "encoding": {"text": {"field": "team"}}},
+            ],
+        },
+        width="stretch",
+    )
+    st.caption("Hvert punkt er et team. Bare team der begge tallene kan vises etter femregelen, "
+               "er med (frivillig turnover krever minst 5 avganger).")
+
+
+# --- Hva vi ikke måler ---------------------------------------------------------------------------
+st.info(
+    "**Hva siden bevisst ikke måler:** formelle medarbeidersamtaler to ganger i året (de "
+    "måler om en rutine er fulgt, ikke om noen utvikler seg) og kompetansegap per person "
+    "(krever vurderinger av enkeltpersoner, er sensitivt og sjelden presist i små selskaper).",
+    icon=":material/info:",
+)

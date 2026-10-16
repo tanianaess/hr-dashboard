@@ -828,3 +828,161 @@ def utenfor_enps(engasjement, team_liste):
         {team: int(n) for team, n in zip(k["team"], k["antall_svar"]) if n < MIN_GRUPPE}
         for _, k in e.groupby("kvartal")
     ])
+
+
+# --- Kompetanseutvikling: opplæring, 1:1 og intern mobilitet ------------------------
+# Se CLAUDE.md («Kompetanseutvikling»). Tre tabeller, laget av lag_syntetiske_data.py:
+# opplaering.csv (én rad per aktivitet), en_til_en.csv (én rad per ansatt per måned)
+# og stillingsendringer.csv (én rad per forfremmelse eller intern overgang).
+
+# «Jevnlige 1:1» = minst én 1:1 med lederen i minst 10 av 12 måneder
+JEVNLIG_1TIL1_ANDEL_MAANEDER = 10 / 12
+
+KOMPETANSE_MERKNAD = (
+    "**Viser innsats, ikke effekt.** Timer på kurs og antall 1:1 sier ikke om noen faktisk "
+    "har lært mer. Intern mobilitet er det nærmeste vi kommer et resultat."
+)
+OPPFOLGING_TURNOVER_MERKNAD = (
+    "**Sammenheng, ikke nødvendigvis årsak**, og den kan gå begge veier: lite oppfølging "
+    "kan gi høyere turnover, og høy turnover gir mer belastning på lederen, så det blir "
+    "mindre tid til oppfølging."
+)
+EN_TIL_EN_MERKNAD = (
+    "Et team har som regel én leder. Tall om 1:1 per team handler derfor i praksis om "
+    "den lederens oppfølging. Bruk dem til samtale med lederen, ikke til rangering."
+)
+
+
+def les_opplaering():
+    """Leser opplaering.csv: én rad per opplæringsaktivitet (timer og direkte kostnad)."""
+    return pd.read_csv(DATAMAPPE / "opplaering.csv", parse_dates=["dato"])
+
+
+def les_en_til_en():
+    """Leser en_til_en.csv: antall 1:1-samtaler med lederen per ansatt per måned."""
+    return pd.read_csv(DATAMAPPE / "en_til_en.csv")
+
+
+def les_stillingsendringer():
+    """Leser stillingsendringer.csv: forfremmelser og interne overganger."""
+    return pd.read_csv(DATAMAPPE / "stillingsendringer.csv",
+                       parse_dates=["utlysningsdato", "dato"])
+
+
+def ansatt_i_perioden(ansatte, start, slutt):
+    """Alle som var ansatt minst én dag i perioden (som et autofilter med to krav)."""
+    return ansatte[(ansatte["ansattdato"] <= slutt)
+                   & (ansatte["sluttdato"].isna() | (ansatte["sluttdato"] >= start))]
+
+
+def opplaering(ansatte, aktiviteter, start, slutt):
+    """Opplæring for et utvalg ansatte i perioden: timer og kostnad per ansatt, og
+    andel som har deltatt. Femregelen: under 5 ansatte (snitt) gir None."""
+    snitt = snitt_ansatte(ansatte, start, slutt)
+    if snitt < MIN_GRUPPE:
+        return None
+    a = aktiviteter[aktiviteter["ansatt_id"].isin(ansatte["ansatt_id"])
+                    & (aktiviteter["dato"] >= start) & (aktiviteter["dato"] <= slutt)]
+    personer = len(ansatt_i_perioden(ansatte, start, slutt))
+    return {
+        "snitt_ansatte": snitt,
+        "aktiviteter": len(a),
+        "timer_per_ansatt": a["timer"].sum() / snitt,
+        "kostnad_per_ansatt": a["kostnad"].sum() / snitt,
+        "deltatt": int(a["ansatt_id"].nunique()),
+        "personer": personer,
+        "andel_deltatt": a["ansatt_id"].nunique() / personer,
+    }
+
+
+def en_til_en(ansatte, samtaler, start, slutt):
+    """1:1 med lederen i perioden. «Jevnlige 1:1» telles bare blant dem som var ansatt
+    (minst én dag) i alle månedene i perioden – ellers blir det urettferdig for nyansatte
+    og de som sluttet.
+    Femregelen: under 5 slike ansatte gir None."""
+    maaneder = [d.strftime("%Y-%m") for d in maanedsslutter(start, slutt)]
+    s = samtaler[samtaler["ansatt_id"].isin(ansatte["ansatt_id"])
+                 & samtaler["måned"].isin(maaneder)]
+    per_person = s.groupby("ansatt_id").agg(maaneder=("måned", "size"),
+                                            med_1til1=("antall_1til1", lambda x: (x > 0).sum()))
+    hele = per_person[per_person["maaneder"] == len(maaneder)]
+    if len(hele) < MIN_GRUPPE:
+        return None
+    jevnlige = int((hele["med_1til1"] >= JEVNLIG_1TIL1_ANDEL_MAANEDER * len(maaneder)).sum())
+    return {
+        "n": len(hele),
+        "jevnlige": jevnlige,
+        "andel_jevnlige": jevnlige / len(hele),
+        "per_ansatt_per_maaned": s["antall_1til1"].sum() / len(s) if len(s) else None,
+    }
+
+
+def intern_mobilitet(ansatte, endringer, start, slutt):
+    """Intern mobilitet i perioden for et utvalg ansatte.
+    - Intern besettelsesgrad = interne besettelser / alle besatte stillinger (interne +
+      eksterne ansettelser med rekrutteringsdata). Ikke sensitivt (det er kjent at noen
+      har fått ny rolle), men vises bare når den bygger på minst 5 besatte stillinger.
+    - Fordelingen på forfremmelser og overganger er SENSITIV (ledelsens vurdering av
+      enkeltpersoner), samme regel som fordelingen av turnover: vises bare med minst
+      5 interne endringer og minst 5 ansatte. Ellers None."""
+    e = endringer[endringer["ansatt_id"].isin(ansatte["ansatt_id"])
+                  & (endringer["dato"] >= start) & (endringer["dato"] <= slutt)]
+    eksterne = ansettelser_i_perioden(ansatte, start, slutt)
+    besatte = len(e) + len(eksterne)
+    snitt = snitt_ansatte(ansatte, start, slutt)
+    vis_fordeling = len(e) >= MIN_GRUPPE and snitt >= MIN_GRUPPE
+    forfremmelser = int((e["type"] == "forfremmelse").sum())
+    dager_intern = (e["dato"] - e["utlysningsdato"]).dt.days
+    return {
+        "interne": len(e),
+        "eksterne": len(eksterne),
+        "besatte": besatte,
+        "besettelsesgrad": len(e) / besatte if besatte >= MIN_GRUPPE else None,
+        "snitt_ansatte": snitt,
+        "forfremmelser": forfremmelser if vis_fordeling else None,
+        "overganger": int((e["type"] == "intern overgang").sum()) if vis_fordeling else None,
+        "forfremmelsesrate": forfremmelser / snitt if vis_fordeling else None,
+        # Dager fra utlysning til ny rolle (interne) – median bare med minst 5
+        "median_dager_intern": dager_intern.median() if len(e) >= MIN_GRUPPE else None,
+    }
+
+
+def utenfor_forfremmelser(ansatte, endringer, team_liste):
+    """Team som holdes utenfor forfremmelser i totaler (sekundær prikking): team med
+    under 5 interne endringer eller under 5 ansatte, i alle periodevalg (som for turnover)."""
+    if len(team_liste) <= 1:
+        return []
+    skjulte_per_periode = []
+    for start, slutt in alle_sammenligningsperioder():
+        skjulte = {}
+        for team in team_liste:
+            m = intern_mobilitet(ansatte[ansatte["team"] == team], endringer, start, slutt)
+            if m["forfremmelser"] is None:
+                skjulte[team] = m["interne"]
+        skjulte_per_periode.append(skjulte)
+    return _utenfor(skjulte_per_periode)
+
+
+def kompetanse_per_team(ansatte, aktiviteter, samtaler, endringer, start, slutt, team_liste=TEAM):
+    """Én rad per team med opplæring, 1:1 og intern mobilitet. Skjulte tall er None."""
+    rader = []
+    for team in team_liste:
+        a = ansatte[ansatte["team"] == team]
+        o = opplaering(a, aktiviteter, start, slutt)
+        s = en_til_en(a, samtaler, start, slutt)
+        m = intern_mobilitet(a, endringer, start, slutt)
+        rader.append({
+            "team": team,
+            "snitt_ansatte": o["snitt_ansatte"] if o else None,
+            "timer_per_ansatt": o["timer_per_ansatt"] if o else None,
+            "kostnad_per_ansatt": o["kostnad_per_ansatt"] if o else None,
+            "andel_deltatt": o["andel_deltatt"] if o else None,
+            "jevnlige": s["jevnlige"] if s else None,
+            "n_1til1": s["n"] if s else None,
+            "andel_jevnlige": s["andel_jevnlige"] if s else None,
+            "interne": m["interne"],
+            "besatte": m["besatte"],
+            "besettelsesgrad": m["besettelsesgrad"],
+            "forfremmelser": m["forfremmelser"],
+        })
+    return pd.DataFrame(rader)

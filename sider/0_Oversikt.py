@@ -37,7 +37,8 @@ def beregn_oversikt():
     ansatte, fravaer = d.hent_ansatte(), d.hent_fravaer()
     engasjement, plan = d.hent_engasjement(), d.hent_bemanningsplan()
     nokkeltall = i.nokkeltall(ansatte, fravaer, engasjement, plan)
-    return nokkeltall, i.innsikter(ansatte, fravaer, engasjement, plan, nokkeltall)
+    return nokkeltall, i.innsikter(ansatte, fravaer, engasjement, plan, nokkeltall,
+                                   samtaler=d.hent_en_til_en())
 
 
 nokkeltall, innsikt_liste = beregn_oversikt()

@@ -112,6 +112,40 @@ ANDEL_MED_TILLEGG = 0.25
 # Av dem som får tillegg: hvor ofte hver metode brukes (noen får flere)
 TILLEGGSMETODER = {"case_study": 0.60, "personlighetstest": 0.45, "evnetest": 0.35}
 
+# --- Kompetanseutvikling (egen tilfeldighetsgenerator FRO + 2, se seksjon 7) ---
+# Opplæring: sjanse per ansatt per måned for å starte en aktivitet, per team.
+# Teknologi lærer mest (sertifiseringer), salg minst.
+OPPLAERING_SJANSE = {"teknologi": 0.18, "produktutvikling": 0.15, "salg": 0.04,
+                     "kundesuksess": 0.10, "markedsføring": 0.12, "økonomi og hr": 0.10,
+                     "ledergruppen": 0.10}
+# Aktivitetstyper: (type, timer fra, timer til, kostnad fra, kostnad til, vekt)
+# Kostnad = direkte kostnad (kursavgift, reise), ikke lønn i arbeidstiden.
+OPPLAERING_TYPER = [
+    ("kurs", 7, 21, 5_000, 25_000, 40),
+    ("sertifisering", 20, 40, 15_000, 45_000, 15),
+    ("konferanse", 8, 16, 8_000, 20_000, 15),
+    ("intern opplæring", 2, 8, 0, 0, 20),
+    ("mentorordning", 6, 12, 0, 0, 10),
+]
+OPPLAERING_SERTIFISERING_TEKNOLOGI = 35  # teknologi: høyere vekt på sertifisering
+
+# 1:1-samtaler med lederen: sjanse for minst én 1:1 i en måned, per team.
+# Salg har lite jevnlig oppfølging – det henger sammen med historien om høy turnover.
+EN_TIL_EN_SJANSE = {"teknologi": 0.93, "produktutvikling": 0.92, "salg": 0.73,
+                    "kundesuksess": 0.85, "markedsføring": 0.90, "økonomi og hr": 0.90,
+                    "ledergruppen": 0.95}
+
+# Intern mobilitet: årlig sjanse per etablert ansatt (minst 12 mnd i jobben).
+# Forfremmelse = ny rolle på høyere nivå, intern overgang = ny rolle på samme nivå.
+# Begge skjer innenfor samme team (datamodellen har ett team per person).
+FORFREMMELSE = {"teknologi": 0.045, "produktutvikling": 0.06, "salg": 0.015,
+                "kundesuksess": 0.05, "markedsføring": 0.05, "økonomi og hr": 0.05,
+                "ledergruppen": 0.0}
+INTERN_OVERGANG = {"teknologi": 0.02, "produktutvikling": 0.03, "salg": 0.01,
+                   "kundesuksess": 0.03, "markedsføring": 0.03, "økonomi og hr": 0.03,
+                   "ledergruppen": 0.0}
+DAGER_INTERN_BESETTELSE = 21  # typisk antall dager fra intern utlysning til ny rolle
+
 DATAMAPPE = Path(__file__).parent / "data"  # ved siden av skriptet, så det virker fra alle mapper
 
 # =============================================================================
@@ -454,7 +488,78 @@ plan_df = pd.DataFrame([
 
 
 # =============================================================================
-# 7. LAGRE SOM CSV
+# 7. KOMPETANSEUTVIKLING: opplæring, 1:1-samtaler og intern mobilitet
+# =============================================================================
+# Egen tilfeldighetsgenerator (FRO + 2), så alle dataene over blir helt uendret.
+# Mønsteret per team (salg: lite opplæring, få 1:1, nesten ingen forfremmelser) er
+# en historie dataene forteller, ikke en effekt per person.
+
+tilfeldig_kompetanse = random.Random(FRO + 2)
+
+
+def ansatt_i_maaned(rad, maaned):
+    """Var personen ansatt minst én dag i måneden?"""
+    return rad["ansattdato"] <= maanedsslutt(maaned) and (
+        pd.isna(rad["sluttdato"]) or rad["sluttdato"] >= maaned)
+
+
+opplaering_rader, en_til_en_rader, endring_rader = [], [], []
+for _, rad in ansatte_df.sort_values("ansatt_id").iterrows():
+    team = rad["team"]
+    for maaned in MAANEDER:
+        if not ansatt_i_maaned(rad, maaned):
+            continue
+
+        # Opplæring: høyst én ny aktivitet per måned
+        if tilfeldig_kompetanse.random() < OPPLAERING_SJANSE[team]:
+            vekter = [v[5] for v in OPPLAERING_TYPER]
+            if team == "teknologi":
+                vekter[1] = OPPLAERING_SERTIFISERING_TEKNOLOGI
+            typ, t_fra, t_til, k_fra, k_til, _ = tilfeldig_kompetanse.choices(OPPLAERING_TYPER, weights=vekter)[0]
+            start = max(maaned, rad["ansattdato"])
+            dag = start + pd.Timedelta(days=tilfeldig_kompetanse.randint(0, (maanedsslutt(maaned) - start).days))
+            if pd.notna(rad["sluttdato"]):
+                dag = min(dag, rad["sluttdato"])
+            opplaering_rader.append({
+                "ansatt_id": rad["ansatt_id"], "dato": dag.normalize(), "type": typ,
+                "timer": tilfeldig_kompetanse.randint(t_fra, t_til),
+                "kostnad": round(tilfeldig_kompetanse.randint(k_fra, k_til), -3) if k_til else 0,
+            })
+
+        # 1:1-samtaler med lederen denne måneden
+        if tilfeldig_kompetanse.random() < EN_TIL_EN_SJANSE[team]:
+            antall = tilfeldig_kompetanse.choices([1, 2, 3, 4], weights=[35, 40, 15, 10])[0]
+        else:
+            antall = 0
+        en_til_en_rader.append({"ansatt_id": rad["ansatt_id"], "måned": maaned.strftime("%Y-%m"),
+                                "antall_1til1": antall})
+
+        # Intern mobilitet: bare etablerte ansatte, og høyst én endring per år
+        etablert = (maaned - rad["ansattdato"]).days >= 365
+        siste = [e["dato"] for e in endring_rader if e["ansatt_id"] == rad["ansatt_id"]]
+        nylig = siste and (maaned - siste[-1]).days < 365
+        if etablert and not nylig:
+            r = tilfeldig_kompetanse.random()
+            sjanse_f = 1 - (1 - FORFREMMELSE[team]) ** (1 / 12)
+            sjanse_o = 1 - (1 - INTERN_OVERGANG[team]) ** (1 / 12)
+            typ = "forfremmelse" if r < sjanse_f else "intern overgang" if r < sjanse_f + sjanse_o else None
+            if typ:
+                dato = maaned + pd.Timedelta(days=tilfeldig_kompetanse.randint(0, 27))
+                if pd.isna(rad["sluttdato"]) or dato <= rad["sluttdato"]:
+                    dager = max(7, round(DAGER_INTERN_BESETTELSE * tilfeldig_kompetanse.lognormvariate(0, 0.3)))
+                    endring_rader.append({
+                        "ansatt_id": rad["ansatt_id"], "team": team, "type": typ,
+                        "utlysningsdato": (dato - pd.Timedelta(days=dager)).normalize(),
+                        "dato": dato.normalize(),
+                    })
+
+opplaering_df = pd.DataFrame(opplaering_rader).sort_values(["dato", "ansatt_id"]).reset_index(drop=True)
+en_til_en_df = pd.DataFrame(en_til_en_rader)
+stillingsendringer_df = pd.DataFrame(endring_rader).sort_values("dato").reset_index(drop=True)
+
+
+# =============================================================================
+# 8. LAGRE SOM CSV
 # =============================================================================
 
 DATAMAPPE.mkdir(exist_ok=True)  # lager mappen hvis den ikke finnes
@@ -462,6 +567,11 @@ ansatte_df.to_csv(DATAMAPPE / "ansatte.csv", index=False, date_format="%Y-%m-%d"
 fravaer_df.to_csv(DATAMAPPE / "fravaer.csv", index=False)
 engasjement_df.to_csv(DATAMAPPE / "engasjement.csv", index=False)
 plan_df.to_csv(DATAMAPPE / "bemanningsplan.csv", index=False)
+opplaering_df.to_csv(DATAMAPPE / "opplaering.csv", index=False, date_format="%Y-%m-%d")
+en_til_en_df.to_csv(DATAMAPPE / "en_til_en.csv", index=False)
+stillingsendringer_df.to_csv(DATAMAPPE / "stillingsendringer.csv", index=False, date_format="%Y-%m-%d")
 
 print(f"Lagret {len(ansatte_df)} ansatte, {len(fravaer_df)} fraværsrader, "
-      f"{len(engasjement_df)} eNPS-rader og {len(plan_df)} planrader i {DATAMAPPE}/")
+      f"{len(engasjement_df)} eNPS-rader, {len(plan_df)} planrader, "
+      f"{len(opplaering_df)} opplæringsaktiviteter, {len(en_til_en_df)} 1:1-rader og "
+      f"{len(stillingsendringer_df)} interne stillingsendringer i {DATAMAPPE}/")

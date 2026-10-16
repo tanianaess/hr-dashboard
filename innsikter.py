@@ -169,7 +169,7 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
 MAKS_INNSIKTER = 5
 
 
-def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None):
+def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None, samtaler=None):
     start, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
     js, je = b.samme_periode_i_fjor(start, slutt)
     siste = b.kvartaler_i_perioden(start, slutt)[-1]
@@ -249,13 +249,17 @@ def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None):
     # --- Regel 3: turnover – høy frivillig turnover i et team ---------------------------
     utenfor = b.utenfor_turnoverfordeling(ansatte, b.TEAM)
     selskap = b.turnover(ansatte[~ansatte["team"].isin(utenfor)], start, slutt)
+    # 1:1 med lederen for hele selskapet (små team holdes utenfor, som på Kompetanse-siden)
+    utenfor_s = b.utenfor_sykefravaer(ansatte, b.TEAM)
+    s_selskap = (b.en_til_en(ansatte[~ansatte["team"].isin(utenfor_s)], samtaler, start, slutt)
+                 if samtaler is not None else None)
     for team in b.TEAM:
         t = b.turnover(ansatte[ansatte["team"] == team], start, slutt)
         # Fordelingen er bare synlig med minst 5 ansatte og minst 5 avganger
         if t["snitt_ansatte"] < b.MIN_GRUPPE or t["avganger"] < b.MIN_GRUPPE:
             continue
         if t["frivillig_rate"] >= 0.15 and t["frivillig_rate"] >= 1.5 * selskap["frivillig_rate"]:
-            liste.append(dict(
+            innsikt = dict(
                 tittel=f"{team.capitalize()}: høy frivillig turnover",
                 tekst=(f"Frivillig turnover {b.prosent(t['frivillig_rate'])} "
                        f"({t['frivillig']} av snitt {b.avrund(t['snitt_ansatte'])} ansatte) mot "
@@ -265,7 +269,22 @@ def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None):
                 merknad=None,
                 neste_steg="Sluttsamtaler og gjennomgang av rekrutteringsmetode i teamet.",
                 lenker=[("Turnover", team)], alvor=2,
-            ))
+            )
+            # Lite jevnlig oppfølging i samme team? (under 60 % og minst 20 pp under selskapet)
+            s_team = (b.en_til_en(ansatte[ansatte["team"] == team], samtaler, start, slutt)
+                      if samtaler is not None else None)
+            if s_team and s_selskap and s_team["andel_jevnlige"] < 0.60 \
+                    and s_team["andel_jevnlige"] <= s_selskap["andel_jevnlige"] - 0.20:
+                innsikt["tittel"] = f"{team.capitalize()}: høy frivillig turnover og lite oppfølging"
+                innsikt["tekst"] += (
+                    f" Bare {b.prosent_med_n(s_team['jevnlige'], s_team['n'])} har jevnlige 1:1 "
+                    f"med lederen, mot {b.prosent(s_selskap['andel_jevnlige'], 0)} for "
+                    f"{b.med_unntak('hele selskapet', utenfor_s)}.")
+                innsikt["merknad"] = b.OPPFOLGING_TURNOVER_MERKNAD
+                innsikt["neste_steg"] = ("Sluttsamtaler, og avtal faste 1:1 mellom teamleder og "
+                                         "hver ansatt i teamet.")
+                innsikt["lenker"] = [("Turnover", team), ("Kompetanse", team)]
+            liste.append(innsikt)
 
     # --- Regel 4: rekruttering – tidlig turnover etter metode -----------------------------
     # Samme tall som Rekruttering-siden viser for hele selskapet (med sekundær prikking)

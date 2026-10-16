@@ -47,7 +47,8 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
   - **Sensitive tall:** sykefravær, eNPS (inkl. svarandel), turnoverfordelingen
     (uønsket og sluttårsak), kostnad ved uønsket turnover (bygger på lønn) og
     rekrutteringstall (tid til ansettelse, andel strukturert, kvalitet på
-    ansettelser, bruk av tilleggsmetoder).
+    ansettelser, bruk av tilleggsmetoder) og forfremmelser (ledelsens vurdering
+    av enkeltpersoner).
   - **Ikke sensitive:** totalt antall avganger, total turnover, «kontrakt
     utløpt» (antall) og bemanning (antall ansatte, plan, ansettelser, avganger).
   - To visninger som overlapper (to perioder, to utvalg av team), kan trekkes
@@ -76,12 +77,19 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
     (ellers kan «1 personlighetstest» peke mot én kandidat)
   - **trendgrafer** for sykefravær (per måned) og eNPS (per kvartal) –
     femregelen gjelder **per punkt** (se under)
+  - **kompetanse** (siden Kompetanse): opplæring og 1:1 skjules for team med
+    under 5 ansatte (snitt), og jevnlige 1:1 når under 5 var ansatt hele
+    perioden. Intern besettelsesgrad vises med minst 5 besatte stillinger.
+    **Forfremmelser** er sensitive: vises bare med minst 5 interne endringer og
+    minst 5 ansatte (samme logikk som fordelingen av turnover).
+  - **1:1 per team er i praksis tall om én leder.** Siden sier det åpent, og
+    tallene skal brukes til samtale med lederen, ikke til rangering.
   
   Dette gjelder også når filtre gjør en gruppe mindre enn 5.
 - **Sekundær prikking:** en skjult gruppe må ikke kunne regnes ut som «total minus
   de synlige gruppene». For **sensitive tall** – sykefravær, eNPS (inkl.
-  svarandel), turnoverfordelingen (uønsket og sluttårsak) og kvalitet på
-  ansettelser – gjelder:
+  svarandel), turnoverfordelingen (uønsket og sluttårsak), kvalitet på
+  ansettelser og forfremmelser (`utenfor_forfremmelser()`) – gjelder:
   - Hvis de skjulte teamene **til sammen** er under 5 (ansatte, svar eller
     avganger), holdes de **utenfor totalen**. Er de til sammen 5 eller flere,
     kan totalen ta med alle (de kan ikke skilles fra hverandre).
@@ -101,7 +109,7 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
     av de faste periodene (eller periodene det sammenlignes med), holdes utenfor
     i alle (`alle_sammenligningsperioder()`).
 - **Begrenset filter på sider med sensitive tall** (turnover, sykefravær,
-  rekruttering, eNPS), `vis_filtre_sensitiv()` i `filtre.py`:
+  rekruttering, eNPS, kompetanse), `vis_filtre_sensitiv()` i `filtre.py`:
   - **Team:** enten «Hele selskapet» eller **ett team om gangen** – ikke fritt
     flervalg (to utvalg som skiller seg med én liten gruppe kan trekkes fra
     hverandre).
@@ -259,6 +267,40 @@ perioden.
 | `Resultat` | Kontrollverdi fra Excel, for å sjekke Python-tallene. |
 | `iso_område` | Etter ISO 30414:2025, der rekruttering, mobilitet og turnover er egne områder. |
 
+### Tabeller for kompetanseutvikling (bare CSV, ikke i Datamodell.xlsx)
+
+**opplaering.csv** (én rad per opplæringsaktivitet)
+
+| Kolonne | Type | Merknad |
+|---|---|---|
+| `ansatt_id` | tekst | Kobles til Ansatte. |
+| `dato` | dato | Startdato for aktiviteten. |
+| `type` | tekst | kurs, sertifisering, konferanse, intern opplæring, mentorordning |
+| `timer` | tall | |
+| `kostnad` | tall (kr) | Direkte kostnad (kursavgift, reise). Ikke lønn i arbeidstiden. |
+
+**en_til_en.csv** (én rad per ansatt per måned personen var ansatt)
+
+| Kolonne | Type | Merknad |
+|---|---|---|
+| `ansatt_id` | tekst | |
+| `måned` | tekst | ÅÅÅÅ-MM |
+| `antall_1til1` | tall | Antall 1:1-samtaler med lederen den måneden. |
+
+**stillingsendringer.csv** (én rad per forfremmelse eller intern overgang)
+
+| Kolonne | Type | Merknad |
+|---|---|---|
+| `ansatt_id` | tekst | |
+| `team` | tekst | Alltid personens eget team: datamodellen har ett team per person, så endringer skjer innenfor teamet. |
+| `type` | tekst | forfremmelse (ny rolle, høyere nivå), intern overgang (ny rolle, samme nivå) |
+| `utlysningsdato` | dato | Intern utlysning av stillingen. |
+| `dato` | dato | Første dag i ny rolle. |
+
+**Bevisst ikke med:** formelle medarbeidersamtaler (Tania mener de måler om en
+rutine er fulgt, ikke om noen utvikler seg; jevnlige 1:1 brukes i stedet) og
+kompetansegap per person (krever individvurderinger, sensitivt og upresist).
+
 ### Metrikker
 
 - **Snitt ansatte** = gjennomsnittet av antall ansatte ved hver månedsslutt i
@@ -294,6 +336,21 @@ perioden.
 - **Tid til tiltredelse** = median antall dager fra `utlysningsdato` til
   `ansattdato` (inkluderer oppsigelsestid), for dem som ble ansatt i perioden.
   Skiller seg fra tid til ansettelse, som stopper ved `aksept_dato`.
+- **Kompetanseutvikling** (siden Kompetanse, `beregninger.py`):
+  - **Opplæring per ansatt** = sum timer / snitt ansatte. **Kostnad per ansatt** =
+    sum direkte kostnad / snitt ansatte.
+  - **Har deltatt** = ansatte med minst én aktivitet / alle som var ansatt i
+    perioden.
+  - **Jevnlige 1:1** = andel med minst én 1:1 med lederen i minst 10 av 12
+    måneder, blant dem som var ansatt (minst én dag) i alle månedene.
+  - **Besatt internt** (intern besettelsesgrad) = interne besettelser /
+    (interne + eksterne ansettelser med rekrutteringsdata).
+  - **Tid til besatt:** internt = median dager fra intern utlysning til ny
+    rolle; eksternt = tid til ansettelse (utlysning til aksept). Internt går
+    raskere blant annet fordi det ikke er oppsigelsestid.
+  - **Forfremmelser** = antall, og andel av snitt ansatte. Sensitivt (se
+    «Personvern»).
+  - Merknad på siden: tallene viser innsats, ikke effekt.
 - **Kostnad ved uønsket turnover** = sum årslønn for uønskede avganger × 75 %
   (antakelse). Vises bare for hele selskapet, siste 12 mnd mot forrige 12 mnd
   (se «Personvern»).
@@ -403,7 +460,11 @@ steg (forslag)»** og lenke(r) som åpner siden med teamet forhåndsvalgt
    tidligere – ledetid = median tid til tiltredelse (dager / 30 ≈ måneder).
 3. **Turnover**: frivillig turnover ≥ 15 % og ≥ 1,5 × selskapet, bare for team
    med minst 5 ansatte og 5 avganger. Neste steg: sluttsamtaler og gjennomgang
-   av rekrutteringsmetode i teamet.
+   av rekrutteringsmetode i teamet. **Har teamet også lite oppfølging** (jevnlige
+   1:1 under 60 % og minst 20 pp under selskapet), blir innsikten «høy frivillig
+   turnover og lite oppfølging», med merknaden om sammenheng
+   (`OPPFOLGING_TURNOVER_MERKNAD`), lenke til Kompetanse og neste steg «faste 1:1
+   mellom teamleder og hver ansatt».
 4. **Rekruttering**: tidlig turnover ustrukturert mot strukturert intervju
    alene, når begge er synlige (etter sekundær prikking, som på
    Rekruttering-siden) og forskjellen er ≥ 10 pp. Merknad: «Sammenheng,
@@ -428,7 +489,8 @@ med de samme reglene (femregel, sekundær prikking) – skjulte grupper nevnes a
 
 - Lages av `lag_syntetiske_data.py` med fast tilfeldighetsfrø (`FRO = 42`), så
   dataene blir like hver gang. Lagres i `data/`: `ansatte.csv`, `fravaer.csv`,
-  `engasjement.csv`, `bemanningsplan.csv` (kolonner som i «Datamodell»).
+  `engasjement.csv`, `bemanningsplan.csv`, `opplaering.csv`, `en_til_en.csv` og
+  `stillingsendringer.csv` (kolonner som i «Datamodell»).
 - Periode: okt 2024-sep 2026. Dataene er et øyeblikksbilde per **30.09.2026**
   (ingen framtidige sluttdatoer, ingen som ikke har startet).
 - Rekrutteringsdata registreres fra **okt 2024**. Ansatt før det = tomme
@@ -457,6 +519,12 @@ med de samme reglene (femregel, sekundær prikking) – skjulte grupper nevnes a
      i praksis vises som «for tidlig å måle» eller «skjult» – det er poenget.
   10. **Lav svarandel**: kundesuksess har ca. 45 % svarandel i 2026-K3 (resten
       72-90 %). Overstyres etter trekningen, så resten av dataene ikke endres.
+  11. **Kompetanseutvikling** (egen tilfeldighetsgenerator `FRO + 2`, så resten av
+      dataene er uendret): salg har minst opplæring, færrest jevnlige 1:1 (ca.
+      40 % mot ca. 80 % totalt) og nesten ingen interne besettelser. Teknologi
+      har mest opplæring (sertifiseringer). Ca. 15 % av stillingene siste 12 mnd
+      besettes internt, og internt går raskere enn eksternt. Mønsteret er per
+      team, ikke en effekt per person.
 
 ### Presiseringer av definisjonene
 - **Arbeidsdager** (for avtalte dagsverk) = mandag-fredag. Helligdager og ferie
