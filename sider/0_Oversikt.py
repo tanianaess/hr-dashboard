@@ -107,8 +107,8 @@ with st.expander("Slik settes status"):
     )
 
 
-# --- Viktigste innsikter -------------------------------------------------------------------
-st.subheader("Viktigste innsikter")
+# --- Viktigste Innsikter -------------------------------------------------------------------
+st.subheader("Viktigste Innsikter")
 st.caption(INNSIKT_FORKLARING)
 
 if not innsikt_liste:
