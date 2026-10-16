@@ -12,6 +12,8 @@ relevante HR-innsikter, ikke bare teknikk.
 - **Python** – programmeringsspråket
 - **pandas** – for å jobbe med tabelldata (tilsvarer regneark i Excel)
 - **Streamlit** – for å lage selve dashbordet som en nettside
+- **anthropic** (bare utvikling, `requirements-dev.txt`) – brukes av `lag_lederbrief.py`
+  på egen maskin til å lage lederbriefen. Dashbordet importerer den aldri.
 
 Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først.
 
@@ -480,8 +482,11 @@ de avrundede tallene. Sykefravær og eNPS «uten ledergruppen»
 ### «Viktigste innsikter» (regelbaserte)
 Teksten under overskriften (`INNSIKT_FORKLARING`, Tanias formulering): «Regelbaserte
 innsikter om de største avvikene. De bruker bare tall som også vises under de andre
-temaene, med de samme personvernreglene, og nevner aldri skjulte grupper.» Kommer
-AI-funksjonen, må teksten skille tydelig mellom regelbasert og AI.
+temaene, med de samme personvernreglene, og nevner aldri skjulte grupper.» Siden
+lederbriefen kom (se «Lederbrief (AI)» under), må teksten skille tydelig mellom
+regelbasert og AI. Setningen som er lagt til etter Tanias tekst (`AI_HENVISNING`) er et
+forslag, Tania avgjør ordlyden: «Lederbriefen lenger ned er skrevet av en AI-modell og
+er merket.»
 
 Maks 5, viktigste først. Hver innsikt har tekst, eventuell merknad, **«Mulig neste
 steg»** (merket «Regelbasert forslag») og lenke(r) som åpner siden med teamet forhåndsvalgt
@@ -512,11 +517,93 @@ steg»** (merket «Regelbasert forslag») og lenke(r) som åpner siden med teame
 **Personvern:** innsiktene bruker bare tall som også vises på de andre sidene,
 med de samme reglene (femregel, sekundær prikking) – skjulte grupper nevnes aldri.
 
+## Lederbrief (AI)
+
+En kort tekst til ledermøtet på forsiden, skrevet av en AI-modell ut fra tallene som
+allerede står der. Formålet er å vise hvordan AI kan brukes med persondata på en
+forsvarlig måte: lite inndata, menneske i løkken, tydelig merking. Lederbriefen er
+den eneste AI-funksjonen i dashbordet.
+
+### Prinsipper (gjelder alltid)
+- **AI-modellen får bare det forsiden viser:** resultatet av `nokkeltall()` og
+  `innsikter()` (verdi, endring, status, forklaring, hvem som er holdt utenfor,
+  innsiktstekst og merknader) samt periode og datadato, gjort om til ren tekst
+  (`grunnlag()` i `lederbrief.py`). Tallene har dermed allerede vært gjennom
+  femregelen og sekundær prikking. Aldri rådataene, ansatt-ID, lønn, stilling eller
+  tall som ikke vises på forsiden. Det finnes ingen fri «chat med dataene»: et fritt
+  spørsmål er et fritt filter.
+- **Ingen tiltak.** Modellen oppsummerer og stiller spørsmål til ledermøtet. «Mulig
+  neste steg» forblir regelbasert, så skillet mellom regelbasert og AI er tydelig.
+- **Bare tall fra grunnlaget.** Modellen regner ikke om, runder ikke av og legger
+  ikke til tall. Den nevner bare team som nevnes i grunnlaget, og aldri tall for
+  skjulte grupper. Sammenheng er ikke årsak, med samme forsiktighet som merknadene.
+- **Menneske i løkken.** Briefen lages på forhånd av et skript på egen maskin, aldri
+  i den publiserte appen. Den vises bare når den er lest og godkjent (feltet
+  `godkjent` har en dato).
+- **Tydelig merket.** Seksjonen sier at teksten er skrevet av en AI-modell, hvilken
+  modell, når, og at den er gjennomgått av et menneske. Den ser annerledes ut enn de
+  regelbaserte kortene. En utvidbar boks viser nøyaktig hva modellen fikk: instruksen
+  og grunnlaget.
+- **Samsvar med tallene.** Et fingeravtrykk (sjekksum) av grunnlaget lagres med
+  briefen. Stemmer det ikke med dagens grunnlag, vises briefen ikke, bare en kort
+  merknad om at den ikke er oppdatert etter siste dataoppdatering.
+- **Nøkkelen ligger aldri i repoet.** API-nøkkelen leses fra miljøvariabelen
+  `ANTHROPIC_API_KEY` på egen maskin. Pakken `anthropic` står bare i
+  `requirements-dev.txt`; dashbordet og testene importerer den aldri.
+- **Med ekte data:** aggregerte, prikkede tall er i utgangspunktet ikke
+  personopplysninger, men før tall sendes til en ekstern AI-tjeneste må det vurderes
+  og dokumenteres (databehandleravtale, DPIA ved behov). Skriv det like ærlig som
+  resten.
+
+### Innhold og form
+Briefen er kort nok til å leses på ett minutt (maks ca. 250 ord) og har faste felt:
+1. **Sammendrag:** 2-3 setninger om hovedbildet.
+2. **Temaer** (1-3): hver med tittel, «hva tallene viser» (1-2 setninger med tall
+   fra grunnlaget) og 1-2 **spørsmål til ledermøtet**.
+3. **Følg med:** 1-2 setninger om hva som bør sjekkes neste måned.
+4. **Forbehold:** 1-2 setninger (syntetiske data, sammenheng er ikke årsak, teksten
+   er skrevet av AI og gjennomgått av et menneske).
+
+Tekstreglene gjelder (en-endinger, kort tankestrek sparsomt, bindestrek i
+intervaller, hele setninger, tall skrevet som i grunnlaget). Språk: norsk bokmål,
+nøkternt, ingen superlativer.
+
+### Filer og flyt
+- `lederbrief.py` (felles): `INSTRUKS` (det modellen blir bedt om), `grunnlag()`
+  (teksten modellen får), `fingeravtrykk()`, `les_lederbrief()` (leser og
+  kontrollerer `data/lederbrief.json`) og `som_markdown()` (nedlasting). Bruker bare
+  pandas og standardbiblioteket.
+- `lag_lederbrief.py` (bare på egen maskin): lager grunnlaget, kaller Claude Opus 5.5
+  (`claude-opus-5-5`, konstanten `MODELL`) med faste felt som svar, og lagrer et
+  utkast med tom `godkjent`. `python lag_lederbrief.py --godkjenn` setter dagens dato
+  i `godkjent` etter at teksten er lest. Kjøres etter hver dataoppdatering, altså
+  månedlig.
+- `data/lederbrief.json`: `laget` (dato), `modell`, `periode`, `data_per`,
+  `fingeravtrykk`, `grunnlag` (teksten modellen fikk), `brief` (feltene over),
+  `godkjent` (dato eller tom) og eventuelt `merknad` (f.eks. hvis briefen ble laget
+  på annen måte enn med skriptet).
+- Forsiden: egen seksjon «Lederbrief» under «Viktigste innsikter», med merking,
+  boksen «Hva AI-modellen fikk» og nedlasting som Markdown (én side til e-post).
+  Mangler filen, vises ingenting.
+
+### Tester
+- Grunnlaget inneholder ikke ansatt-ID eller lønn, og alle tall i det står også på
+  forsiden.
+- Alle tall i briefen finnes i grunnlaget, og bare team fra grunnlaget nevnes.
+- Tekstreglene og lengden holdes.
+- Forsiden virker med fil, uten fil, uten godkjenning og med gammelt fingeravtrykk,
+  og merkingen vises når briefen vises.
+- Dashbordet importerer ikke `anthropic`.
+
+Kontrollene er grovsjekker: tall skrevet med ord fanges ikke opp. Den viktigste
+kontrollen er mennesket som leser.
+
 ## Publisering (Streamlit Community Cloud)
 
 - Appen oppdateres av seg selv fra `main` på GitHub.
 - **Start appen på nytt etter en deploy som endrer felles filer** (`filtre.py`,
-  `utseende.py`, `beregninger.py`, `datalasting.py`, `innsikter.py`): Manage app → ⋮ →
+  `utseende.py`, `beregninger.py`, `datalasting.py`, `innsikter.py`,
+  `lederbrief.py`): Manage app → ⋮ →
   Reboot app. Ellers kan Streamlit Cloud holde de gamle versjonene i minnet, og alle
   sidene feiler med ImportError (skjedde 16.10.2026). Endringer bare i README eller
   CLAUDE.md trenger ikke omstart.
