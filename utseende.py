@@ -59,7 +59,7 @@ def neste_steg_stil():
 
 
 def statusmerke(status, forklaring=None):
-    """Liten merkelapp, f.eks. «✓ OK», med forklaring etter (f.eks. «10–15 %»)."""
+    """Liten merkelapp, f.eks. «✓ OK», med forklaring etter (f.eks. «10-15 %»)."""
     ikon, farge = STATUS[status]
     st.badge(status, icon=ikon, color=farge)
     if forklaring:

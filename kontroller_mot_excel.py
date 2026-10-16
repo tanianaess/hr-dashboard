@@ -85,7 +85,7 @@ sammenligning["Stemmer"] = lik.map({True: "ja", False: "nei"})
 sammenligning["Forklaring"] = sammenligning["Metrikk"].map(FORKLARING).fillna("")
 
 antall_hver_maaned = [b.antall_ansatt_paa(ansatte, dag) for dag in maanedsslutter]
-print(f"Periode: {PERIODESTART:%d.%m.%Y}–{PERIODESLUTT:%d.%m.%Y} ({len(maanedsslutter)} mnd)")
+print(f"Periode: {PERIODESTART:%d.%m.%Y}-{PERIODESLUTT:%d.%m.%Y} ({len(maanedsslutter)} mnd)")
 print(f"Ansatte ved hver månedsslutt: {antall_hver_maaned}")
 print()
 print(sammenligning.round(3).to_string(index=False))

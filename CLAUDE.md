@@ -154,9 +154,12 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
 - **Tankestrek:** bruk aldri lang tankestrek (—). Bruk kort tankestrek med
   mellomrom på hver side ( – ), og bruk den **sparsomt** – skriv heller om
   setningen (punktum, komma, «fordi», «så») der det blir naturlig. Gjelder all
-  tekst i dashbordet og README. Unntak: intervaller og perioder skrives med kort
-  tankestrek uten mellomrom (10–15 %, 01.10.2025–30.09.2026), og negative tall
-  bruker minustegn (−14). Tekst brukeren selv har formulert, gjengis ordrett.
+  tekst i dashbordet og README. Negative tall bruker minustegn (−14). Tekst
+  brukeren selv har formulert, gjengis ordrett.
+- **Intervaller og perioder skrives med bindestrek** (-) uten mellomrom, ikke
+  tankestrek: 10-15 %, 50-500 ansatte, 01.10.2025-30.09.2026 (Tanias valg
+  16.10.2026, fordi tankestreken ser lang ut i skriften). «–» brukes bare alene,
+  som tegn for «ingen verdi». Sjekkes av en test.
 - **En-endinger, ikke a-endinger:** «pilen», «linjen», «filen», «mappen», ikke
   «pila», «linja», «fila», «mappa». Gjelder all tekst i dashbordet, README,
   CLAUDE.md og kommentarer i koden. Sjekkes av en test.
@@ -194,7 +197,7 @@ Gjelder alle ark:
 | `team` | tekst | de 7 teamnavnene | |
 | `stilling` | tekst | fritekst | Aldri filter i dashbordet. |
 | `ansettelsesform` | tekst | fast, midlertidig | |
-| `stillingsprosent` | tall | 1–100 | |
+| `stillingsprosent` | tall | 1-100 | |
 | `årslønn` | tall (kr) | | **Faktisk** lønn (ikke omregnet til 100 %). Bare til kostnadsberegning, aldri vist per team. |
 | `ansattdato` | dato | | |
 | `sluttdato` | dato | | Tom = fortsatt ansatt. |
@@ -222,7 +225,7 @@ også være uønsket.
 |---|---|---|
 | `team` | tekst | |
 | `måned` | tekst | ÅÅÅÅ-MM |
-| `tapte_dagsverk_korttid` | tall | Fravær på 1–16 dager (arbeidsgiverperioden). |
+| `tapte_dagsverk_korttid` | tall | Fravær på 1-16 dager (arbeidsgiverperioden). |
 | `tapte_dagsverk_langtid` | tall | Fravær over 16 dager. |
 | `avtalte_dagsverk` | tall | **Lagres ikke, men regnes ut i Python fra Ansatte**: arbeidsdager i måneden × stillingsprosent, for alle som var ansatt i måneden. Ferie er *ikke* trukket fra, så fraværsprosenten blir litt lavere enn med NAVs metode. |
 
@@ -268,7 +271,7 @@ perioden.
     separat (antall).
   - Ratene **annualiseres** når perioden ikke er 12 måneder:
     rate × 12 / antall måneder i perioden.
-- **eNPS** (−100 til +100) = andel anbefalere (9–10) minus andel kritikere (0–6).
+- **eNPS** (−100 til +100) = andel anbefalere (9-10) minus andel kritikere (0-6).
   - For flere team samlet: gjennomsnitt **vektet med antall svar** (gir samme
     tall som å regne eNPS på alle svarene samlet).
   - **Svarandel** = antall svar / antall invitert. **Lav svarandel (under 50 %)
@@ -351,7 +354,7 @@ terskler ligger i `innsikter.py`.
 
 **Øverst på forsiden** (under toppen, før «Nøkkeltall»):
 - **Introduksjon** (`INTRO`, Tanias formulering, gjengis ordrett): hvem dashbordet
-  er for (ledergruppen i et selskap med 50–500 ansatte: daglig leder,
+  er for (ledergruppen i et selskap med 50-500 ansatte: daglig leder,
   økonomidirektør og HR), hvilke spørsmål ledelsen og HR-leder har, og hvordan
   dashbordet brukes. Sier også at tallene gjelder grupper og at tilgangen er
   begrenset.
@@ -368,13 +371,13 @@ standard, og vises åpent på siden («Slik settes status»).
 
 | Nøkkeltall | OK | Følg med | Kritisk | Rask forverring → minst «Følg med» |
 |---|---|---|---|---|
-| Total turnover | under 10 % | 10–15 % | over 15 % | +3 pp |
-| Uønsket turnover | under 3 % | 3–5 % | over 5 % | +2 pp |
+| Total turnover | under 10 % | 10-15 % | over 15 % | +3 pp |
+| Uønsket turnover | under 3 % | 3-5 % | over 5 % | +2 pp |
 | Kostnad uønsket turnover | følger uønsket turnover | | | |
-| Sykefravær | under 5 % | 5–6 % | over 6 % (**internt mål**; landssnittet vises bare som referanse) | +1 pp |
+| Sykefravær | under 5 % | 5-6 % | over 6 % (**internt mål**; landssnittet vises bare som referanse) | +1 pp |
 | eNPS | +10 eller høyere | 0 til +9 | under 0 | −10 poeng |
-| Bemanning mot plan | avvik inntil 5 % | 5–10 % | over 10 % | – (nøytral, ingen pil) |
-| Tid til ansettelse | inntil 45 dager | 46–60 dager | over 60 dager | +15 dager |
+| Bemanning mot plan | avvik inntil 5 % | 5-10 % | over 10 % | – (nøytral, ingen pil) |
+| Tid til ansettelse | inntil 45 dager | 46-60 dager | over 60 dager | +15 dager |
 
 Sammenligning som på sidene: turnover mot forrige 12 mnd; fravær, eNPS og
 rekruttering mot samme periode i fjor. Kostnaden mot forrige 12 mnd, regnet på
@@ -426,7 +429,7 @@ med de samme reglene (femregel, sekundær prikking) – skjulte grupper nevnes a
 - Lages av `lag_syntetiske_data.py` med fast tilfeldighetsfrø (`FRO = 42`), så
   dataene blir like hver gang. Lagres i `data/`: `ansatte.csv`, `fravaer.csv`,
   `engasjement.csv`, `bemanningsplan.csv` (kolonner som i «Datamodell»).
-- Periode: okt 2024–sep 2026. Dataene er et øyeblikksbilde per **30.09.2026**
+- Periode: okt 2024-sep 2026. Dataene er et øyeblikksbilde per **30.09.2026**
   (ingen framtidige sluttdatoer, ingen som ikke har startet).
 - Rekrutteringsdata registreres fra **okt 2024**. Ansatt før det = tomme
   rekrutteringsfelt.
@@ -453,10 +456,10 @@ med de samme reglene (femregel, sekundær prikking) – skjulte grupper nevnes a
      (`FRO + 1`), så resten av dataene ikke endres. Gruppen er så liten at nivå 3
      i praksis vises som «for tidlig å måle» eller «skjult» – det er poenget.
   10. **Lav svarandel**: kundesuksess har ca. 45 % svarandel i 2026-K3 (resten
-      72–90 %). Overstyres etter trekningen, så resten av dataene ikke endres.
+      72-90 %). Overstyres etter trekningen, så resten av dataene ikke endres.
 
 ### Presiseringer av definisjonene
-- **Arbeidsdager** (for avtalte dagsverk) = mandag–fredag. Helligdager og ferie
+- **Arbeidsdager** (for avtalte dagsverk) = mandag-fredag. Helligdager og ferie
   er ikke trukket fra.
 - **Kvalitet på ansettelser** beregnes bare for **faste** ansatte.
 - **Tidlig turnover** teller de samme sluttårsakene som turnover (`kontrakt

@@ -27,7 +27,7 @@ utvalg = ansatte[ansatte["team"].isin(valgte_team)]
 # --- Overskrift og merking --------------------------------------------------------
 u.topp("Turnover", SPORSMAL["Turnover"])
 st.caption(
-    f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y} ({antall_mnd} mnd). "
+    f"Periode: {start:%d.%m.%Y}-{slutt:%d.%m.%Y} ({antall_mnd} mnd). "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}. "
     "Ratene er omregnet til helår når perioden ikke er 12 måneder."
 )
@@ -103,7 +103,7 @@ else:
     u.skjult_kort(kort3, "Uønsket turnover", forklaring)
 
 if har_forrige:
-    st.caption(f"Pilene viser endring mot {forrige_start:%m.%Y}–{forrige_slutt:%m.%Y}, i prosentpoeng (pp).")
+    st.caption(f"Pilene viser endring mot {forrige_start:%m.%Y}-{forrige_slutt:%m.%Y}, i prosentpoeng (pp).")
 else:
     st.caption("Ingen sammenligning: forrige periode ligger før datastart (okt 2024).")
 
@@ -126,7 +126,7 @@ elif not vis_fordeling or fordeling["uønsket"] < b.MIN_GRUPPE:
             "lønnen til noen få personer.", icon=":material/lock:")
 else:
     # Glidebryter for antakelsen: hvor mye koster det å erstatte én person,
-    # målt i prosent av årslønnen? (Bransjeanslag ligger ofte på 50–200 %.)
+    # målt i prosent av årslønnen? (Bransjeanslag ligger ofte på 50-200 %.)
     kostnadsandel = st.slider(
         "Kostnad per avgang, i prosent av årslønn", min_value=50, max_value=200,
         value=b.avrund(b.KOSTNADSANDEL_STANDARD * 100), step=5, format="%d %%",

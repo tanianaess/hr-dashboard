@@ -8,7 +8,7 @@
 > (se [Historien i dataene](#historien-i-dataene)).
 
 Et people analytics-dashbord for **Fjordlys Tech AS**, et fiktivt norsk tech-selskap med ca. 230
-ansatte i 7 team, okt 2024–sep 2026. Bygget med Python, pandas og Streamlit.
+ansatte i 7 team, okt 2024-sep 2026. Bygget med Python, pandas og Streamlit.
 
 Prosjektet viser hvordan HR-nøkkeltall kan defineres presist, beregnes
 etterprøvbart og presenteres uten å eksponere enkeltpersoner.
@@ -47,7 +47,7 @@ en ledergruppe. Bakgrunnen min er organisasjonspsykologi, og det preger valgene.
 
 | Side | Viser |
 |---|---|
-| **Oversikt** (forside) | Kort introduksjon: hvem dashbordet er for (ledergruppen i et selskap med 50–500 ansatte) og hvilke spørsmål det svarer på · de viktigste tallene for hele selskapet med endring og status (OK / følg med / kritisk) · «Hva ledelsen bør vite nå»: opptil 5 regelbaserte innsikter om de største avvikene, med mulig neste steg og lenke til detaljene |
+| **Oversikt** (forside) | Kort introduksjon: hvem dashbordet er for (ledergruppen i et selskap med 50-500 ansatte) og hvilke spørsmål det svarer på · de viktigste tallene for hele selskapet med endring og status (OK / følg med / kritisk) · «Hva ledelsen bør vite nå»: opptil 5 regelbaserte innsikter om de største avvikene, med mulig neste steg og lenke til detaljene |
 | **Turnover** | Total, frivillig og uønsket turnover med endring mot forrige periode · kostnad ved uønsket turnover med justerbar antakelse (hele selskapet, siste 12 mnd mot forrige 12 mnd) · avganger per måned (bare totalen) · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Sykefravær** | Totalt, korttid og langtid med endring mot samme periode i fjor · sammenligning med landssnittet 6,57 % ([NAV, årsnotat sykefravær 2025](https://www.nav.no/_/attachment/inline/93423200-87fc-4941-ad03-b763066da97e:b1217b72b4bebb26ac77729528f034ab57969675/%C3%85rsnotat%20sykefrav%C3%A6r%20%C3%A5ret%202025.pdf)) · fravær per måned over hele dataperioden · tabell per team · filter: hele selskapet eller ett team, faste perioder |
 | **Rekruttering** | Antall ansettelser, median tid til ansettelse og andel strukturert rekruttering mot samme periode i fjor · kvalitet på ansettelser (tidlig turnover og bestått prøvetid) på tre nivåer: ustrukturert, strukturert intervju alene og strukturert + tilleggsmetoder · bruk av tilleggsmetoder (case study, personlighetstest, evnetest) som antall · forskningsboks med validitet fra Sackett mfl. (2022) · andel strukturert per kvartal · tid til ansettelse per team · filter: hele selskapet eller ett team, faste perioder |
@@ -101,9 +101,9 @@ Dashbordet er bygget som om dataene var ekte. Grunnprinsippet:
 | Kvalitet på ansettelser | Per nivå (ustrukturert · strukturert intervju alene · strukturert + tillegg), for en kohort av faste ansatte som har vært ansatt lenge nok: tidlig turnover (slutter innen 12 mnd) og andel bestått prøvetid (6 mnd). Viser sammenheng, ikke nødvendigvis årsak |
 | Bemanningsgrad | Faktisk antall ansatte (alle ansettelsesformer) / planlagt antall, ved periodeslutt |
 | Tid til tiltredelse | Median antall dager fra utlysning til første arbeidsdag (inkluderer oppsigelsestid) |
-| eNPS | Andel anbefalere (9–10) minus andel kritikere (0–6), fra −100 til +100. For flere team: vektet med antall svar |
+| eNPS | Andel anbefalere (9-10) minus andel kritikere (0-6), fra −100 til +100. For flere team: vektet med antall svar |
 | Svarandel | Antall svar / antall invitert. Under 50 % markeres som lav |
-| Kostnad ved uønsket turnover | Sum årslønn for uønskede avganger × antatt kostnadsandel (standard 75 %, justerbar 50–200 %). Bare hele selskapet, siste 12 mnd mot forrige 12 mnd |
+| Kostnad ved uønsket turnover | Sum årslønn for uønskede avganger × antatt kostnadsandel (standard 75 %, justerbar 50-200 %). Bare hele selskapet, siste 12 mnd mot forrige 12 mnd |
 
 Alle definisjoner, med datamodell, står i [`CLAUDE.md`](CLAUDE.md).
 

@@ -27,7 +27,7 @@ utvalg = ansatte[ansatte["team"].isin(valgte_team)]
 # --- Overskrift og merking --------------------------------------------------------
 u.topp("Rekruttering", SPORSMAL["Rekruttering"])
 st.caption(
-    f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y}. "
+    f"Periode: {start:%d.%m.%Y}-{slutt:%d.%m.%Y}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}. "
     f"Rekrutteringsdata er registrert fra {b.REKRUTTERING_FRA:%m.%Y}."
 )
@@ -76,7 +76,7 @@ else:
     kort3.caption(f"{naa['strukturert']} av {naa['antall']} ansettelser")
 
 if har_fjor:
-    st.caption(f"Pilene viser endring mot samme periode i fjor ({fjor_start:%m.%Y}–{fjor_slutt:%m.%Y}).")
+    st.caption(f"Pilene viser endring mot samme periode i fjor ({fjor_start:%m.%Y}-{fjor_slutt:%m.%Y}).")
 else:
     st.caption("Ingen sammenligning: samme periode i fjor ligger før rekrutteringsdata ble registrert.")
 
@@ -117,9 +117,9 @@ st.caption(
     f"**Kohort** = gruppen som følges over tid. Kvalitetstallene bygger på faste ansatte "
     f"med registrerte rekrutteringsdata som har vært ansatt lenge nok til at utfallet kan "
     f"observeres. Kohortene styres av periodeslutt, ikke periodestart:\n"
-    f"- **Tidlig turnover:** ansatt {b.REKRUTTERING_FRA:%d.%m.%Y}–{kohorter['tidlig_til']:%d.%m.%Y} "
+    f"- **Tidlig turnover:** ansatt {b.REKRUTTERING_FRA:%d.%m.%Y}-{kohorter['tidlig_til']:%d.%m.%Y} "
     f"(minst 12 mnd før periodeslutt). Teller avganger der stillingen må erstattes.\n"
-    f"- **Prøvetid:** ansatt {b.REKRUTTERING_FRA:%d.%m.%Y}–{kohorter['provetid_til']:%d.%m.%Y} "
+    f"- **Prøvetid:** ansatt {b.REKRUTTERING_FRA:%d.%m.%Y}-{kohorter['provetid_til']:%d.%m.%Y} "
     f"(minst 6 mnd før periodeslutt).\n\n"
     f"**Tre nivåer:** ustrukturert · strukturert intervju alene · strukturert intervju "
     f"+ minst én tilleggsmetode (case study, personlighetstest eller evnetest).\n\n"

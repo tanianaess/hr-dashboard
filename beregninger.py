@@ -314,7 +314,7 @@ def les_fravaer():
 
 def avtalte_dagsverk(ansatte):
     """Avtalte dagsverk per team og måned, regnet ut fra ansatte (se CLAUDE.md):
-    arbeidsdager (mandag–fredag) mens personen var ansatt × stillingsprosent.
+    arbeidsdager (mandag-fredag) mens personen var ansatt × stillingsprosent.
     Helligdager og ferie er ikke trukket fra."""
     rader = []
     for maaned_start in pd.date_range(DATA_FRA, DATA_TIL, freq="MS"):
@@ -537,7 +537,7 @@ def kvalitet_per_nivaa(ansatte, slutt):
 def kvalitet_per_nivaa_prikket(ansatte, slutt, team_liste=TEAM):
     """Som kvalitet_per_nivaa, men med sekundær prikking når flere team er med:
     en celle i totalen skjules hvis teamene som er skjult i den cellen (under 5),
-    til sammen er 1–4 – ellers kunne de regnes ut som total minus de synlige teamene.
+    til sammen er 1-4 – ellers kunne de regnes ut som total minus de synlige teamene.
     Kolonnene «tidlig_prikket» og «provetid_prikket» viser hvilke celler det gjelder."""
     utvalg = ansatte[ansatte["team"].isin(team_liste)]
     total = kvalitet_per_nivaa(utvalg, slutt).set_index("gruppe")
@@ -659,7 +659,7 @@ def bruk_av_tilleggsmetoder(ansatte, start, slutt):
 
 # Validitet (korrigert, operasjonell) for jobbprestasjon.
 # Sackett, Zhang, Berry og Lievens (2022): «Revisiting meta-analytic estimates of
-# validity in personnel selection», Journal of Applied Psychology 107(11), 2040–2068,
+# validity in personnel selection», Journal of Applied Psychology 107(11), 2040-2068,
 # tabell 3. Verifisert av brukeren mot tabell 3.
 # Schmidt og Hunter (1998) sine tidligere anslag gjengis i samme tabell 3 i
 # Sackett mfl. (2022). Verifisert av brukeren.

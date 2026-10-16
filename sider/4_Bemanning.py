@@ -25,7 +25,7 @@ utvalg_plan = plan[plan["team"].isin(valgte_team)]
 # --- Overskrift og merking --------------------------------------------------------
 u.topp("Bemanning", SPORSMAL["Bemanning"])
 st.caption(
-    f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y}. "
+    f"Periode: {start:%d.%m.%Y}-{slutt:%d.%m.%Y}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}. "
     "Antall personer (ikke årsverk), alle ansettelsesformer."
 )

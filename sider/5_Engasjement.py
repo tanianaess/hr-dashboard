@@ -36,15 +36,15 @@ forrige_k, fjor_k = b.kvartal_minus(siste, 1), b.kvartal_minus(siste, 4)
 utenfor = b.utenfor_enps(engasjement, valgte_team)
 utvalg_total = utvalg[~utvalg["team"].isin(utenfor)]  # brukes til alle totaler
 st.caption(
-    f"Kvartaler i perioden: {kvartaler[0]}–{siste}. "
+    f"Kvartaler i perioden: {kvartaler[0]}-{siste}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}."
 )
 
 with st.expander("Slik leses eNPS"):
     st.markdown(
         "eNPS (employee Net Promoter Score) bygger på spørsmålet «Hvor sannsynlig er det at "
-        "du vil anbefale arbeidsplassen din til en venn?» (0–10).\n\n"
-        "- **eNPS = andel anbefalere (9–10) minus andel kritikere (0–6)**, fra −100 til +100.\n"
+        "du vil anbefale arbeidsplassen din til en venn?» (0-10).\n\n"
+        "- **eNPS = andel anbefalere (9-10) minus andel kritikere (0-6)**, fra −100 til +100.\n"
         "- Positive tall betyr flere anbefalere enn kritikere.\n"
         "- I små grupper kan noen få svar flytte tallet mye. Derfor vises antall svar (n) "
         "og svarandel alltid.\n"
@@ -147,7 +147,7 @@ st.vega_lite_chart(
     width="stretch",
 )
 st.caption(
-    f"Hele dataperioden ({trend_kvartaler[0]}–{trend_kvartaler[-1]}), uansett periodevalg. "
+    f"Hele dataperioden ({trend_kvartaler[0]}-{trend_kvartaler[-1]}), uansett periodevalg. "
     + (f"Uthevet: **{uthevet}**, teamet med størst fall fra første til siste kvartal "
        f"({enps_tekst(endring_per_team[uthevet])} poeng). " if uthevet else "")
     + f"Et team uthevet bare ved fall på minst {b.UTHEV_FALL} poeng. "
@@ -251,7 +251,7 @@ else:
             width="stretch",
         )
     st.caption(
-        f"Hele dataperioden ({trend_kvartaler[0]}–{trend_kvartaler[-1]}). Kvartaler med under "
+        f"Hele dataperioden ({trend_kvartaler[0]}-{trend_kvartaler[-1]}). Kvartaler med under "
         "5 svar eller under 5 ansatte vises ikke (femregelen per punkt). "
         "Samme utvalg og kvartaler i begge grafene. To grafer i stedet for én med to akser, "
         "så det ikke ser ut som om linjene «følger» hverandre bare på grunn av skaleringen. "

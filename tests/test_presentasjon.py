@@ -54,16 +54,16 @@ def test_skjult_kort_viser_strek_og_forklaring():
     assert any("Skjult" in c.value and "færre enn 5" in c.value for c in at.caption)
 
 
-# --- 2–4 og 7. Forsiden ---------------------------------------------------------------
+# --- 2-4 og 7. Forsiden ---------------------------------------------------------------
 
 def test_forsiden_har_introduksjon_periode_og_datodato():
     at = kjor("app.py")
     tekst = all_tekst(at)
-    assert "For ledergruppen i et selskap med 50–500 ansatte." in tekst
+    assert "For ledergruppen i et selskap med 50-500 ansatte." in tekst
     assert "rekrutteringsprosessen?" in tekst
     start, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
     assert (f"Tallene gjelder hele selskapet de siste 12 månedene "
-            f"({start:%d.%m.%Y}–{slutt:%d.%m.%Y})") in tekst
+            f"({start:%d.%m.%Y}-{slutt:%d.%m.%Y})") in tekst
     assert f"Data per {b.DATA_TIL:%d.%m.%Y}" in tekst
     assert "Regelbaserte innsikter om de største avvikene. De bruker bare tall som også vises " \
            "under de andre temaene" in tekst
@@ -133,3 +133,18 @@ def test_github_actions_kjorer_testene():
     assert "pytest" in flyt
     readme = (PROSJEKT / "README.md").read_text(encoding="utf-8")
     assert "actions/workflows/tester.yml/badge.svg" in readme
+
+
+# --- Intervaller med bindestrek (Tanias valg 16.10.2026) -----------------------------------
+
+def test_intervaller_med_bindestrek():
+    # Tankestrek (–) mellom to tall eller ord, f.eks. «50–500», skal være bindestrek: «50-500».
+    # «–» alene (ingen verdi) og tankestrek med mellomrom ( – ) er lov.
+    intervall = re.compile(r"(?<=[0-9A-Za-zæøåÆØÅ}\])])–(?=[0-9A-Za-zæøåÆØÅ{(])")
+    filer = [*PROSJEKT.glob("*.py"), *PROSJEKT.glob("sider/*.py"),
+             PROSJEKT / "README.md", PROSJEKT / "CLAUDE.md"]
+    treff = [f"{f.name}: {m.group(0)}" for f in filer
+             for m in intervall.finditer(f.read_text(encoding="utf-8"))]
+    assert not treff, treff
+    at = kjor("app.py")
+    assert "50-500 ansatte" in all_tekst(at)

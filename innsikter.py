@@ -13,22 +13,22 @@ OK, FOLG_MED, KRITISK = "OK", "Følg med", "Kritisk"
 # forverring: så stor forverring løfter OK til minst «Følg med» (None = ingen regel).
 TERSKLER = {
     "Total turnover": dict(ok=10.0, kritisk=15.0, hoyere_er_verre=True, ok_inkludert=False,
-                           forverring=3.0, tekst=("under 10 %", "10–15 %", "over 15 %"),
+                           forverring=3.0, tekst=("under 10 %", "10-15 %", "over 15 %"),
                            forverring_tekst="+3 pp"),
     "Uønsket turnover": dict(ok=3.0, kritisk=5.0, hoyere_er_verre=True, ok_inkludert=False,
-                             forverring=2.0, tekst=("under 3 %", "3–5 %", "over 5 %"),
+                             forverring=2.0, tekst=("under 3 %", "3-5 %", "over 5 %"),
                              forverring_tekst="+2 pp"),
     "Sykefravær": dict(ok=5.0, kritisk=6.0, hoyere_er_verre=True, ok_inkludert=False,
-                       forverring=1.0, tekst=("under 5 %", "5–6 %", "over 6 % (internt mål)"),
+                       forverring=1.0, tekst=("under 5 %", "5-6 %", "over 6 % (internt mål)"),
                        forverring_tekst="+1 pp"),
     "eNPS": dict(ok=10, kritisk=0, hoyere_er_verre=False, ok_inkludert=True,
                  forverring=10, tekst=("+10 eller høyere", "0 til +9", "under 0"),
                  forverring_tekst="−10 poeng"),
     "Bemanning mot plan": dict(ok=5.0, kritisk=10.0, hoyere_er_verre=True, ok_inkludert=True,
-                               forverring=None, tekst=("avvik inntil 5 %", "5–10 %", "over 10 %"),
+                               forverring=None, tekst=("avvik inntil 5 %", "5-10 %", "over 10 %"),
                                forverring_tekst="–"),
     "Tid til ansettelse": dict(ok=45, kritisk=60, hoyere_er_verre=True, ok_inkludert=True,
-                               forverring=15, tekst=("inntil 45 dager", "46–60 dager", "over 60 dager"),
+                               forverring=15, tekst=("inntil 45 dager", "46-60 dager", "over 60 dager"),
                                forverring_tekst="+15 dager"),
 }
 

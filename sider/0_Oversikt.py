@@ -14,7 +14,7 @@ st.set_page_config(page_title="Oversikt · HR-dashbord", layout="wide")
 
 # Kort introduksjon: hvem dashbordet er for, og hva de trenger (Tanias formulering)
 INTRO = (
-    "**For ledergruppen i et selskap med 50–500 ansatte.** Dashbordet gir daglig leder, "
+    "**For ledergruppen i et selskap med 50-500 ansatte.** Dashbordet gir daglig leder, "
     "økonomidirektør og HR et felles bilde av de viktigste innsiktene rundt ansatte og HR "
     "før ledermøtet.\n\n"
     "- **Ledelsen:** Hvor er risikoen nå, hva koster den, og har vi folkene planen krever?\n"
@@ -49,7 +49,7 @@ u.neste_steg_stil()  # lys petrol bakgrunn på «Mulig neste steg» (se utseende
 st.markdown(INTRO)
 start, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
 st.caption(f"Tallene gjelder hele selskapet de siste 12 månedene "
-           f"({start:%d.%m.%Y}–{slutt:%d.%m.%Y}). Velg et tema i menyen til venstre for detaljer. "
+           f"({start:%d.%m.%Y}-{slutt:%d.%m.%Y}). Velg et tema i menyen til venstre for detaljer. "
            f"Data per {b.DATA_TIL:%d.%m.%Y}. Oppdateres månedlig.")
 
 

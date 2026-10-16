@@ -28,7 +28,7 @@ utvalg_fravaer = fravaer[fravaer["team"].isin(valgte_team)]
 # --- Overskrift og merking --------------------------------------------------------
 u.topp("Sykefravær", SPORSMAL["Sykefravær"])
 st.caption(
-    f"Periode: {start:%d.%m.%Y}–{slutt:%d.%m.%Y}. "
+    f"Periode: {start:%d.%m.%Y}-{slutt:%d.%m.%Y}. "
     f"Utvalg: {'hele selskapet' if hele_selskapet else ', '.join(valgte_team)}."
 )
 
@@ -67,7 +67,7 @@ kort1, kort2, kort3, kort4 = st.columns(4)
 kort1.metric("Sykefravær totalt", b.prosent(naa["total_rate"], 2),
              delta=endring("total_rate"), delta_color=b.pilfarge(endring("total_rate")))
 kort1.caption(f"Snitt {b.avrund(snitt)} ansatte")
-kort2.metric("Korttid (1–16 dager)", b.prosent(naa["korttid_rate"], 2),
+kort2.metric("Korttid (1-16 dager)", b.prosent(naa["korttid_rate"], 2),
              delta=endring("korttid_rate"), delta_color=b.pilfarge(endring("korttid_rate")))
 kort3.metric("Langtid (over 16 dager)", b.prosent(naa["langtid_rate"], 2),
              delta=endring("langtid_rate"), delta_color=b.pilfarge(endring("langtid_rate")))
@@ -77,7 +77,7 @@ kort4.caption(f"Kilde: [{b.SYKEFRAVAER_KILDE}]({b.SYKEFRAVAER_KILDE_URL})")
 
 if har_fjor:
     st.caption(f"Pilene viser endring mot samme periode i fjor "
-               f"({fjor_start:%m.%Y}–{fjor_slutt:%m.%Y}), i prosentpoeng (pp).")
+               f"({fjor_start:%m.%Y}-{fjor_slutt:%m.%Y}), i prosentpoeng (pp).")
 else:
     st.caption("Ingen sammenligning: samme periode i fjor ligger før datastart (okt 2024).")
 
@@ -143,7 +143,7 @@ else:
         width="stretch",
     )
     st.caption(
-        f"Hele dataperioden ({b.TRENDPERIODE[0]:%m.%Y}–{b.TRENDPERIODE[1]:%m.%Y}), uansett "
+        f"Hele dataperioden ({b.TRENDPERIODE[0]:%m.%Y}-{b.TRENDPERIODE[1]:%m.%Y}), uansett "
         "periodevalg. **Femregelen per måned:** måneder der utvalget har færre enn 5 ansatte, "
         "vises ikke, og små team holdes utenfor måneden når de til sammen er under 5."
     )
@@ -180,6 +180,6 @@ if hele_selskapet:
 st.dataframe(pd.DataFrame(rader), hide_index=True, width="stretch")
 st.caption(
     "Sykefravær = tapte dagsverk / avtalte dagsverk. Avtalte dagsverk = hverdager "
-    "(mandag–fredag) × stillingsprosent, uten fradrag for ferie og helligdager. "
+    "(mandag-fredag) × stillingsprosent, uten fradrag for ferie og helligdager. "
     "**Femregelen:** team med under 5 ansatte skjules."
 )

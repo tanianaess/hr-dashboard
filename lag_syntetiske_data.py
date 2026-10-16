@@ -1,4 +1,4 @@
-# Lager syntetiske HR-data for et fiktivt norsk tech-selskap, okt 2024–sep 2026,
+# Lager syntetiske HR-data for et fiktivt norsk tech-selskap, okt 2024-sep 2026,
 # og lagrer dem som CSV-filer i mappen data/.
 #
 # Kjør slik:  python lag_syntetiske_data.py
@@ -71,7 +71,7 @@ SESONG_KORTTID = {1: 1.35, 2: 1.30, 3: 1.15, 4: 1.00, 5: 0.90, 6: 0.75,
 LANGTID = {"teknologi": 0.030, "produktutvikling": 0.030, "salg": 0.036,
            "kundesuksess": 0.040, "markedsføring": 0.032, "økonomi og hr": 0.030,
            "ledergruppen": 0.008}
-# Kundesuksess: langtidsfraværet stiger siste halvår (apr–sep 2026).
+# Kundesuksess: langtidsfraværet stiger siste halvår (apr-sep 2026).
 LANGTID_KUNDESUKSESS_SISTE_HALVAAR = {"2026-04": 0.050, "2026-05": 0.060, "2026-06": 0.068,
                                       "2026-07": 0.075, "2026-08": 0.082, "2026-09": 0.088}
 
@@ -229,7 +229,7 @@ def ansett(team, utlysningsdato, ansettelsesform="fast", kontrakt_mnd=None):
             avslutt(person, maanedsslutt(pluss_maaneder(ansattdato, 5)), "ufrivillig", "nei")
             person["prøvetid_bestått"] = "nei"
         else:
-            # Består prøvetiden, men sier opp selv etter 7–11 måneder
+            # Består prøvetiden, men sier opp selv etter 7-11 måneder
             uonsket = "ja" if tilfeldig.random() < 0.4 else "nei"
             avslutt(person, maanedsslutt(pluss_maaneder(ansattdato, tilfeldig.randint(7, 11))),
                     "frivillig", uonsket)
@@ -378,7 +378,7 @@ ansatte_df = ansatte_df[kolonner[:plass] + nye + kolonner[plass:]]
 # =============================================================================
 # For å lage realistiske tapte dagsverk trenger vi avtalte dagsverk her også.
 # De lagres ikke – dashbordet regner dem ut på nytt fra ansatte.csv.
-# Arbeidsdager = mandag–fredag (helligdager er ikke trukket fra).
+# Arbeidsdager = mandag-fredag (helligdager er ikke trukket fra).
 
 def avtalte_dagsverk(team, maaned):
     slutt = maanedsslutt(maaned)
