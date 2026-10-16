@@ -1,0 +1,40 @@
+{
+  "laget": "2026-10-16",
+  "modell": "claude-fable-5-1",
+  "periode": "01.10.2025-30.09.2026",
+  "data_per": "30.09.2026",
+  "fingeravtrykk": "4740388ece8c",
+  "grunnlag": "GRUNNLAG FOR LEDERBRIEF: Fjordlys Tech AS, hele selskapet, siste 12 måneder (01.10.2025-30.09.2026). Data per 30.09.2026. Alle tall er syntetiske.\n\nNØKKELTALL (status: OK, Følg med eller Kritisk; tersklene er skjønn)\nPilene viser endring mot forrige 12 måneder for turnover, uønsket turnover og erstatningskostnad, og mot samme periode i fjor for sykefravær, fraværskostnad, eNPS og tid til ansettelse. Ledergruppen er holdt utenfor sykefravær, fraværskostnad og eNPS, fordi gruppen er for liten til å vises.\n- Total turnover: 14,3 % (+3,1 pp mot sammenligningsperioden). Status: Følg med (10-15 %). 32 avganger.\n- Uønsket turnover: 4,5 % (+2,1 pp mot sammenligningsperioden). Status: Følg med (3-5 %). 10 vi ville beholdt.\n- Erstatningskostnad: 17,8 mill. kr (+4,4 mill. kr mot sammenligningsperioden). Status: Følg med (følger total turnover). 32 avganger. Herav uønsket 5,6 mill. kr. Antar 75 % av årslønn per avgang.\n- Sykefravær: 5,69 % (+0,3 pp mot sammenligningsperioden). Status: Følg med (5-6 %). Internt mål 6 %.\n- Fraværskostnad: 3,3 mill. kr (+0,1 mill. kr mot sammenligningsperioden). Status: Følg med (følger sykefravær). Bare lønn for korttidsfravær (dag 1-16). Reell kostnad er høyere.\n- eNPS 2026-K3: +15 (±0 poeng mot sammenligningsperioden). Status: OK (+10 eller høyere). Svarandel 72 %.\n- Bemanning mot plan: −13. Status: Følg med (5-10 %). 226 ansatte av 239 planlagt (94,6 %). Avvik for ett år siden: −11.\n- Tid til ansettelse: 36 dager (−6 dager mot sammenligningsperioden). Status: OK (inntil 45 dager). Median av 45 ansettelser. Tregest: teknologi, 60 dager (12 ansettelser).\n\nVIKTIGSTE INNSIKTER (regelbaserte, viktigste først)\n- Kundesuksess: høyt sykefravær og fallende engasjement. Sykefravær 7,85 % (+1,7 pp mot i fjor), langtid 5,77 %, over det interne målet på 6 %. eNPS −14 (−21 poeng mot 2025-K3), 20 av 44 svarte (45 %, lav). Merknad: Sammenheng, ikke nødvendigvis årsak – og den kan gå begge veier: lavt engasjement kan gi mer fravær, og høyt fravær gir mer belastning på dem som er igjen. Lav svarandel kan bety at det reelle engasjementet er lavere (frafallsskjevhet).\n- Teknologi: under bemanningsplanen. 84 av 98 planlagte (−14, bemanningsgrad 85,7 %). Median tid til tiltredelse 150 dager (n = 12).\n- Salg: høy frivillig turnover og lite oppfølging. Frivillig turnover 20,7 % (8 av snitt 39 ansatte) mot 10,3 % for hele selskapet. 6 av avgangene var uønsket. Bare 41,9 % (13 av 31) har jevnlige 1:1 med lederen, mot 82 % for hele selskapet (uten ledergruppen). Merknad: Sammenheng, ikke nødvendigvis årsak, og den kan gå begge veier: lite oppfølging kan gi høyere turnover, og høy turnover gir mer belastning på lederen, så det blir mindre tid til oppfølging.\n- Strukturert rekruttering: lavere tidlig turnover. Tidlig turnover (slutter innen 12 mnd): 31,3 % (5 av 16) ved ustrukturert rekruttering mot 14,3 % (1 av 7) med strukturert intervju. Merknad: Sammenheng, ikke nødvendigvis årsak. Peker i riktig retning, men grunnlaget er lite (n = 7). Følg utviklingen – metodevalget støttes uansett av forskningen.",
+  "brief": {
+    "sammendrag": "Ingen nøkkeltall er kritiske, men de fleste står på «Følg med». Total turnover er 14,3 % (+3,1 pp), og erstatningskostnaden er 17,8 mill. kr. eNPS (+15) og tid til ansettelse (36 dager) er OK.",
+    "temaer": [
+      {
+        "tittel": "Kundesuksess: fravær og engasjement går samme vei",
+        "hva_tallene_viser": "Sykefraværet er 7,85 % (+1,7 pp mot i fjor), langtid 5,77 %, og eNPS har falt til −14 (−21 poeng mot 2025-K3). Bare 20 av 44 svarte (45 %).",
+        "sporsmal": [
+          "Hva vet vi om arbeidsbelastningen i kundesuksess?",
+          "Hvordan får vi høre fra dem som ikke svarte?"
+        ]
+      },
+      {
+        "tittel": "Salg: høy frivillig turnover og lite oppfølging",
+        "hva_tallene_viser": "Frivillig turnover er 20,7 % (8 av snitt 39 ansatte) mot 10,3 % for hele selskapet, og 6 av avgangene var uønsket. Bare 41,9 % (13 av 31) har jevnlige 1:1 med lederen, mot 82 % for hele selskapet (uten ledergruppen).",
+        "sporsmal": [
+          "Hva vet vi om hvorfor de 8 sluttet?",
+          "Har salgslederen tid til oppfølging?"
+        ]
+      },
+      {
+        "tittel": "Teknologi: under bemanningsplanen",
+        "hva_tallene_viser": "Teknologi har 84 av 98 planlagte (−14, bemanningsgrad 85,7 %), og median tid til tiltredelse er 150 dager (n = 12).",
+        "sporsmal": [
+          "Er planen på 98 realistisk med 150 dager til tiltredelse?"
+        ]
+      }
+    ],
+    "folg_med": "Neste måned: er sykefraværet i kundesuksess fortsatt over 6 %, og øker andelen strukturert rekruttering? Tidlig turnover er 31,3 % (5 av 16) ved ustrukturert mot 14,3 % (1 av 7) med strukturert intervju, men grunnlaget er lite.",
+    "forbehold": "Alle tall er syntetiske. Sammenhengene er ikke nødvendigvis årsaker, og flere bygger på få personer. Teksten er skrevet av en AI-modell og gjennomgått av et menneske."
+  },
+  "godkjent": "",
+  "merknad": "Første brief: skrevet av Claude Fable 5.1 i Claude Code 16.10.2026, med INSTRUKS og grunnlaget fra lederbrief.py, fordi lag_lederbrief.py ennå ikke var kjørt med API-nøkkel. Kjør skriptet for å lage den på nytt med claude-opus-5-5."
+}

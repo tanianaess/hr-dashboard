@@ -7,6 +7,7 @@ import streamlit as st
 import beregninger as b
 import datalasting as d
 import innsikter as i
+import lederbrief as lb
 import utseende as u
 from filtre import IKONER, SIDER, forhandsvelg
 
@@ -29,6 +30,8 @@ INNSIKT_FORKLARING = (
     "Regelbaserte innsikter om de største avvikene. De bruker bare tall som også vises "
     "under de andre temaene, med de samme personvernreglene, og nevner aldri skjulte grupper."
 )
+# Legges til etter Tanias tekst når lederbriefen vises (forslag til ordlyd, se CLAUDE.md)
+AI_HENVISNING = "Lederbriefen lenger ned er skrevet av en AI-modell og er merket."
 
 
 # --- Data ---------------------------------------------------------------------
@@ -43,10 +46,17 @@ def beregn_oversikt():
 
 nokkeltall, innsikt_liste = beregn_oversikt()
 
+# Lederbriefen (AI): leses fra data/lederbrief.json og vises bare når den er lest og godkjent,
+# og bygger på nøyaktig dagens tall (fingeravtrykket stemmer). Se «Lederbrief (AI)» i CLAUDE.md.
+grunnlag_tekst = lb.grunnlag(nokkeltall, innsikt_liste)
+brief = lb.les_lederbrief()
+brief_status = lb.status(brief, grunnlag_tekst) if brief else None
+
 
 # --- Toppen av siden --------------------------------------------------------------
 u.topp("Oversikt", ikon=IKONER["Oversikt"], merknad=False)
 u.neste_steg_stil()  # lys petrol bakgrunn på «Mulig neste steg» (se utseende.py)
+u.lederbrief_stil()  # nøytral grå bakgrunn på lederbriefen (AI)
 
 # Introduksjonen i en ramme, så den skiller seg ut som en innledning.
 # Setningen om syntetiske data og periodelinjen står rett under.
@@ -109,7 +119,7 @@ with st.expander("Slik settes status"):
 
 # --- Viktigste innsikter -------------------------------------------------------------------
 st.subheader("Viktigste innsikter")
-st.caption(INNSIKT_FORKLARING)
+st.caption(INNSIKT_FORKLARING + (f" {AI_HENVISNING}" if brief_status == "ok" else ""))
 
 if not innsikt_liste:
     st.success("Ingen store avvik akkurat nå.")
@@ -139,3 +149,45 @@ for nr, innsikt in enumerate(innsikt_liste):
                 st.markdown(":blue[:material/lightbulb: **Mulig neste steg**]")  # blå = petrol i temaet
                 st.caption("Regelbasert forslag")
                 st.markdown(innsikt["neste_steg"])
+
+
+# --- Lederbrief (AI) ---------------------------------------------------------------------
+# Skrevet av en AI-modell på forhånd (lag_lederbrief.py) ut fra nøyaktig de tallene som står
+# over, og lest av et menneske før den vises. Stiller spørsmål, foreslår ikke tiltak.
+
+def vis_lederbrief(brief):
+    """Briefen i en egen boks med nøytral bakgrunn, tydelig merket som skrevet av AI."""
+    felt = brief["brief"]
+    with st.container(border=True, key=u.LEDERBRIEF_NOKKEL):
+        st.badge("Skrevet av AI", icon=":material/smart_toy:", color="gray")
+        st.caption(lb.merking(brief))
+        st.markdown(felt["sammendrag"])
+        for tema in felt["temaer"]:
+            st.markdown(f"##### {tema['tittel']}")
+            st.markdown(tema["hva_tallene_viser"])
+            st.markdown("**Spørsmål til ledermøtet**\n\n"
+                        + "\n".join(f"- {sporsmal}" for sporsmal in tema["sporsmal"]))
+        st.markdown(f"**Følg med:** {felt['folg_med']}")
+        st.caption(felt["forbehold"])
+        # Åpenhet: leseren kan se nøyaktig hva modellen ble bedt om, og hva den fikk
+        with st.expander("Hva AI-modellen fikk"):
+            st.markdown("**Instruksen**")
+            st.text(lb.INSTRUKS)
+            st.markdown("**Grunnlaget** (det forsiden viser, som ren tekst)")
+            st.text(brief["grunnlag"])
+            if brief.get("merknad"):
+                st.caption(brief["merknad"])
+        _, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
+        st.download_button("Last ned som Markdown", data=lb.som_markdown(brief),
+                           file_name=f"lederbrief-{slutt:%Y-%m}.md", mime="text/markdown",
+                           icon=":material/download:")
+
+
+if brief is not None:
+    st.subheader("Lederbrief")
+    if brief_status == "utdatert":
+        st.caption("Lederbriefen er ikke oppdatert etter siste dataoppdatering, og vises derfor ikke.")
+    elif brief_status == "ikke_godkjent":
+        st.caption("Lederbriefen er laget, men ikke lest og godkjent ennå, og vises derfor ikke.")
+    else:
+        vis_lederbrief(brief)

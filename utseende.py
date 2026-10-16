@@ -66,6 +66,22 @@ def neste_steg_stil():
     )
 
 
+# CSS-klassen Streamlit gir boksen med lederbriefen (AI) på forsiden
+LEDERBRIEF_NOKKEL = "lederbrief"
+AI_BAKGRUNN = "#EDF1F0"  # samme nøytrale tone som sidemenyen
+
+
+def lederbrief_stil():
+    """Nøytral grå bakgrunn på lederbriefen (AI) på forsiden, så den ser annerledes ut enn
+    de regelbaserte kortene (hvite) og «Mulig neste steg» (lys petrol).
+    Kontrast: tekst #1E2A30 på #EDF1F0 = 12,9 : 1 (krav: minst 4,5 : 1)."""
+    st.html(
+        f"<style>[class*='st-key-{LEDERBRIEF_NOKKEL}'] {{"
+        f"background-color: {AI_BAKGRUNN};"
+        f"}}</style>"
+    )
+
+
 def statusmerke(status, forklaring=None):
     """Liten merkelapp, f.eks. «✓ OK», med forklaring etter (f.eks. «10-15 %»)."""
     ikon, farge = STATUS[status]
