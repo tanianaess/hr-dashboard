@@ -45,9 +45,14 @@ nokkeltall, innsikt_liste = beregn_oversikt()
 
 
 # --- Toppen av siden --------------------------------------------------------------
-u.topp("Oversikt", ikon=IKONER["Oversikt"])
+u.topp("Oversikt", ikon=IKONER["Oversikt"], merknad=False)
 u.neste_steg_stil()  # lys petrol bakgrunn på «Mulig neste steg» (se utseende.py)
-st.markdown(INTRO)
+
+# Introduksjonen i en ramme, så den skiller seg ut som en innledning.
+# Setningen om syntetiske data og periodelinjen står rett under.
+with st.container(border=True):
+    st.markdown(INTRO)
+u.syntetisk_merknad()
 start, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
 st.caption(f"Tallene gjelder hele selskapet de siste 12 månedene "
            f"({start:%d.%m.%Y}-{slutt:%d.%m.%Y}). Velg et tema i menyen til venstre for detaljer. "

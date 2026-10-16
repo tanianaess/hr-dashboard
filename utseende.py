@@ -24,16 +24,23 @@ STATUS = {
 }
 
 
-def topp(tittel, sporsmal=None, ikon=None):
+def syntetisk_merknad():
+    """Setningen om at dataene er oppdiktet (står på alle sider)."""
+    st.caption(b.SYNTETISK_MERKNAD.replace("**Syntetiske data.** ", ""))
+
+
+def topp(tittel, sporsmal=None, ikon=None, merknad=True):
     """Toppen av hver side: selskapsnavn, tittel (med samme ikon som i menyen, i petrol),
-    spørsmålet siden svarer på (hvis gitt) og diskret merking om syntetiske data."""
+    spørsmålet siden svarer på (hvis gitt) og diskret merking om syntetiske data.
+    merknad=False: siden viser setningen om syntetiske data selv (forsiden, under introen)."""
     st.caption(f"**{SELSKAP}** · fiktivt selskap · people analytics")
     # :blue[…] er petrol i temaet (.streamlit/config.toml)
     st.title(f":blue[{ikon}] {tittel}" if ikon else tittel)
     if sporsmal:
         st.markdown(f":gray[{sporsmal}]")  # rolig grå tekst rett under tittelen
     st.badge("Syntetiske data", icon=":material/science:", color="gray")
-    st.caption(b.SYNTETISK_MERKNAD.replace("**Syntetiske data.** ", ""))
+    if merknad:
+        syntetisk_merknad()
 
 
 def skjult_kort(beholder, tittel, forklaring=b.SKJULT_UNDER_5.capitalize()):

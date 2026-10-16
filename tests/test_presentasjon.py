@@ -158,3 +158,13 @@ def test_overskriften_har_samme_ikon_som_menyen(navn):
     from filtre import IKONER
     at = kjor(SIDER[navn])
     assert at.title[0].value.startswith(f":blue[{IKONER[navn]}]"), at.title[0].value
+
+
+def test_forsiden_merknad_og_periode_under_introen():
+    at = kjor("app.py")
+    # Introen ligger i en ramme, og de to setningene kommer etter den
+    tekster = [e.value for e in at.main if hasattr(e, "value") and isinstance(e.value, str)]
+    intro = next(i for i, t in enumerate(tekster) if t.startswith("**For ledergruppen"))
+    syntetisk = next(i for i, t in enumerate(tekster) if "bygger ikke på data fra noe ekte" in t)
+    periode = next(i for i, t in enumerate(tekster) if t.startswith("Tallene gjelder hele selskapet"))
+    assert intro < syntetisk < periode

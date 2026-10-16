@@ -415,7 +415,9 @@ kompetansegap per person (krever individvurderinger, sensitivt og upresist).
 `sider/0_Oversikt.py` viser hele selskapet, **siste 12 mnd**, uten filter. Regler og
 terskler ligger i `innsikter.py`.
 
-**Øverst på forsiden** (under toppen, før «Nøkkeltall»):
+**Øverst på forsiden** (under toppen, før «Nøkkeltall»), i denne rekkefølgen:
+introduksjonen i en ramme (`st.container(border=True)`), så setningen om syntetiske
+data og periodelinjen i liten grå tekst rett under (Tanias ønske 16.10.2026).
 - **Introduksjon** (`INTRO`, Tanias formulering, gjengis ordrett): hvem dashbordet
   er for (ledergruppen i et selskap med 50-500 ansatte: daglig leder,
   økonomidirektør og HR), hvilke spørsmål ledelsen og HR-leder har, og hvordan
