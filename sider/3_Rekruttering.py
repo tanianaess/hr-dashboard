@@ -58,7 +58,8 @@ def endring_dager():
 endring_andel = (b.endring_pp(naa["andel_strukturert"], fjor["andel_strukturert"])
                  if har_fjor and None not in (naa["andel_strukturert"], fjor["andel_strukturert"])
                  else None)
-endring_antall = f"{naa['antall'] - fjor['antall']:+d}" if har_fjor else None
+diff_antall = naa["antall"] - fjor["antall"] if har_fjor else None
+endring_antall = None if diff_antall is None else ("±0" if diff_antall == 0 else f"{diff_antall:+d}")
 
 kort1, kort2, kort3 = st.columns(3)
 kort1.metric("Ansettelser", naa["antall"], delta=endring_antall, delta_color="off")
@@ -71,8 +72,11 @@ else:
     kort2.metric("Median tid til ansettelse", f"{b.avrund(naa['median_dager'])} dager",
                  delta=endring_dager(), delta_color=b.pilfarge(endring_dager()))
     kort2.caption("Fra utlysning til akseptert tilbud")
+    # Grå pil når en av periodene bygger på under 20 ansettelser (for lite til å si noe)
+    nok = har_fjor and min(naa["antall"], fjor["antall"]) >= b.MIN_N_ENDRING
     kort3.metric("Andel strukturert rekruttering", b.prosent(naa["andel_strukturert"], 0),
-                 delta=endring_andel, delta_color=b.pilfarge(endring_andel, hoyere_er_bedre=True))
+                 delta=endring_andel,
+                 delta_color=b.pilfarge(endring_andel, hoyere_er_bedre=True, vesentlig=nok))
     kort3.caption(f"{naa['strukturert']} av {naa['antall']} ansettelser")
 
 if har_fjor:

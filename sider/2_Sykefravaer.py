@@ -63,14 +63,23 @@ def endring(navn):
 
 
 # --- KPI-kort -------------------------------------------------------------------------
+# Grå pil når en av periodene bygger på under 20 ansatte (for lite til å si noe)
+nok = har_fjor and min(snitt, b.snitt_ansatte(utvalg_ansatte, fjor_start, fjor_slutt)) >= b.MIN_N_ENDRING
+
+
+def pil(navn):
+    """Pilfarge for et fraværstall: lavere grense enn ellers (0,5 pp), grå ved for få."""
+    return b.pilfarge(endring(navn), terskel=b.VESENTLIG_ENDRING_SYKEFRAVAER_PP, vesentlig=nok)
+
+
 kort1, kort2, kort3, kort4 = st.columns(4)
 kort1.metric("Sykefravær totalt", b.prosent(naa["total_rate"], 2),
-             delta=endring("total_rate"), delta_color=b.pilfarge(endring("total_rate"), terskel=b.VESENTLIG_ENDRING_SYKEFRAVAER_PP))
+             delta=endring("total_rate"), delta_color=pil("total_rate"))
 kort1.caption(f"Snitt {b.avrund(snitt)} ansatte")
 kort2.metric("Korttid (1-16 dager)", b.prosent(naa["korttid_rate"], 2),
-             delta=endring("korttid_rate"), delta_color=b.pilfarge(endring("korttid_rate"), terskel=b.VESENTLIG_ENDRING_SYKEFRAVAER_PP))
+             delta=endring("korttid_rate"), delta_color=pil("korttid_rate"))
 kort3.metric("Langtid (over 16 dager)", b.prosent(naa["langtid_rate"], 2),
-             delta=endring("langtid_rate"), delta_color=b.pilfarge(endring("langtid_rate"), terskel=b.VESENTLIG_ENDRING_SYKEFRAVAER_PP))
+             delta=endring("langtid_rate"), delta_color=pil("langtid_rate"))
 # Status styres av det interne målet. Landssnittet er bare en referanse (se infoboksen).
 kort4.metric("Internt mål", b.prosent(b.SYKEFRAVAER_MAL, 0))
 # Markdown-lenke: [tekst](adresse)

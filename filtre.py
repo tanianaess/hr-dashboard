@@ -66,10 +66,14 @@ def forhandsvelg(side, team=None):
     st.switch_page(side)
 
 
-def vis_filtre(standard_periode=("2025-10", "2026-09")):
+def vis_filtre(standard_periode=None):
     """Viser filtrene i sidemenyen og gir tilbake valgene:
     start (første dag), slutt (siste dag), valgte team, og om hele selskapet er valgt.
-    Stopper siden hvis ingen team er valgt."""
+    Stopper siden hvis ingen team er valgt. Uten `standard_periode` (fra_mnd, til_mnd)
+    starter glideren på siste 12 mnd, hentet fra FASTE_PERIODER (ikke hardkodet)."""
+    if standard_periode is None:
+        s12_start, s12_slutt = b.FASTE_PERIODER["Siste 12 mnd"]
+        standard_periode = (f"{s12_start:%Y-%m}", f"{s12_slutt:%Y-%m}")
     st.sidebar.header("Filter")
 
     # Liste med alle måneder i dataene: «2024-10», «2024-11» … «2026-09»

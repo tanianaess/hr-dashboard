@@ -85,8 +85,10 @@ if utenfor:
                "utenfor, så de ikke kan regnes ut (sekundær prikking).")
 
 kort1, kort2, kort3 = st.columns(3)
+# Grå pil når et av kvartalene bygger på under 20 svar (for lite til å si noe)
+nok = fjor is not None and min(naa["svar"], fjor["svar"]) >= b.MIN_N_ENDRING
 kort1.metric(f"eNPS {siste}", enps_tekst(naa["enps"]), delta=mot_fjor,
-             delta_color=b.pilfarge(mot_fjor, hoyere_er_bedre=True))
+             delta_color=b.pilfarge(mot_fjor, hoyere_er_bedre=True, vesentlig=nok))
 kort1.caption(f"Pilen viser endring mot samme kvartal i fjor ({fjor_k})" if fjor
               else "Ingen sammenligning med i fjor (mangler data)")
 kort2.metric("Endring mot forrige kvartal", b.minustegn(mot_forrige) or "–")

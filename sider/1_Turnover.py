@@ -77,6 +77,11 @@ def endring(navn, kan_vises=True, ny=None, gammel=None):
     return b.endring_pp(ny[navn], gammel[navn])
 
 
+def nok_n(ny, gammel):
+    """Grå pil når en av periodene bygger på under 20 ansatte (for lite til å si noe)."""
+    return gammel is not None and min(ny["snitt_ansatte"], gammel["snitt_ansatte"]) >= b.MIN_N_ENDRING
+
+
 snitt = b.avrund(naa["snitt_ansatte"])
 kort1, kort2, kort3 = st.columns(3)  # tre kolonner ved siden av hverandre
 
@@ -84,7 +89,8 @@ kort1.metric(
     "Total turnover",
     b.prosent(naa["total_rate"]),
     delta=endring("total_rate"),
-    delta_color=b.pilfarge(endring("total_rate")),  # høyere turnover = dårlig = rød pil
+    # høyere turnover = dårlig = rød pil; grå når en av periodene har under 20 ansatte
+    delta_color=b.pilfarge(endring("total_rate"), vesentlig=nok_n(naa, forrige)),
 )
 kort1.caption(f"{naa['avganger']} avganger, snitt {snitt} ansatte")
 
@@ -95,7 +101,7 @@ if vis_fordeling:
     ]:
         pil = endring(f"{navn}_rate", vis_fordeling_forrige, fordeling, fordeling_forrige)
         kort.metric(tittel, b.prosent(fordeling[f"{navn}_rate"]), delta=pil,
-                    delta_color=b.pilfarge(pil))
+                    delta_color=b.pilfarge(pil, vesentlig=nok_n(fordeling, fordeling_forrige)))
         kort.caption(f"{fordeling[navn]} {tekst}" + (f" (uten {', '.join(utenfor)})" if utenfor else ""))
 else:
     forklaring = "Skjult: færre enn 5 avganger i utvalget, så fordelingen vises bare for hele selskapet."
@@ -213,9 +219,9 @@ def tabellrad(navn, t, skjult=""):
 
 rader = [tabellrad(r["team"], r, r["skjult"]) for _, r in per_team.iterrows()]
 if hele_selskapet:
-    # Totalrad: avganger og turnover for alle, fordelingen etter sekundær prikking
-    total = {**naa, **{k: fordeling[k] for k in
-                       ["frivillig", "ufrivillig", "pensjon", "uønsket", "kontrakt_utløpt"]}}
+    # Totalrad: avganger, turnover og kontrakt utløpt for alle (ikke sensitivt),
+    # fordelingen på sluttårsak og uønsket etter sekundær prikking
+    total = {**naa, **{k: fordeling[k] for k in ["frivillig", "ufrivillig", "pensjon", "uønsket"]}}
     navn = "Hele selskapet" + (f" (fordeling uten {', '.join(utenfor)})" if utenfor else "")
     rader.append(tabellrad(navn, total))
 

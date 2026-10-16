@@ -77,28 +77,32 @@ pil = endring_timer(o["timer_per_ansatt"], o_forrige["timer_per_ansatt"]) if o_f
 k1.metric("Opplæring per ansatt", f"{b.avrund(o['timer_per_ansatt'], 1):.1f} timer".replace(".", ","),
           delta=pil, delta_color=b.pilfarge(pil, hoyere_er_bedre=True))
 k1.caption(f"{o['aktiviteter']} aktiviteter (kurs, sertifiseringer, konferanser, intern opplæring)")
-if hele_selskapet:
-    # Arbeidstiden er den største kostnaden. Den bygger på lønn, så den tas bare med
-    # for hele selskapet (lønn vises aldri per team).
+if hele_selskapet and b.er_siste_12(start, slutt):
+    # Arbeidstiden er den største kostnaden. Den bygger på lønn, så den vises bare i ÉN
+    # fast visning: hele selskapet, siste 12 mnd (lønn vises aldri per team, og to
+    # perioder kunne sammenlignes). Samme regel som kostnadene på Turnover og Sykefravær.
     tid = b.opplaering_tidskostnad(utvalg_total, aktiviteter, start, slutt) / o["snitt_ansatte"]
     k2.metric("Kostnad per ansatt", b.kroner(o["kostnad_per_ansatt"] + tid))
     k2.caption(f"Herav {b.kroner(o['kostnad_per_ansatt'])} direkte (kursavgift, reise) og "
                f"{b.kroner(tid)} i arbeidstid (timer × timelønn)")
 else:
     k2.metric("Direkte kostnad per ansatt", b.kroner(o["kostnad_per_ansatt"]))
-    k2.caption("Kursavgift og reise. Arbeidstiden vises bare for hele selskapet, "
-               "fordi den bygger på lønn.")
+    k2.caption("Kursavgift og reise. Arbeidstiden vises bare for hele selskapet og siste "
+               "12 mnd, fordi den bygger på lønn.")
 pil = pp("andel_deltatt", o, o_forrige)
+# Grå pil når en av periodene bygger på under 20 personer (for lite til å si noe)
+nok = o_forrige is not None and min(o["personer"], o_forrige["personer"]) >= b.MIN_N_ENDRING
 k3.metric("Deltatt i opplæring", b.prosent(o["andel_deltatt"], 0), delta=pil,
-          delta_color=b.pilfarge(pil, hoyere_er_bedre=True))
+          delta_color=b.pilfarge(pil, hoyere_er_bedre=True, vesentlig=nok))
 k3.caption(f"{o['deltatt']} av {o['personer']} ansatte i perioden hadde minst én aktivitet: "
            "kurs, sertifisering, konferanse, intern opplæring eller mentorordning")
 if s is None:
     u.skjult_kort(k4, "Jevnlige 1:1 med leder")
 else:
     pil = pp("andel_jevnlige", s, s_forrige)
+    nok = s_forrige is not None and min(s["n"], s_forrige["n"]) >= b.MIN_N_ENDRING
     k4.metric("Jevnlige 1:1 med leder", b.prosent(s["andel_jevnlige"], 0), delta=pil,
-              delta_color=b.pilfarge(pil, hoyere_er_bedre=True))
+              delta_color=b.pilfarge(pil, hoyere_er_bedre=True, vesentlig=nok))
     snitt_1til1 = f"{b.avrund(s['per_ansatt_per_maaned'], 1):.1f}".replace(".", ",")
     k4.caption(f"{s['jevnlige']} av {s['n']} hadde 1:1 i minst 10 av 12 måneder. "
                f"I snitt {snitt_1til1} samtaler per ansatt per måned.")

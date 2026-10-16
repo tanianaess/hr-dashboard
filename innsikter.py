@@ -140,7 +140,8 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
     utenfor_s = b.utenfor_sykefravaer(ansatte, b.TEAM)
     f_s = fravaer[~fravaer["team"].isin(utenfor_s)]
     sn, sj = b.sykefravaer(f_s, start, slutt), b.sykefravaer(f_s, js, je)
-    v, d = _prosentpoeng(sn["total_rate"], 2), _prosentpoeng(sn["total_rate"] - sj["total_rate"], 2)
+    # Status settes på tallene som vises: verdien med 2 desimaler, endringen med 1 (som pilen)
+    v, d = _prosentpoeng(sn["total_rate"], 2), _prosentpoeng(sn["total_rate"] - sj["total_rate"], 1)
     st_fravaer = status("Sykefravær", v, d)
     liste.append(dict(navn="Sykefravær", verdi=b.prosent(sn["total_rate"], 2),
                       endring=b.endring_pp(sn["total_rate"], sj["total_rate"]),
@@ -172,7 +173,9 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
                       endring=b.endring_antall(d_poeng, "poeng"),
                       hoyere_er_bedre=True,
                       status=status("eNPS", b.avrund(en["enps"]), d_poeng),
-                      ekstra=f"Svarandel {b.prosent(en['svarandel'], 0)}.",
+                      # Lav svarandel (under 50 %) markeres, som på Engasjement-siden
+                      ekstra=f"Svarandel {b.prosent(en['svarandel'], 0)}"
+                             + (" (lav)." if en["svarandel"] < b.LAV_SVARANDEL else "."),
                       kortnavn="eNPS", sammenligning="fjor", utenfor=utenfor_e,
                       side="Engasjement"))
 
@@ -243,21 +246,25 @@ def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None, samtal
         if b.snitt_ansatte(a_team, start, slutt) >= b.MIN_GRUPPE:
             f_team = fravaer[fravaer["team"] == team]
             naa, fjor = b.sykefravaer(f_team, start, slutt), b.sykefravaer(f_team, js, je)
-            endring = naa["total_rate"] - fjor["total_rate"]
-            if naa["total_rate"] > 0.06 or endring >= 0.01:
+            # Regelen bruker de avrundede tallene som vises (2 desimaler, endringen 1 som pilen)
+            fravaer_pp = _prosentpoeng(naa["total_rate"], 2)
+            endring_pp = _prosentpoeng(naa["total_rate"] - fjor["total_rate"], 1)
+            over_maal = fravaer_pp > _prosentpoeng(b.SYKEFRAVAER_MAL, 0)
+            if over_maal or endring_pp >= 1:
                 deler.append(f"Sykefravær {b.prosent(naa['total_rate'], 2)} "
                              f"({b.endring_pp(naa['total_rate'], fjor['total_rate']).replace('-', '−')} mot i fjor), "
                              f"langtid {b.prosent(naa['langtid_rate'], 2)}"
-                             + (", over det interne målet på 6 %" if naa["total_rate"] > 0.06 else ""))
+                             + (", over det interne målet på 6 %" if over_maal else ""))
                 tittel_deler.append("høyt sykefravær")
                 lenker.append(("Sykefravær", team))
-                alvor += 2 if naa["total_rate"] > 0.06 else 1
+                alvor += 2 if over_maal else 1
 
         # eNPS – bare når teamet har minst 5 svar i begge kvartalene (femregelen)
         e_team = engasjement[engasjement["team"] == team]
         en = b.enps_samlet(e_team[e_team["kvartal"] == siste])
         ej = b.enps_samlet(e_team[e_team["kvartal"] == fjor_k])
-        if en and ej and (en["enps"] < 0 or en["enps"] - ej["enps"] <= -10):
+        # Samme avrunding som visningen (eNPS vises som hele poeng)
+        if en and ej and (b.avrund(en["enps"]) < 0 or b.avrund(en["enps"] - ej["enps"]) <= -10):
             lav_svar = en["svarandel"] < b.LAV_SVARANDEL
             fall = b.avrund(en["enps"] - ej["enps"])
             deler.append(f"eNPS {b.enps_tekst(en['enps'])} ({b.fortegn(fall)} poeng mot {fjor_k}), "
@@ -368,7 +375,9 @@ def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None, samtal
 
     # --- Regel 5: kritiske nøkkeltall for hele selskapet -----------------------------------
     for k in nokkeltall_liste or []:
-        if k["status"][0] == KRITISK:
+        # Kort som bare følger et annet kort (kostnadene) gir ingen egen innsikt. Ellers
+        # kom samme avvik to ganger, med teksten «Grensen for kritisk er følger …».
+        if k["status"][0] == KRITISK and not k["status"][1].startswith("følger"):
             liste.append(dict(
                 tittel=f"{k['navn']} er kritisk",
                 tekst=f"{k['navn']} er {k['verdi']}. Grensen for kritisk er {k['status'][1]}.",

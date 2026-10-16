@@ -42,8 +42,9 @@ avvik = faktisk - planlagt
 # --- KPI-kort (nøytrale – ingen røde/grønne piler) -----------------------------------
 kort1, kort2, kort3 = st.columns(3)
 kort1.metric("Faktisk antall ansatte", faktisk)
-kort1.caption(f"Per {slutt:%d.%m.%Y}: {b.avrund(per_team['faktisk_aarsverk'].sum(), 1):.1f} årsverk".replace(".", ",")
-              + f", herav {int(per_team['midlertidige'].sum())} midlertidige ansatte")
+aarsverk = f"{b.avrund(per_team['faktisk_aarsverk'].sum(), 1):.1f}".replace(".", ",")  # bare tallet får komma
+kort1.caption(f"Per {slutt:%d.%m.%Y}: {aarsverk} årsverk, "
+              f"herav {int(per_team['midlertidige'].sum())} midlertidige ansatte")
 kort2.metric("Planlagt antall", planlagt)
 kort2.caption(f"Bemanningsplan for {slutt:%m.%Y}")
 # Samme 5 %-regel som i tabellen: ◆ i overskriften og forklaring under
