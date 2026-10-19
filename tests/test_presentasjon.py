@@ -61,7 +61,7 @@ def test_forsiden_har_introduksjon_periode_og_datodato():
     at = kjor("app.py")
     tekst = all_tekst(at)
     assert "For ledergruppen i selskaper med 50-500 ansatte." in tekst
-    assert "rekrutteringsprosessen?" in tekst
+    assert "virker endringene i rekrutteringen?" in tekst
     start, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
     assert (f"Tallene gjelder hele selskapet de siste 12 månedene "
             f"({start:%d.%m.%Y}-{slutt:%d.%m.%Y})") in tekst
