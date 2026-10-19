@@ -8,7 +8,7 @@ import streamlit as st
 import beregninger as b
 import datalasting as d
 import utseende as u
-from filtre import IKONER, SPORSMAL, vis_filtre_sensitiv
+from filtre import IKONER, SIDER, SPORSMAL, forhandsvelg, vis_filtre_sensitiv
 
 st.set_page_config(page_title="Rekruttering · HR-dashbord", layout="wide")
 
@@ -39,8 +39,19 @@ fjor_start, fjor_slutt = b.samme_periode_i_fjor(start, slutt)
 har_fjor = fjor_start >= b.REKRUTTERING_FRA
 fjor = b.rekruttering(utvalg, fjor_start, fjor_slutt) if har_fjor else None
 
+
+
+def lenke_til_bemanning():
+    """Lenke til Bemanning (uten forhåndsvalgt team). Vises nederst, eller før
+    st.stop() når siden stopper tidlig."""
+    if st.button("Se bemanning mot plan", icon=":material/arrow_forward:", type="tertiary",
+                 key="til_bemanning"):
+        forhandsvelg(SIDER["Bemanning"])
+
+
 if naa["antall"] == 0:
     st.info("Ingen ansettelser med registrerte rekrutteringsdata i perioden for dette utvalget.")
+    lenke_til_bemanning()
     st.stop()
 
 
@@ -60,20 +71,30 @@ endring_andel = (b.endring_pp(naa["andel_strukturert"], fjor["andel_strukturert"
                  else None)
 endring_antall = f"{naa['antall'] - fjor['antall']:+d}" if har_fjor else None
 
-kort1, kort2, kort3 = st.columns(3)
+# Tid til tiltredelse: samme beregning og femregel som på Bemanning (None under 5)
+tiltredelse = b.tid_til_tiltredelse(utvalg, start, slutt)
+
+kort1, kort2, kort_tiltredelse, kort3 = st.columns(4)
 kort1.metric("Ansettelser", naa["antall"], delta=endring_antall, delta_color="off")
 kort1.caption("Alle ansettelsesformer, med registrerte rekrutteringsdata")
 if naa["median_dager"] is None:
     forklaring = "Skjult: færre enn 5 ansettelser i utvalget (femregelen)."
     u.skjult_kort(kort2, "Median tid til ansettelse", forklaring)
+    u.skjult_kort(kort_tiltredelse, "Median tid til tiltredelse", forklaring)
     u.skjult_kort(kort3, "Andel strukturert rekruttering", forklaring)
 else:
     kort2.metric("Median tid til ansettelse", f"{b.avrund(naa['median_dager'])} dager",
                  delta=endring_dager(), delta_color=b.pilfarge(endring_dager()))
     kort2.caption("Fra utlysning til akseptert tilbud")
+    kort_tiltredelse.metric("Median tid til tiltredelse", f"{b.avrund(tiltredelse)} dager")
+    kort_tiltredelse.caption("Fra utlysning til første arbeidsdag, inkludert oppsigelsestid")
     kort3.metric("Andel strukturert rekruttering", b.prosent(naa["andel_strukturert"], 0),
                  delta=endring_andel, delta_color=b.pilfarge(endring_andel, hoyere_er_bedre=True))
     kort3.caption(f"{naa['strukturert']} av {naa['antall']} ansettelser")
+
+# Regelbasert: tiltredelse minst dobbelt så lang som ansettelse (se beregninger.py)
+if b.oppsigelsestid_dominerer(naa["median_dager"], tiltredelse):
+    st.markdown(b.OPPSIGELSESTID_TEKST)
 
 if har_fjor:
     st.caption(f"Pilene viser endring mot samme periode i fjor ({fjor_start:%m.%Y}-{fjor_slutt:%m.%Y}).")
@@ -269,3 +290,7 @@ st.vega_lite_chart(
 st.caption("Fra utlysning til akseptert tilbud, for ansettelser i perioden. "
            "n = antall ansettelser. **Femregelen:** team med under 5 ansettelser i perioden "
            "vises ikke.")
+
+
+# --- Lenke til Bemanning (uten forhåndsvalgt team) ----------------------------------
+lenke_til_bemanning()

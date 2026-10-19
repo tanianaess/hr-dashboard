@@ -67,3 +67,14 @@ def test_ingen_lang_tankestrek():
     filer = [*PROSJEKT.glob("*.py"), *PROSJEKT.glob("sider/*.py"), PROSJEKT / "README.md"]
     treff = [str(f.name) for f in filer if "—" in f.read_text(encoding="utf-8")]
     assert not treff, treff
+
+
+@pytest.mark.parametrize("side", ["app.py", *SENSITIVE, *FRIE])
+def test_datoer_har_punktum(side):
+    # Datoer skal skrives 30.09.2026, ikke 30,09,2026. Feilen oppstår når
+    # .replace(".", ",") brukes på en hel tekst med dato i, ikke bare på tallet.
+    at = kjor(side)
+    tekster = [str(e.value) for e in [*at.caption, *at.markdown, *at.info]]
+    tekster += [str(m.value) for m in at.metric] + [str(m.label) for m in at.metric]
+    feil = [t for t in tekster if re.search(r"\d{1,2},\d{2},\d{4}", t)]
+    assert not feil, feil

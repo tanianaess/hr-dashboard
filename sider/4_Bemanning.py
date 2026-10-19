@@ -7,7 +7,7 @@ import streamlit as st
 import beregninger as b
 import datalasting as d
 import utseende as u
-from filtre import IKONER, SPORSMAL, vis_filtre
+from filtre import IKONER, SIDER, SPORSMAL, forhandsvelg, vis_filtre
 
 st.set_page_config(page_title="Bemanning · HR-dashbord", layout="wide")
 
@@ -42,7 +42,9 @@ avvik = faktisk - planlagt
 # --- KPI-kort (nøytrale – ingen røde/grønne piler) -----------------------------------
 kort1, kort2, kort3 = st.columns(3)
 kort1.metric("Faktisk antall ansatte", faktisk)
-kort1.caption(f"Per {slutt:%d.%m.%Y}: {b.avrund(per_team['faktisk_aarsverk'].sum(), 1):.1f} årsverk".replace(".", ",")
+# Bare tallet får desimalkomma. Datoen beholder punktum (30.09.2026).
+aarsverk = f"{b.avrund(per_team['faktisk_aarsverk'].sum(), 1):.1f}".replace(".", ",")
+kort1.caption(f"Per {slutt:%d.%m.%Y}: {aarsverk} årsverk"
               + f", herav {int(per_team['midlertidige'].sum())} midlertidige ansatte")
 kort2.metric("Planlagt antall", planlagt)
 kort2.caption(f"Bemanningsplan for {slutt:%m.%Y}")
@@ -132,6 +134,18 @@ st.caption(
     "når den bygger på færre enn 5 ansettelser (med få personer ligger medianen nær ett "
     "enkelt forløp)."
 )
+
+# Knapp til Rekruttering for hvert team som er markert og under plan (ikke over plan).
+# forhandsvelg() gir siste 12 mnd og ett team – Rekruttering har begrenset filter.
+under_plan = b.team_under_plan(per_team)
+if under_plan:  # ingen team under plan → ingen knapper
+    with st.container(horizontal=True):  # knappene på én rad, så brede som teksten
+        for team in under_plan:
+            if st.button(f"Se rekruttering for {team}", icon=":material/arrow_forward:",
+                         key=f"rekruttering_{team}",
+                         help=f"Åpner rekruttering med {team} og siste 12 mnd valgt"):
+                forhandsvelg(SIDER["Rekruttering"], team)
+
 st.info(
     "**Stillinger på vei inn vises ikke.** Dataene er et øyeblikksbilde per 30.09.2026, "
     "og personer som har takket ja, men ikke startet ennå, er ikke med. Et team kan derfor "

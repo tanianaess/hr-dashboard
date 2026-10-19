@@ -501,6 +501,19 @@ def rekruttering(ansatte, start, slutt):
     }
 
 
+OPPSIGELSESTID_TEKST = ("Det meste av ventetiden er oppsigelsestid etter at tilbudet er "
+                        "akseptert. Rekruttering bør starte tidligere, ut fra bemanningsplanen.")
+
+
+def oppsigelsestid_dominerer(median_ansettelse, median_tiltredelse):
+    """Sant når tid til tiltredelse er minst dobbelt så lang som tid til ansettelse
+    (regelbasert). Bruker de avrundede tallene som vises i kortene, som statusreglene.
+    Usant når et av tallene er skjult (femregelen)."""
+    if median_ansettelse is None or median_tiltredelse is None:
+        return False
+    return avrund(median_tiltredelse) >= 2 * avrund(median_ansettelse)
+
+
 def tid_til_ansettelse_per_team(ansatte, start, slutt, team_liste=TEAM):
     """Median dager fra utlysning til aksept per team, med antall ansettelser (n).
     Femregelen: median vises bare med minst 5 ansettelser (ellers None)."""
@@ -670,6 +683,12 @@ def bemanning_per_team(ansatte, plan, start, slutt, team_liste=TEAM):
             "tiltredelse_n": len(dager),
         })
     return pd.DataFrame(rader)
+
+
+def team_under_plan(per_team):
+    """Team som er markert (◆, over avviksgrensen) OG ligger under plan.
+    Får en knapp til Rekruttering på Bemanning-siden. Team over plan får ingen."""
+    return per_team.loc[per_team["markert"] & (per_team["avvik"] < 0), "team"].tolist()
 
 
 
