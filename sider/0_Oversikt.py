@@ -8,7 +8,7 @@ import beregninger as b
 import datalasting as d
 import innsikter as i
 import utseende as u
-from filtre import IKONER, SIDER, forhandsvelg
+from filtre import CASE_SIDE, IKONER, SIDER, forhandsvelg
 
 st.set_page_config(page_title="Oversikt · HR-dashbord", layout="wide")
 
@@ -130,6 +130,10 @@ for nr, innsikt in enumerate(innsikt_liste):
                                  key=f"innsikt_{nr}_{j}",
                                  help=f"Åpner {side.lower()} med {team} valgt" if team else None):
                         forhandsvelg(SIDER[side], team)
+                if innsikt.get("case"):  # eksempel på analyse av dette funnet
+                    if st.button("Se eksempel på analyse", icon=":material/arrow_forward:",
+                                 key=f"innsikt_{nr}_case"):
+                        st.switch_page(SIDER[CASE_SIDE])
 
         # Høyre: forslag til neste steg, tydelig skilt fra funnet
         with steg:

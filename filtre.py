@@ -24,7 +24,9 @@ SIDER = {
     "Bemanning": "sider/4_Bemanning.py",
     "Engasjement": "sider/5_Engasjement.py",
     "Utvikling": "sider/6_Utvikling.py",
+    "Eksempel: fra funn til tiltak": "sider/7_Case.py",
 }
+CASE_SIDE = "Eksempel: fra funn til tiltak"  # eksempelsiden, sist i menyen
 
 # Ikon per side – brukes både i menyen (app.py) og foran overskriften (topp() i utseende.py)
 IKONER = {
@@ -35,6 +37,7 @@ IKONER = {
     "Bemanning": ":material/groups:",
     "Engasjement": ":material/forum:",
     "Utvikling": ":material/school:",
+    "Eksempel: fra funn til tiltak": ":material/route:",
 }
 
 # Spørsmålet hver detaljside svarer på – vises under tittelen (topp() i utseende.py)
@@ -45,6 +48,7 @@ SPORSMAL = {
     "Bemanning": "Har vi folkene bemanningsplanen krever?",
     "Engasjement": "Hvor fornøyde er de ansatte, og henger det sammen med fraværet?",
     "Utvikling": "Utvikler vi folkene våre, og får vi det igjen i interne ansettelser og lavere turnover?",
+    "Eksempel: fra funn til tiltak": "Hvordan kan et funn i dashbordet bli til konkrete tiltak?",
 }
 
 # Sider med begrenset filter (sensitive tall). Bare Bemanning har fritt filter,

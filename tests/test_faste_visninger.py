@@ -42,7 +42,9 @@ def test_sammenligninger_er_bare_de_faste_periodene():
 
 def test_sensitive_sider_har_begrenset_filter():
     alle = {f"sider/{p.name}" for p in (PROSJEKT / "sider").glob("[1-9]_*.py")}
-    assert alle - filtre.SENSITIVE_SIDER == {"sider/4_Bemanning.py"}
+    # Bemanning har fritt filter. Eksempelsiden har ingen filter (én fast visning: salg,
+    # siste 12 mnd), se test_case.py.
+    assert alle - filtre.SENSITIVE_SIDER == {"sider/4_Bemanning.py", "sider/7_Case.py"}
 
 
 # --- Turnover: månedsgraf og kostnad --------------------------------------------------

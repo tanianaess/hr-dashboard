@@ -225,6 +225,25 @@ def nokkeltall(ansatte, fravaer, engasjement, plan):
 
 MAKS_INNSIKTER = 5
 
+# Eksempelsiden «fra funn til tiltak» (sider/7_Case.py) handler om dette teamet.
+# Innsikten om teamet på forsiden får en lenke dit.
+CASE_TEAM = "salg"
+CASE_MAL_1TIL1 = 0.80  # mål for andel jevnlige 1:1 etter 3 mnd (Tanias vurdering)
+
+
+def forhold_tekst(ny, gammel):
+    """Hvor mye høyere ett tall er enn et annet, i ord: «dobbelt så høy», «nesten dobbelt
+    så høy», «over dobbelt så høy» eller «1,6 ganger så høy». Regnes på tallene slik de
+    vises (avrundet prosent), så teksten stemmer med det leseren ser."""
+    forhold = b.avrund(b.avrund(ny * 100, 1) / b.avrund(gammel * 100, 1), 1)
+    if forhold == 2:
+        return "dobbelt så høy"
+    if 1.8 <= forhold < 2:
+        return "nesten dobbelt så høy"
+    if 2 < forhold < 2.5:
+        return "over dobbelt så høy"
+    return f"{forhold:.1f} ganger så høy".replace(".", ",")
+
 
 def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None, samtaler=None):
     start, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
@@ -341,6 +360,7 @@ def innsikter(ansatte, fravaer, engasjement, plan, nokkeltall_liste=None, samtal
                 innsikt["neste_steg"] = ("Sluttsamtaler, og avtal faste 1:1 mellom teamleder og "
                                          "hver ansatt i teamet.")
                 innsikt["lenker"] = [("Turnover", team), ("Utvikling", team)]
+            innsikt["case"] = team == CASE_TEAM  # lenke til eksempelsiden
             liste.append(innsikt)
 
     # --- Regel 4: rekruttering – tidlig turnover etter metode -----------------------------
