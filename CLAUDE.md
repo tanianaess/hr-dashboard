@@ -83,7 +83,7 @@ Hold oss til denne stacken. Ikke legg til nye biblioteker uten å spørre først
     **Forfremmelser** er sensitive: vises bare med minst 5 interne endringer og
     minst 5 ansatte (samme logikk som fordelingen av turnover).
   - **1:1 per team er i praksis tall om én leder.** Siden sier det åpent, og
-    tallene skal brukes til samtale med lederen, ikke til rangering.
+    tallene skal brukes til samtale med lederen, ikke til å sammenligne eller vurdere ledere.
   
   Dette gjelder også når filtre gjør en gruppe mindre enn 5.
 - **Sekundær prikking:** en skjult gruppe må ikke kunne regnes ut som «total minus

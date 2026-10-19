@@ -256,8 +256,8 @@ st.caption(
 
 # --- Hva vi ikke måler ---------------------------------------------------------------------------
 st.info(
-    "**Hva siden bevisst ikke måler:** formelle medarbeidersamtaler to ganger i året (de "
+    "**Hva vi bevisst ikke måler:** formelle medarbeidersamtaler to ganger i året (de "
     "måler om en rutine er fulgt, ikke om noen utvikler seg) og kompetansegap per person "
-    "(krever vurderinger av enkeltpersoner, er sensitivt og sjelden presist i små selskaper).",
+    "(krever vurderinger av enkeltpersoner, er sensitivt og sjelden presist i mindre selskaper).",
     icon=":material/info:",
 )

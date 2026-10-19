@@ -898,8 +898,9 @@ OPPFOLGING_MERKNAD = (
     "til oppfølging. Med så få team er dette et mønster å følge med på, ikke et bevis."
 )
 EN_TIL_EN_MERKNAD = (
-    "Et team har som regel én leder. Tall om 1:1 per team handler derfor i praksis om "
-    "den lederens oppfølging. Bruk dem til samtale med lederen, ikke til rangering."
+    "Et team har som regel én leder, så tallene for 1:1 per team handler i praksis om den "
+    "lederens oppfølging. Bruk dem som utgangspunkt for en samtale med lederen, ikke til å "
+    "sammenligne eller vurdere ledere."
 )
 
 
