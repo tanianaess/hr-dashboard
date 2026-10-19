@@ -60,7 +60,7 @@ def test_skjult_kort_viser_strek_og_forklaring():
 def test_forsiden_har_introduksjon_periode_og_datodato():
     at = kjor("app.py")
     tekst = all_tekst(at)
-    assert "For ledergruppen i et selskap med 50-500 ansatte." in tekst
+    assert "For ledergruppen i selskaper med 50-500 ansatte." in tekst
     assert "rekrutteringsprosessen?" in tekst
     start, slutt = b.FASTE_PERIODER["Siste 12 mnd"]
     assert (f"Tallene gjelder hele selskapet de siste 12 månedene "

@@ -14,12 +14,11 @@ st.set_page_config(page_title="Oversikt · HR-dashbord", layout="wide")
 
 # Kort introduksjon: hvem dashbordet er for, og hva de trenger (Tanias formulering)
 INTRO = (
-    "**For ledergruppen i et selskap med 50-500 ansatte.** Dashbordet gir daglig leder, "
-    "økonomidirektør og HR et felles bilde av de viktigste innsiktene rundt ansatte og HR "
+    "**For ledergruppen i selskaper med 50-500 ansatte.** Dashbordet gir daglig leder, "
+    "økonomiansvarlig og HR et felles bilde av ansatte og arbeidsmiljø, for eksempel "
     "før ledermøtet.\n\n"
     "- **Ledelsen:** Hvor er risikoen nå, hva koster den, og har vi folkene planen krever?\n"
-    "- **HR-leder:** Hvilke team trenger oppfølging, og virker endringene i "
-    "rekrutteringsprosessen?\n\n"
+    "- **HR-leder:** Hvilke team trenger oppfølging, og virker endringene i rekrutteringen?\n\n"
     "Start med statusen og innsiktene under, og gå til detaljsidene ved behov. Tallene "
     "gjelder alltid grupper, aldri enkeltpersoner, og tilgangen er begrenset til HR-ledelse "
     "og ledergruppen."
