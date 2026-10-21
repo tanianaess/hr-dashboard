@@ -248,7 +248,10 @@ def finn_grupper(nace_kode, tabell, alle):
     """Hvilke næringsgrupper i en SSB-tabell selskapets næringskode hører til, mest spesifikk
     først og «Alle næringer» sist: «62.010» → [(«61-63», «IKT-virksomhet»), («J», «Informasjon
     og kommunikasjon»), («A-U», «Alle næringer»)] i tabell 12440. Den som bruker listen, går
-    videre til neste når et tall mangler."""
+    videre til neste når et tall mangler.
+    Enhetsregisteret bruker SN2025 (fra 1.1.2025, f.eks. 62.100), SSB-tabellene SN2007 (f.eks.
+    62.010). Koblingen går derfor på de to første sifrene (næringen), som i hovedsak er like i de
+    to standardene; gruppenivået (tre sifre) brukes bare der tabellen selv har slike koder."""
     naering, gruppe = int(nace_kode[:2]), nace_kode[:4]  # «62.010» → 62 og «62.0»
     kandidater = []
     for kode, tekst in tabell[["NACE2007", "NACE2007_tekst"]].drop_duplicates().itertuples(index=False):
@@ -301,6 +304,11 @@ def rund_til(tall, trinn):
 def belop(kr):
     """Kroner slik de vises: minst 1 mill. kr som «0,8 mill. kr», ellers til nærmeste 1 000 kr."""
     return b.millioner(kr) if kr >= 1_000_000 else b.kroner(rund_til(kr, 1_000))
+
+
+def dagsverk_tekst(dagsverk):
+    """Dagsverk slik de vises: til nærmeste 10, med mellomrom som tusenskille: 1 392,4 → «1 390»."""
+    return f"{rund_til(dagsverk, 10):,}".replace(",", " ")
 
 
 def prosent_tekst(prosent):
@@ -524,17 +532,17 @@ def blokker(g):
                         f"{kvartal_tekst(n['lonnskvartal'])}, SSB tabell {k['lonn_kvartal']['tabell']}) "
                         f"og en erstatningskostnad på {a['kostnadsandel_prosent']} % av en årslønn "
                         f"per avgang. Grunnlaget er {grunnlag}."))
-        punkter = [f"Ett prosentpoeng sykefravær tilsvarer ca. {rund_til(r['pp_dagsverk'], 10)} tapte "
+        punkter = [f"Ett prosentpoeng sykefravær tilsvarer ca. {dagsverk_tekst(r['pp_dagsverk'])} tapte "
                    f"dagsverk i året, som i lønn er ca. {belop(r['pp_kr'])}."]
         if r["forskjell_pp"]:
             punkter.append(f"Forskjellen mot næringen ({forskjell_tekst(r['forskjell_pp'])}) tilsvarer "
-                           f"ca. {rund_til(abs(r['forskjell_dagsverk']), 10)} dagsverk og "
+                           f"ca. {dagsverk_tekst(abs(r['forskjell_dagsverk']))} dagsverk og "
                            f"{belop(abs(r['forskjell_kr']))} i året.")
         if r["egenmeldt_kr"] is not None:
             punkter.append(f"Egenmeldt fravær betaler arbeidsgiver alltid selv (arbeidsgiverperioden er "
                            f"de første {a['arbeidsgiverperiode_dager']} dagene). Med næringens egenmeldte "
                            f"fravær ({prosent_tekst(r['egenmeldt_prosent'])} i {aar}) er det ca. "
-                           f"{rund_til(r['egenmeldt_dagsverk'], 10)} dagsverk og {belop(r['egenmeldt_kr'])} "
+                           f"{dagsverk_tekst(r['egenmeldt_dagsverk'])} dagsverk og {belop(r['egenmeldt_kr'])} "
                            f"i året. Det er et minimum: de første {a['arbeidsgiverperiode_dager']} dagene "
                            f"av legemeldt fravær kommer i tillegg.")
         linje = f"Hver avgang som må erstattes, koster etter antakelsen ca. {belop(r['per_avgang_kr'])}."
@@ -675,12 +683,12 @@ def lovlige_tall(g):
             deler.append(kvartal_tekst(n["kvartal"]) + " " + kvartal_tekst(n["lonnskvartal"]))
     r = g["regnestykke"]
     if r:
-        deler += [str(r["personer"]), b.kroner(r["maanedslonn"]), str(rund_til(r["pp_dagsverk"], 10)),
+        deler += [str(r["personer"]), b.kroner(r["maanedslonn"]), dagsverk_tekst(r["pp_dagsverk"]),
                   belop(r["pp_kr"]), belop(r["per_avgang_kr"]), belop(10 * r["per_avgang_kr"])]
         if r["egenmeldt_kr"] is not None:
-            deler += [str(rund_til(r["egenmeldt_dagsverk"], 10)), belop(r["egenmeldt_kr"])]
+            deler += [dagsverk_tekst(r["egenmeldt_dagsverk"]), belop(r["egenmeldt_kr"])]
         if r["forskjell_pp"] is not None:
-            deler += [str(rund_til(abs(r["forskjell_dagsverk"]), 10)), belop(abs(r["forskjell_kr"]))]
+            deler += [dagsverk_tekst(abs(r["forskjell_dagsverk"])), belop(abs(r["forskjell_kr"]))]
         if r["avganger"] is not None:
             deler += [str(r["avganger"]), belop(r["avganger_kr"])]
     for felt in ("hentet", "ansatte_per"):
