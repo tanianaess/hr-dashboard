@@ -159,9 +159,27 @@ def som_markdown(brief):
     return "\n".join(linjer) + "\n"
 
 
+# Stilen på HTML-sidene som sendes som vedlegg (lederbriefen og selskapsnotatet): samme skrift og
+# farger som dashbordet, én smal spalte, og ingenting som hentes fra nettet.
+HTML_STIL = ("body{font-family:Inter,'Segoe UI',Helvetica,Arial,sans-serif;max-width:720px;"
+             "margin:2rem auto;padding:0 1.25rem;color:#1E2A30;line-height:1.5}"
+             "h1{font-size:1.6rem;color:#0F4C5C}h2{font-size:1.1rem;margin-top:1.4rem}"
+             ".meta{color:#4A555C;font-size:.9rem}.sp{font-weight:600;margin-bottom:.25rem}ul{margin-top:0}"
+             "a{color:#0F4C5C}")
+
+
+def html_side(tittel, deler):
+    """Én selvstendig HTML-side med stilen over. `deler` er ferdige HTML-biter (overskrifter,
+    avsnitt, lister) som settes etter hverandre. Ingen nye biblioteker."""
+    import html as h
+    return (f"<!doctype html><html lang='nb'><head><meta charset='utf-8'>"
+            f"<title>{h.escape(tittel)}</title><style>{HTML_STIL}</style></head><body>"
+            + "".join(deler) + "</body></html>\n")
+
+
 def som_html(brief):
     """Briefen som én selvstendig HTML-side med enkel stil, til vedlegg i e-post
-    (åpnes i nettleseren og kan skrives ut til PDF). Ingen nye biblioteker."""
+    (åpnes i nettleseren og kan skrives ut til PDF)."""
     import html as h
     felt = brief["brief"]
     deler = [f"<h1>Lederbrief: {h.escape(u.SELSKAP)}</h1>",
@@ -175,13 +193,7 @@ def som_html(brief):
     deler += ["<h2>Følg med</h2>", f"<p>{h.escape(felt['folg_med'])}</p>",
               "<h2>Forbehold</h2>", f"<p>{h.escape(felt['forbehold'])}</p>",
               f"<p class='meta'>{h.escape(merking(brief))}</p>"]
-    stil = ("body{font-family:Inter,'Segoe UI',Helvetica,Arial,sans-serif;max-width:720px;"
-            "margin:2rem auto;padding:0 1.25rem;color:#1E2A30;line-height:1.5}"
-            "h1{font-size:1.6rem;color:#0F4C5C}h2{font-size:1.1rem;margin-top:1.4rem}"
-            ".meta{color:#4A555C;font-size:.9rem}.sp{font-weight:600;margin-bottom:.25rem}ul{margin-top:0}")
-    return (f"<!doctype html><html lang='nb'><head><meta charset='utf-8'>"
-            f"<title>Lederbrief {h.escape(u.SELSKAP)}</title><style>{stil}</style></head><body>"
-            + "".join(deler) + "</body></html>\n")
+    return html_side(f"Lederbrief {u.SELSKAP}", deler)
 
 
 # --- Kontroll av AI-teksten ---------------------------------------------------------
