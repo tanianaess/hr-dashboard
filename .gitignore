@@ -16,3 +16,8 @@ __pycache__/
 
 # Lokale innstillinger for Claude Code
 .claude/settings.local.json
+
+# Selskapsnotater om ekte selskaper (og årsberetningstall) holdes utenfor repoet.
+# Bare eksempelet med det oppdiktede selskapet er med.
+notater/*
+!notater/eksempel-*

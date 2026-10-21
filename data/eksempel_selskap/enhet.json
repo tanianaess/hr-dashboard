@@ -1,0 +1,10 @@
+{
+  "_merknad": "Oppdiktet selskap til eksempelet. Formen er som svaret fra Enhetsregisterets API (bare feltene notatet bruker). Organisasjonsnummeret kan ikke tilhøre et ekte selskap: ekte organisasjonsnumre begynner på 8 eller 9.",
+  "organisasjonsnummer": "123456785",
+  "navn": "NORDVIND LOGISTIKK AS",
+  "organisasjonsform": {"kode": "AS", "beskrivelse": "Aksjeselskap"},
+  "naeringskode1": {"kode": "49.410", "beskrivelse": "Godstransport på vei"},
+  "antallAnsatte": 118,
+  "harRegistrertAntallAnsatte": true,
+  "registreringsdatoAntallAnsatteEnhetsregisteret": "2026-10-10"
+}
