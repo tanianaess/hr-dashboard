@@ -1,0 +1,52 @@
+{
+  "brreg": {
+    "navn": "Enhetsregisteret (Brønnøysundregistrene), åpne data",
+    "api": "https://data.brreg.no/enhetsregisteret/api/enheter/{orgnr}",
+    "dokumentasjon": "https://data.brreg.no/enhetsregisteret/api/dokumentasjon",
+    "lisens": "Norsk lisens for offentlige data (NLOD)"
+  },
+  "tabeller": {
+    "sykefravaer_kvartal": {
+      "tabell": "12440",
+      "tittel": "Sykefravær for lønnstakere (prosent), etter kjønn, næring (SN2007), type sykefravær og kvartal",
+      "fil": "ssb_12440.csv",
+      "url": "https://www.ssb.no/statbank/table/12440",
+      "api_url": "https://data.ssb.no/api/pxwebapi/v2/tables/12440/data?lang=no&outputFormat=json-stat2&valueCodes%5BKjonn%5D=0&valueCodes%5BNACE2007%5D=*&valueCodes%5BSykefraver2%5D=*&valueCodes%5BContentsCode%5D=SykefravProsent&valueCodes%5BTid%5D=top(5)",
+      "oppdatert": "2026-09-03",
+      "siste_periode": "2026K2",
+      "lastet_ned": "2026-10-21",
+      "merknader_fra_ssb": [
+        "Omregning til SN2007 er foretatt for tall eldre enn 2008. Se 'Om statistikken', 'Sammenlignbarhet over tid og sted' for nærmere omtale av omregningsmetoden.",
+        "Fra første kvartal 2015 er sykefraværsstatistikken basert på nytt datagrunnlag, siden A-ordningen erstattet NAVs Aa-register fra 1. januar 2015. Det er derfor brudd i tidsserien mellom 2014 og 2015.",
+        "19. juni 2026: Det ble oppdaget en feil i beregningen av egenmeldt sykefravær til publisering av 1. kvartal 2026. Feilen er rettet og tidsserien tilbake til 2015 er rekjørt. De aggregerte tallene og den generelle utviklingen er ikke endret, men det ble noen endringer i tidsseriene. Det var størst endring på fylkestallene. Ganske mange fylker hadde noen kvartaler med endringer på ± 0,1 prosentpoeng. Noen få med ± 0,2 prosentpoeng og noen svært få med enten ± 0,3 eller 0,4 prosentpoeng. Det fylket som hadde størst endring var 55 Troms - Romsa - Tromssa."
+      ]
+    },
+    "sykefravaer_aar": {
+      "tabell": "12441",
+      "tittel": "Sykefravær for lønnstakere (prosent), etter kjønn, næring (SN2007), type sykefravær og år",
+      "fil": "ssb_12441.csv",
+      "url": "https://www.ssb.no/statbank/table/12441",
+      "api_url": "https://data.ssb.no/api/pxwebapi/v2/tables/12441/data?lang=no&outputFormat=json-stat2&valueCodes%5BKjonn%5D=0&valueCodes%5BNACE2007%5D=*&valueCodes%5BSykefraver2%5D=*&valueCodes%5BContentsCode%5D=Sykdom&valueCodes%5BTid%5D=top(1)",
+      "oppdatert": "2026-06-19",
+      "siste_periode": "2025",
+      "lastet_ned": "2026-10-21",
+      "merknader_fra_ssb": [
+        "Fra første kvartal 2015 er sykefraværsstatistikken basert på nytt datagrunnlag, siden A-ordningen erstattet NAVs Aa-register fra 1. januar 2015. Det er derfor brudd i tidsserien mellom 2014 og 2015."
+      ]
+    },
+    "lonn_kvartal": {
+      "tabell": "11656",
+      "tittel": "Lønnstakere og jobber, etter kjønn, alder, næring (SN2007) og kvartal",
+      "fil": "ssb_11656.csv",
+      "url": "https://www.ssb.no/statbank/table/11656",
+      "api_url": "https://data.ssb.no/api/pxwebapi/v2/tables/11656/data?lang=no&outputFormat=json-stat2&valueCodes%5BKjonn%5D=0&valueCodes%5BAlder%5D=999A&valueCodes%5BNACE2007%5D=*&valueCodes%5BContentsCode%5D=GjMndlonn,GjAvtMndlonn,Lonsstakere&valueCodes%5BTid%5D=top(1)",
+      "oppdatert": "2026-08-13",
+      "siste_periode": "2026K2",
+      "lastet_ned": "2026-10-21",
+      "merknader_fra_ssb": [
+        "Alle ett-tall og to-tall i tabellen er endret til '0' eller '3' for å ivareta personvernet. Når tallene aggregeres til høyere regionalt nivå, vil summen kunne avvike noe fra det faktiske tallet.",
+        ": = Vises ikke av konfidensialitetshensyn. Tall publiseres ikke for å unngå å identifisere personer eller virksomheter."
+      ]
+    }
+  }
+}

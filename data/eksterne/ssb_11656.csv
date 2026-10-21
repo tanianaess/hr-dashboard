@@ -1,0 +1,310 @@
+Kjonn,Kjonn_tekst,Alder,Alder_tekst,NACE2007,NACE2007_tekst,ContentsCode,ContentsCode_tekst,Tid,Tid_tekst,verdi
+0,Begge kjønn,999A,Alle aldre,00-99,Alle næringer,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,63700.0
+0,Begge kjønn,999A,Alle aldre,00-99,Alle næringer,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,58970.0
+0,Begge kjønn,999A,Alle aldre,00-99,Alle næringer,Lonsstakere,Antall lønnstakere,2026K2,2026K2,2839247.0
+0,Begge kjønn,999A,Alle aldre,01-03,"Jordbruk, skogbruk og fiske",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,57870.0
+0,Begge kjønn,999A,Alle aldre,01-03,"Jordbruk, skogbruk og fiske",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,52660.0
+0,Begge kjønn,999A,Alle aldre,01-03,"Jordbruk, skogbruk og fiske",Lonsstakere,Antall lønnstakere,2026K2,2026K2,36759.0
+0,Begge kjønn,999A,Alle aldre,01,"Jordbruk og tilhørende tjenester, jakt",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,42410.0
+0,Begge kjønn,999A,Alle aldre,01,"Jordbruk og tilhørende tjenester, jakt",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,41090.0
+0,Begge kjønn,999A,Alle aldre,01,"Jordbruk og tilhørende tjenester, jakt",Lonsstakere,Antall lønnstakere,2026K2,2026K2,17701.0
+0,Begge kjønn,999A,Alle aldre,02,Skogbruk og tilhørende tjenester,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,54440.0
+0,Begge kjønn,999A,Alle aldre,02,Skogbruk og tilhørende tjenester,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,51390.0
+0,Begge kjønn,999A,Alle aldre,02,Skogbruk og tilhørende tjenester,Lonsstakere,Antall lønnstakere,2026K2,2026K2,3465.0
+0,Begge kjønn,999A,Alle aldre,03,"Fiske, fangst og akvakultur",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,70720.0
+0,Begge kjønn,999A,Alle aldre,03,"Fiske, fangst og akvakultur",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,61990.0
+0,Begge kjønn,999A,Alle aldre,03,"Fiske, fangst og akvakultur",Lonsstakere,Antall lønnstakere,2026K2,2026K2,15593.0
+0,Begge kjønn,999A,Alle aldre,05-09,Bergverksdrift og utvinning,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,93470.0
+0,Begge kjønn,999A,Alle aldre,05-09,Bergverksdrift og utvinning,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,80280.0
+0,Begge kjønn,999A,Alle aldre,05-09,Bergverksdrift og utvinning,Lonsstakere,Antall lønnstakere,2026K2,2026K2,70670.0
+0,Begge kjønn,999A,Alle aldre,05,Bryting av steinkull og brunkull,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,
+0,Begge kjønn,999A,Alle aldre,05,Bryting av steinkull og brunkull,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,
+0,Begge kjønn,999A,Alle aldre,05,Bryting av steinkull og brunkull,Lonsstakere,Antall lønnstakere,2026K2,2026K2,48.0
+0,Begge kjønn,999A,Alle aldre,06,Utvinning av råolje og naturgass,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,107070.0
+0,Begge kjønn,999A,Alle aldre,06,Utvinning av råolje og naturgass,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,94540.0
+0,Begge kjønn,999A,Alle aldre,06,Utvinning av råolje og naturgass,Lonsstakere,Antall lønnstakere,2026K2,2026K2,27139.0
+0,Begge kjønn,999A,Alle aldre,07,Bryting av metallholdig malm,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,76620.0
+0,Begge kjønn,999A,Alle aldre,07,Bryting av metallholdig malm,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,66260.0
+0,Begge kjønn,999A,Alle aldre,07,Bryting av metallholdig malm,Lonsstakere,Antall lønnstakere,2026K2,2026K2,789.0
+0,Begge kjønn,999A,Alle aldre,08,Bryting og bergverksdrift ellers,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,61010.0
+0,Begge kjønn,999A,Alle aldre,08,Bryting og bergverksdrift ellers,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,56740.0
+0,Begge kjønn,999A,Alle aldre,08,Bryting og bergverksdrift ellers,Lonsstakere,Antall lønnstakere,2026K2,2026K2,3480.0
+0,Begge kjønn,999A,Alle aldre,09,Tjenester til bergverk og utvinning,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,87050.0
+0,Begge kjønn,999A,Alle aldre,09,Tjenester til bergverk og utvinning,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,72580.0
+0,Begge kjønn,999A,Alle aldre,09,Tjenester til bergverk og utvinning,Lonsstakere,Antall lønnstakere,2026K2,2026K2,39214.0
+0,Begge kjønn,999A,Alle aldre,10-33,Industri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,64040.0
+0,Begge kjønn,999A,Alle aldre,10-33,Industri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,59350.0
+0,Begge kjønn,999A,Alle aldre,10-33,Industri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,228117.0
+0,Begge kjønn,999A,Alle aldre,10,Næringsmiddelindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,55870.0
+0,Begge kjønn,999A,Alle aldre,10,Næringsmiddelindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,51710.0
+0,Begge kjønn,999A,Alle aldre,10,Næringsmiddelindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,49513.0
+0,Begge kjønn,999A,Alle aldre,11,Drikkevareindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,66800.0
+0,Begge kjønn,999A,Alle aldre,11,Drikkevareindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,59680.0
+0,Begge kjønn,999A,Alle aldre,11,Drikkevareindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,3159.0
+0,Begge kjønn,999A,Alle aldre,12,Tobakksindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,
+0,Begge kjønn,999A,Alle aldre,12,Tobakksindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,
+0,Begge kjønn,999A,Alle aldre,12,Tobakksindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,15.0
+0,Begge kjønn,999A,Alle aldre,13,Tekstilindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,66440.0
+0,Begge kjønn,999A,Alle aldre,13,Tekstilindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,52940.0
+0,Begge kjønn,999A,Alle aldre,13,Tekstilindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,2948.0
+0,Begge kjønn,999A,Alle aldre,14,Bekledningsindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,58260.0
+0,Begge kjønn,999A,Alle aldre,14,Bekledningsindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,54280.0
+0,Begge kjønn,999A,Alle aldre,14,Bekledningsindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,1138.0
+0,Begge kjønn,999A,Alle aldre,15,Lær- og lærvareindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,
+0,Begge kjønn,999A,Alle aldre,15,Lær- og lærvareindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,
+0,Begge kjønn,999A,Alle aldre,15,Lær- og lærvareindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,91.0
+0,Begge kjønn,999A,Alle aldre,16,Trelast- og trevareindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,54590.0
+0,Begge kjønn,999A,Alle aldre,16,Trelast- og trevareindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,51870.0
+0,Begge kjønn,999A,Alle aldre,16,Trelast- og trevareindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,10892.0
+0,Begge kjønn,999A,Alle aldre,17,Papir- og papirvareindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,62290.0
+0,Begge kjønn,999A,Alle aldre,17,Papir- og papirvareindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,57090.0
+0,Begge kjønn,999A,Alle aldre,17,Papir- og papirvareindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,2502.0
+0,Begge kjønn,999A,Alle aldre,18,"Trykking, grafisk industri",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,54940.0
+0,Begge kjønn,999A,Alle aldre,18,"Trykking, grafisk industri",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,53620.0
+0,Begge kjønn,999A,Alle aldre,18,"Trykking, grafisk industri",Lonsstakere,Antall lønnstakere,2026K2,2026K2,3287.0
+0,Begge kjønn,999A,Alle aldre,19,Petroleums- og kullvareindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,
+0,Begge kjønn,999A,Alle aldre,19,Petroleums- og kullvareindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,
+0,Begge kjønn,999A,Alle aldre,19,Petroleums- og kullvareindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,1037.0
+0,Begge kjønn,999A,Alle aldre,20,Kjemisk industri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,81290.0
+0,Begge kjønn,999A,Alle aldre,20,Kjemisk industri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,70320.0
+0,Begge kjønn,999A,Alle aldre,20,Kjemisk industri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,9465.0
+0,Begge kjønn,999A,Alle aldre,21,Farmasøytisk industri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,70070.0
+0,Begge kjønn,999A,Alle aldre,21,Farmasøytisk industri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,65570.0
+0,Begge kjønn,999A,Alle aldre,21,Farmasøytisk industri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,3326.0
+0,Begge kjønn,999A,Alle aldre,22,Gummivare- og plastindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,60270.0
+0,Begge kjønn,999A,Alle aldre,22,Gummivare- og plastindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,56380.0
+0,Begge kjønn,999A,Alle aldre,22,Gummivare- og plastindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,4553.0
+0,Begge kjønn,999A,Alle aldre,23,Mineralproduktindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,61160.0
+0,Begge kjønn,999A,Alle aldre,23,Mineralproduktindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,57610.0
+0,Begge kjønn,999A,Alle aldre,23,Mineralproduktindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,9408.0
+0,Begge kjønn,999A,Alle aldre,24,Metallindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,68860.0
+0,Begge kjønn,999A,Alle aldre,24,Metallindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,63100.0
+0,Begge kjønn,999A,Alle aldre,24,Metallindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,11069.0
+0,Begge kjønn,999A,Alle aldre,25,Metallvareindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,62340.0
+0,Begge kjønn,999A,Alle aldre,25,Metallvareindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,58180.0
+0,Begge kjønn,999A,Alle aldre,25,Metallvareindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,27846.0
+0,Begge kjønn,999A,Alle aldre,26,Data- og elektronisk industri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,73460.0
+0,Begge kjønn,999A,Alle aldre,26,Data- og elektronisk industri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,71010.0
+0,Begge kjønn,999A,Alle aldre,26,Data- og elektronisk industri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,11009.0
+0,Begge kjønn,999A,Alle aldre,27,Elektroteknisk industri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,69670.0
+0,Begge kjønn,999A,Alle aldre,27,Elektroteknisk industri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,65070.0
+0,Begge kjønn,999A,Alle aldre,27,Elektroteknisk industri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,9573.0
+0,Begge kjønn,999A,Alle aldre,28,Maskinindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,70290.0
+0,Begge kjønn,999A,Alle aldre,28,Maskinindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,65700.0
+0,Begge kjønn,999A,Alle aldre,28,Maskinindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,17958.0
+0,Begge kjønn,999A,Alle aldre,29,Motorkjøretøyindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,56360.0
+0,Begge kjønn,999A,Alle aldre,29,Motorkjøretøyindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,54560.0
+0,Begge kjønn,999A,Alle aldre,29,Motorkjøretøyindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,2637.0
+0,Begge kjønn,999A,Alle aldre,30,Transportmiddelindustri ellers,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,67120.0
+0,Begge kjønn,999A,Alle aldre,30,Transportmiddelindustri ellers,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,62210.0
+0,Begge kjønn,999A,Alle aldre,30,Transportmiddelindustri ellers,Lonsstakere,Antall lønnstakere,2026K2,2026K2,16329.0
+0,Begge kjønn,999A,Alle aldre,31,Møbelindustri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,54530.0
+0,Begge kjønn,999A,Alle aldre,31,Møbelindustri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,52240.0
+0,Begge kjønn,999A,Alle aldre,31,Møbelindustri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,4274.0
+0,Begge kjønn,999A,Alle aldre,32,Annen industri,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,63140.0
+0,Begge kjønn,999A,Alle aldre,32,Annen industri,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,62430.0
+0,Begge kjønn,999A,Alle aldre,32,Annen industri,Lonsstakere,Antall lønnstakere,2026K2,2026K2,3512.0
+0,Begge kjønn,999A,Alle aldre,33,Maskinreparasjon og -installasjon,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,66790.0
+0,Begge kjønn,999A,Alle aldre,33,Maskinreparasjon og -installasjon,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,60960.0
+0,Begge kjønn,999A,Alle aldre,33,Maskinreparasjon og -installasjon,Lonsstakere,Antall lønnstakere,2026K2,2026K2,22576.0
+0,Begge kjønn,999A,Alle aldre,35-39,"Elektrisitet, vann og renovasjon",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,71880.0
+0,Begge kjønn,999A,Alle aldre,35-39,"Elektrisitet, vann og renovasjon",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,67980.0
+0,Begge kjønn,999A,Alle aldre,35-39,"Elektrisitet, vann og renovasjon",Lonsstakere,Antall lønnstakere,2026K2,2026K2,37954.0
+0,Begge kjønn,999A,Alle aldre,35,Kraftforsyning,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,83560.0
+0,Begge kjønn,999A,Alle aldre,35,Kraftforsyning,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,80010.0
+0,Begge kjønn,999A,Alle aldre,35,Kraftforsyning,Lonsstakere,Antall lønnstakere,2026K2,2026K2,18353.0
+0,Begge kjønn,999A,Alle aldre,36,Vannforsyning,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,62300.0
+0,Begge kjønn,999A,Alle aldre,36,Vannforsyning,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,61030.0
+0,Begge kjønn,999A,Alle aldre,36,Vannforsyning,Lonsstakere,Antall lønnstakere,2026K2,2026K2,2876.0
+0,Begge kjønn,999A,Alle aldre,37,Håndtering av avløpsvann,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,61200.0
+0,Begge kjønn,999A,Alle aldre,37,Håndtering av avløpsvann,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,57620.0
+0,Begge kjønn,999A,Alle aldre,37,Håndtering av avløpsvann,Lonsstakere,Antall lønnstakere,2026K2,2026K2,3341.0
+0,Begge kjønn,999A,Alle aldre,38,Avfallshåndtering,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,59870.0
+0,Begge kjønn,999A,Alle aldre,38,Avfallshåndtering,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,54920.0
+0,Begge kjønn,999A,Alle aldre,38,Avfallshåndtering,Lonsstakere,Antall lønnstakere,2026K2,2026K2,13124.0
+0,Begge kjønn,999A,Alle aldre,39,Miljørydding og miljørensing,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,65200.0
+0,Begge kjønn,999A,Alle aldre,39,Miljørydding og miljørensing,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,54600.0
+0,Begge kjønn,999A,Alle aldre,39,Miljørydding og miljørensing,Lonsstakere,Antall lønnstakere,2026K2,2026K2,260.0
+0,Begge kjønn,999A,Alle aldre,41-43,Bygge- og anleggsvirksomhet,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,62060.0
+0,Begge kjønn,999A,Alle aldre,41-43,Bygge- og anleggsvirksomhet,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,56680.0
+0,Begge kjønn,999A,Alle aldre,41-43,Bygge- og anleggsvirksomhet,Lonsstakere,Antall lønnstakere,2026K2,2026K2,236863.0
+0,Begge kjønn,999A,Alle aldre,41,Oppføring av bygninger,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,63350.0
+0,Begge kjønn,999A,Alle aldre,41,Oppføring av bygninger,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,58200.0
+0,Begge kjønn,999A,Alle aldre,41,Oppføring av bygninger,Lonsstakere,Antall lønnstakere,2026K2,2026K2,68896.0
+0,Begge kjønn,999A,Alle aldre,42,Anleggsvirksomhet,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,73110.0
+0,Begge kjønn,999A,Alle aldre,42,Anleggsvirksomhet,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,61980.0
+0,Begge kjønn,999A,Alle aldre,42,Anleggsvirksomhet,Lonsstakere,Antall lønnstakere,2026K2,2026K2,30667.0
+0,Begge kjønn,999A,Alle aldre,43,Spesialisert bygge- og anleggsvirksomhet,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,58830.0
+0,Begge kjønn,999A,Alle aldre,43,Spesialisert bygge- og anleggsvirksomhet,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,54680.0
+0,Begge kjønn,999A,Alle aldre,43,Spesialisert bygge- og anleggsvirksomhet,Lonsstakere,Antall lønnstakere,2026K2,2026K2,137300.0
+0,Begge kjønn,999A,Alle aldre,45-47,"Varehandel, reparasjon av motorvogner",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,56670.0
+0,Begge kjønn,999A,Alle aldre,45-47,"Varehandel, reparasjon av motorvogner",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,53050.0
+0,Begge kjønn,999A,Alle aldre,45-47,"Varehandel, reparasjon av motorvogner",Lonsstakere,Antall lønnstakere,2026K2,2026K2,361505.0
+0,Begge kjønn,999A,Alle aldre,45,Handel med og reparasjon av motorvogner,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,55430.0
+0,Begge kjønn,999A,Alle aldre,45,Handel med og reparasjon av motorvogner,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,52470.0
+0,Begge kjønn,999A,Alle aldre,45,Handel med og reparasjon av motorvogner,Lonsstakere,Antall lønnstakere,2026K2,2026K2,53528.0
+0,Begge kjønn,999A,Alle aldre,46,"Agentur- og engroshandel, unntatt med motorvogner",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,68950.0
+0,Begge kjønn,999A,Alle aldre,46,"Agentur- og engroshandel, unntatt med motorvogner",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,63330.0
+0,Begge kjønn,999A,Alle aldre,46,"Agentur- og engroshandel, unntatt med motorvogner",Lonsstakere,Antall lønnstakere,2026K2,2026K2,104483.0
+0,Begge kjønn,999A,Alle aldre,47,"Detaljhandel, unntatt med motorvogner",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,47460.0
+0,Begge kjønn,999A,Alle aldre,47,"Detaljhandel, unntatt med motorvogner",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,45170.0
+0,Begge kjønn,999A,Alle aldre,47,"Detaljhandel, unntatt med motorvogner",Lonsstakere,Antall lønnstakere,2026K2,2026K2,203494.0
+0,Begge kjønn,999A,Alle aldre,49-53,Transport og lagring,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,61330.0
+0,Begge kjønn,999A,Alle aldre,49-53,Transport og lagring,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,55990.0
+0,Begge kjønn,999A,Alle aldre,49-53,Transport og lagring,Lonsstakere,Antall lønnstakere,2026K2,2026K2,137589.0
+0,Begge kjønn,999A,Alle aldre,49,Landtransport og rørtransport,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,52260.0
+0,Begge kjønn,999A,Alle aldre,49,Landtransport og rørtransport,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,48060.0
+0,Begge kjønn,999A,Alle aldre,49,Landtransport og rørtransport,Lonsstakere,Antall lønnstakere,2026K2,2026K2,62998.0
+0,Begge kjønn,999A,Alle aldre,50,Sjøfart,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,73120.0
+0,Begge kjønn,999A,Alle aldre,50,Sjøfart,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,69000.0
+0,Begge kjønn,999A,Alle aldre,50,Sjøfart,Lonsstakere,Antall lønnstakere,2026K2,2026K2,19468.0
+0,Begge kjønn,999A,Alle aldre,51,Lufttransport,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,82330.0
+0,Begge kjønn,999A,Alle aldre,51,Lufttransport,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,75930.0
+0,Begge kjønn,999A,Alle aldre,51,Lufttransport,Lonsstakere,Antall lønnstakere,2026K2,2026K2,6556.0
+0,Begge kjønn,999A,Alle aldre,52,Transporttjenester og lagring,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,71090.0
+0,Begge kjønn,999A,Alle aldre,52,Transporttjenester og lagring,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,61830.0
+0,Begge kjønn,999A,Alle aldre,52,Transporttjenester og lagring,Lonsstakere,Antall lønnstakere,2026K2,2026K2,33895.0
+0,Begge kjønn,999A,Alle aldre,53,Post og distribusjonsvirksomhet,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,49600.0
+0,Begge kjønn,999A,Alle aldre,53,Post og distribusjonsvirksomhet,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,47770.0
+0,Begge kjønn,999A,Alle aldre,53,Post og distribusjonsvirksomhet,Lonsstakere,Antall lønnstakere,2026K2,2026K2,14672.0
+0,Begge kjønn,999A,Alle aldre,55,Overnattingsvirksomhet,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,45980.0
+0,Begge kjønn,999A,Alle aldre,55,Overnattingsvirksomhet,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,43040.0
+0,Begge kjønn,999A,Alle aldre,55,Overnattingsvirksomhet,Lonsstakere,Antall lønnstakere,2026K2,2026K2,32218.0
+0,Begge kjønn,999A,Alle aldre,55-56,Overnattings- og serveringsvirksomhet,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,43640.0
+0,Begge kjønn,999A,Alle aldre,55-56,Overnattings- og serveringsvirksomhet,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,41490.0
+0,Begge kjønn,999A,Alle aldre,55-56,Overnattings- og serveringsvirksomhet,Lonsstakere,Antall lønnstakere,2026K2,2026K2,114644.0
+0,Begge kjønn,999A,Alle aldre,56,Serveringsvirksomhet,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,42600.0
+0,Begge kjønn,999A,Alle aldre,56,Serveringsvirksomhet,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,40810.0
+0,Begge kjønn,999A,Alle aldre,56,Serveringsvirksomhet,Lonsstakere,Antall lønnstakere,2026K2,2026K2,82426.0
+0,Begge kjønn,999A,Alle aldre,58,Forlagsvirksomhet,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,77890.0
+0,Begge kjønn,999A,Alle aldre,58,Forlagsvirksomhet,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,75000.0
+0,Begge kjønn,999A,Alle aldre,58,Forlagsvirksomhet,Lonsstakere,Antall lønnstakere,2026K2,2026K2,17702.0
+0,Begge kjønn,999A,Alle aldre,58-63,Informasjon og kommunikasjon,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,83100.0
+0,Begge kjønn,999A,Alle aldre,58-63,Informasjon og kommunikasjon,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,77390.0
+0,Begge kjønn,999A,Alle aldre,58-63,Informasjon og kommunikasjon,Lonsstakere,Antall lønnstakere,2026K2,2026K2,112545.0
+0,Begge kjønn,999A,Alle aldre,59,"Film- og TV-produksjon, musikkutgivelse",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,62310.0
+0,Begge kjønn,999A,Alle aldre,59,"Film- og TV-produksjon, musikkutgivelse",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,60960.0
+0,Begge kjønn,999A,Alle aldre,59,"Film- og TV-produksjon, musikkutgivelse",Lonsstakere,Antall lønnstakere,2026K2,2026K2,5366.0
+0,Begge kjønn,999A,Alle aldre,60,Radio- og fjernsynskringkasting,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,76610.0
+0,Begge kjønn,999A,Alle aldre,60,Radio- og fjernsynskringkasting,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,72360.0
+0,Begge kjønn,999A,Alle aldre,60,Radio- og fjernsynskringkasting,Lonsstakere,Antall lønnstakere,2026K2,2026K2,5535.0
+0,Begge kjønn,999A,Alle aldre,61,Telekommunikasjon,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,79780.0
+0,Begge kjønn,999A,Alle aldre,61,Telekommunikasjon,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,77400.0
+0,Begge kjønn,999A,Alle aldre,61,Telekommunikasjon,Lonsstakere,Antall lønnstakere,2026K2,2026K2,10702.0
+0,Begge kjønn,999A,Alle aldre,62,IT-tjenester,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,86470.0
+0,Begge kjønn,999A,Alle aldre,62,IT-tjenester,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,79400.0
+0,Begge kjønn,999A,Alle aldre,62,IT-tjenester,Lonsstakere,Antall lønnstakere,2026K2,2026K2,67777.0
+0,Begge kjønn,999A,Alle aldre,63,Informasjonstjenester,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,87530.0
+0,Begge kjønn,999A,Alle aldre,63,Informasjonstjenester,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,78130.0
+0,Begge kjønn,999A,Alle aldre,63,Informasjonstjenester,Lonsstakere,Antall lønnstakere,2026K2,2026K2,5463.0
+0,Begge kjønn,999A,Alle aldre,64-66,Finansiering og forsikring,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,84150.0
+0,Begge kjønn,999A,Alle aldre,64-66,Finansiering og forsikring,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,80540.0
+0,Begge kjønn,999A,Alle aldre,64-66,Finansiering og forsikring,Lonsstakere,Antall lønnstakere,2026K2,2026K2,53528.0
+0,Begge kjønn,999A,Alle aldre,64,Finansieringsvirksomhet,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,81220.0
+0,Begge kjønn,999A,Alle aldre,64,Finansieringsvirksomhet,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,79150.0
+0,Begge kjønn,999A,Alle aldre,64,Finansieringsvirksomhet,Lonsstakere,Antall lønnstakere,2026K2,2026K2,30785.0
+0,Begge kjønn,999A,Alle aldre,65,Forsikring og pensjonskasser,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,77810.0
+0,Begge kjønn,999A,Alle aldre,65,Forsikring og pensjonskasser,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,76840.0
+0,Begge kjønn,999A,Alle aldre,65,Forsikring og pensjonskasser,Lonsstakere,Antall lønnstakere,2026K2,2026K2,12652.0
+0,Begge kjønn,999A,Alle aldre,66,"Finans-, forsikringshjelpetjenester",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,101590.0
+0,Begge kjønn,999A,Alle aldre,66,"Finans-, forsikringshjelpetjenester",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,89700.0
+0,Begge kjønn,999A,Alle aldre,66,"Finans-, forsikringshjelpetjenester",Lonsstakere,Antall lønnstakere,2026K2,2026K2,10091.0
+0,Begge kjønn,999A,Alle aldre,68,Omsetning og drift av fast eiendom,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,75350.0
+0,Begge kjønn,999A,Alle aldre,68,Omsetning og drift av fast eiendom,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,70700.0
+0,Begge kjønn,999A,Alle aldre,68,Omsetning og drift av fast eiendom,Lonsstakere,Antall lønnstakere,2026K2,2026K2,28188.0
+0,Begge kjønn,999A,Alle aldre,68-75,"Teknisk tjenesteyting, eiendomsdrift",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,77990.0
+0,Begge kjønn,999A,Alle aldre,68-75,"Teknisk tjenesteyting, eiendomsdrift",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,73930.0
+0,Begge kjønn,999A,Alle aldre,68-75,"Teknisk tjenesteyting, eiendomsdrift",Lonsstakere,Antall lønnstakere,2026K2,2026K2,183560.0
+0,Begge kjønn,999A,Alle aldre,69,Juridisk og regnskapsmessig tjenesteyting,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,72690.0
+0,Begge kjønn,999A,Alle aldre,69,Juridisk og regnskapsmessig tjenesteyting,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,70110.0
+0,Begge kjønn,999A,Alle aldre,69,Juridisk og regnskapsmessig tjenesteyting,Lonsstakere,Antall lønnstakere,2026K2,2026K2,36257.0
+0,Begge kjønn,999A,Alle aldre,70,"Hovedkontortjenester, administrativ rådgivning",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,84100.0
+0,Begge kjønn,999A,Alle aldre,70,"Hovedkontortjenester, administrativ rådgivning",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,80200.0
+0,Begge kjønn,999A,Alle aldre,70,"Hovedkontortjenester, administrativ rådgivning",Lonsstakere,Antall lønnstakere,2026K2,2026K2,14843.0
+0,Begge kjønn,999A,Alle aldre,71,Arkitekter og tekniske konsulenter,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,83900.0
+0,Begge kjønn,999A,Alle aldre,71,Arkitekter og tekniske konsulenter,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,78000.0
+0,Begge kjønn,999A,Alle aldre,71,Arkitekter og tekniske konsulenter,Lonsstakere,Antall lønnstakere,2026K2,2026K2,62567.0
+0,Begge kjønn,999A,Alle aldre,72,Forskning og utviklingsarbeid,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,77940.0
+0,Begge kjønn,999A,Alle aldre,72,Forskning og utviklingsarbeid,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,76440.0
+0,Begge kjønn,999A,Alle aldre,72,Forskning og utviklingsarbeid,Lonsstakere,Antall lønnstakere,2026K2,2026K2,18264.0
+0,Begge kjønn,999A,Alle aldre,73,Reklamevirksomhet og markedsundersøkelser,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,69030.0
+0,Begge kjønn,999A,Alle aldre,73,Reklamevirksomhet og markedsundersøkelser,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,65920.0
+0,Begge kjønn,999A,Alle aldre,73,Reklamevirksomhet og markedsundersøkelser,Lonsstakere,Antall lønnstakere,2026K2,2026K2,8716.0
+0,Begge kjønn,999A,Alle aldre,74,"Annen faglig, vitenskapelig og teknisk virksomhet",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,70520.0
+0,Begge kjønn,999A,Alle aldre,74,"Annen faglig, vitenskapelig og teknisk virksomhet",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,68230.0
+0,Begge kjønn,999A,Alle aldre,74,"Annen faglig, vitenskapelig og teknisk virksomhet",Lonsstakere,Antall lønnstakere,2026K2,2026K2,11126.0
+0,Begge kjønn,999A,Alle aldre,75,Veterinærtjenester,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,57320.0
+0,Begge kjønn,999A,Alle aldre,75,Veterinærtjenester,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,54590.0
+0,Begge kjønn,999A,Alle aldre,75,Veterinærtjenester,Lonsstakere,Antall lønnstakere,2026K2,2026K2,3599.0
+0,Begge kjønn,999A,Alle aldre,77,Utleie- og leasingvirksomhet,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,65410.0
+0,Begge kjønn,999A,Alle aldre,77,Utleie- og leasingvirksomhet,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,60130.0
+0,Begge kjønn,999A,Alle aldre,77,Utleie- og leasingvirksomhet,Lonsstakere,Antall lønnstakere,2026K2,2026K2,10036.0
+0,Begge kjønn,999A,Alle aldre,77-82,Forretningsmessig tjenesteyting,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,55730.0
+0,Begge kjønn,999A,Alle aldre,77-82,Forretningsmessig tjenesteyting,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,51820.0
+0,Begge kjønn,999A,Alle aldre,77-82,Forretningsmessig tjenesteyting,Lonsstakere,Antall lønnstakere,2026K2,2026K2,144895.0
+0,Begge kjønn,999A,Alle aldre,78,Arbeidskrafttjenester,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,59940.0
+0,Begge kjønn,999A,Alle aldre,78,Arbeidskrafttjenester,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,53770.0
+0,Begge kjønn,999A,Alle aldre,78,Arbeidskrafttjenester,Lonsstakere,Antall lønnstakere,2026K2,2026K2,51813.0
+0,Begge kjønn,999A,Alle aldre,79,Reisebyråer og reisearrangører,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,58650.0
+0,Begge kjønn,999A,Alle aldre,79,Reisebyråer og reisearrangører,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,53950.0
+0,Begge kjønn,999A,Alle aldre,79,Reisebyråer og reisearrangører,Lonsstakere,Antall lønnstakere,2026K2,2026K2,5663.0
+0,Begge kjønn,999A,Alle aldre,80,Vakttjeneste og etterforsking,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,51460.0
+0,Begge kjønn,999A,Alle aldre,80,Vakttjeneste og etterforsking,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,45840.0
+0,Begge kjønn,999A,Alle aldre,80,Vakttjeneste og etterforsking,Lonsstakere,Antall lønnstakere,2026K2,2026K2,11886.0
+0,Begge kjønn,999A,Alle aldre,81,Tjenester tilknyttet eiendomsdrift,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,48460.0
+0,Begge kjønn,999A,Alle aldre,81,Tjenester tilknyttet eiendomsdrift,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,47380.0
+0,Begge kjønn,999A,Alle aldre,81,Tjenester tilknyttet eiendomsdrift,Lonsstakere,Antall lønnstakere,2026K2,2026K2,53856.0
+0,Begge kjønn,999A,Alle aldre,82,Forretningsmessig tjenesteyting ellers,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,65450.0
+0,Begge kjønn,999A,Alle aldre,82,Forretningsmessig tjenesteyting ellers,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,61150.0
+0,Begge kjønn,999A,Alle aldre,82,Forretningsmessig tjenesteyting ellers,Lonsstakere,Antall lønnstakere,2026K2,2026K2,11641.0
+0,Begge kjønn,999A,Alle aldre,84,"Off.adm., forsvar, sosialforsikring",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,68350.0
+0,Begge kjønn,999A,Alle aldre,84,"Off.adm., forsvar, sosialforsikring",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,63930.0
+0,Begge kjønn,999A,Alle aldre,84,"Off.adm., forsvar, sosialforsikring",Lonsstakere,Antall lønnstakere,2026K2,2026K2,187283.0
+0,Begge kjønn,999A,Alle aldre,85,Undervisning,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,58630.0
+0,Begge kjønn,999A,Alle aldre,85,Undervisning,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,58420.0
+0,Begge kjønn,999A,Alle aldre,85,Undervisning,Lonsstakere,Antall lønnstakere,2026K2,2026K2,232010.0
+0,Begge kjønn,999A,Alle aldre,86-88,Helse- og sosialtjenester,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,59500.0
+0,Begge kjønn,999A,Alle aldre,86-88,Helse- og sosialtjenester,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,52590.0
+0,Begge kjønn,999A,Alle aldre,86-88,Helse- og sosialtjenester,Lonsstakere,Antall lønnstakere,2026K2,2026K2,591847.0
+0,Begge kjønn,999A,Alle aldre,86,Helsetjenester,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,66430.0
+0,Begge kjønn,999A,Alle aldre,86,Helsetjenester,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,58930.0
+0,Begge kjønn,999A,Alle aldre,86,Helsetjenester,Lonsstakere,Antall lønnstakere,2026K2,2026K2,249239.0
+0,Begge kjønn,999A,Alle aldre,87,Pleie og omsorg i institusjon,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,60150.0
+0,Begge kjønn,999A,Alle aldre,87,Pleie og omsorg i institusjon,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,47350.0
+0,Begge kjønn,999A,Alle aldre,87,Pleie og omsorg i institusjon,Lonsstakere,Antall lønnstakere,2026K2,2026K2,158927.0
+0,Begge kjønn,999A,Alle aldre,88,"Omsorg uten botilbud, barnehager mv.",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,49100.0
+0,Begge kjønn,999A,Alle aldre,88,"Omsorg uten botilbud, barnehager mv.",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,47760.0
+0,Begge kjønn,999A,Alle aldre,88,"Omsorg uten botilbud, barnehager mv.",Lonsstakere,Antall lønnstakere,2026K2,2026K2,183681.0
+0,Begge kjønn,999A,Alle aldre,90-99,Personlig tjenesteyting,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,56250.0
+0,Begge kjønn,999A,Alle aldre,90-99,Personlig tjenesteyting,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,54900.0
+0,Begge kjønn,999A,Alle aldre,90-99,Personlig tjenesteyting,Lonsstakere,Antall lønnstakere,2026K2,2026K2,107504.0
+0,Begge kjønn,999A,Alle aldre,90,Kunstnerisk virksomhet og underholdning,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,58180.0
+0,Begge kjønn,999A,Alle aldre,90,Kunstnerisk virksomhet og underholdning,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,57160.0
+0,Begge kjønn,999A,Alle aldre,90,Kunstnerisk virksomhet og underholdning,Lonsstakere,Antall lønnstakere,2026K2,2026K2,9858.0
+0,Begge kjønn,999A,Alle aldre,91,"Bibliotek, muséer o.a. kulturvirksomhet",GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,55990.0
+0,Begge kjønn,999A,Alle aldre,91,"Bibliotek, muséer o.a. kulturvirksomhet",GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,54990.0
+0,Begge kjønn,999A,Alle aldre,91,"Bibliotek, muséer o.a. kulturvirksomhet",Lonsstakere,Antall lønnstakere,2026K2,2026K2,11857.0
+0,Begge kjønn,999A,Alle aldre,92,Lotteri og totalisatorspill,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,66460.0
+0,Begge kjønn,999A,Alle aldre,92,Lotteri og totalisatorspill,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,62310.0
+0,Begge kjønn,999A,Alle aldre,92,Lotteri og totalisatorspill,Lonsstakere,Antall lønnstakere,2026K2,2026K2,1040.0
+0,Begge kjønn,999A,Alle aldre,93,Sports- og fritidsaktiviteter,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,51180.0
+0,Begge kjønn,999A,Alle aldre,93,Sports- og fritidsaktiviteter,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,49120.0
+0,Begge kjønn,999A,Alle aldre,93,Sports- og fritidsaktiviteter,Lonsstakere,Antall lønnstakere,2026K2,2026K2,32604.0
+0,Begge kjønn,999A,Alle aldre,94,Aktiviteter i medlemsorgansiasjoner,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,65690.0
+0,Begge kjønn,999A,Alle aldre,94,Aktiviteter i medlemsorgansiasjoner,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,64990.0
+0,Begge kjønn,999A,Alle aldre,94,Aktiviteter i medlemsorgansiasjoner,Lonsstakere,Antall lønnstakere,2026K2,2026K2,29750.0
+0,Begge kjønn,999A,Alle aldre,95,Reparasjon av varer til personlig bruk,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,49560.0
+0,Begge kjønn,999A,Alle aldre,95,Reparasjon av varer til personlig bruk,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,48520.0
+0,Begge kjønn,999A,Alle aldre,95,Reparasjon av varer til personlig bruk,Lonsstakere,Antall lønnstakere,2026K2,2026K2,1836.0
+0,Begge kjønn,999A,Alle aldre,96,Annen personlig tjenesteyting,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,46410.0
+0,Begge kjønn,999A,Alle aldre,96,Annen personlig tjenesteyting,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,44630.0
+0,Begge kjønn,999A,Alle aldre,96,Annen personlig tjenesteyting,Lonsstakere,Antall lønnstakere,2026K2,2026K2,19704.0
+0,Begge kjønn,999A,Alle aldre,97,Lønnet arbeid i private husholdninger,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,52570.0
+0,Begge kjønn,999A,Alle aldre,97,Lønnet arbeid i private husholdninger,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,52010.0
+0,Begge kjønn,999A,Alle aldre,97,Lønnet arbeid i private husholdninger,Lonsstakere,Antall lønnstakere,2026K2,2026K2,838.0
+0,Begge kjønn,999A,Alle aldre,00,Uoppgitt,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,94570.0
+0,Begge kjønn,999A,Alle aldre,00,Uoppgitt,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,76480.0
+0,Begge kjønn,999A,Alle aldre,00,Uoppgitt,Lonsstakere,Antall lønnstakere,2026K2,2026K2,1974.0
+0,Begge kjønn,999A,Alle aldre,99,Internasjonale organer,GjMndlonn,Gjennomsnittlig månedslønn (kr),2026K2,2026K2,
+0,Begge kjønn,999A,Alle aldre,99,Internasjonale organer,GjAvtMndlonn,Gjennomsnittlig avtalt månedslønn (kr),2026K2,2026K2,
+0,Begge kjønn,999A,Alle aldre,99,Internasjonale organer,Lonsstakere,Antall lønnstakere,2026K2,2026K2,17.0

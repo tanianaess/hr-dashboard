@@ -1,0 +1,55 @@
+Kjonn,Kjonn_tekst,NACE2007,NACE2007_tekst,Sykefraver2,Sykefraver2_tekst,ContentsCode,ContentsCode_tekst,Tid,Tid_tekst,verdi
+0,Begge kjønn,00-99,Alle næringer,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,6.7
+0,Begge kjønn,00-99,Alle næringer,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.2
+0,Begge kjønn,00-99,Alle næringer,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,5.5
+0,Begge kjønn,01-03,"Jordbruk, skogbruk og fiske",Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,5.0
+0,Begge kjønn,01-03,"Jordbruk, skogbruk og fiske",E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,0.8
+0,Begge kjønn,01-03,"Jordbruk, skogbruk og fiske",L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,4.2
+0,Begge kjønn,05-09,Bergverksdrift og utvinning,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,4.6
+0,Begge kjønn,05-09,Bergverksdrift og utvinning,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,0.8
+0,Begge kjønn,05-09,Bergverksdrift og utvinning,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,3.8
+0,Begge kjønn,10-33,Industri,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,5.9
+0,Begge kjønn,10-33,Industri,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.3
+0,Begge kjønn,10-33,Industri,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,4.6
+0,Begge kjønn,35-39,"Elektrisitet, vann og renovasjon",Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,5.5
+0,Begge kjønn,35-39,"Elektrisitet, vann og renovasjon",E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.1
+0,Begge kjønn,35-39,"Elektrisitet, vann og renovasjon",L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,4.4
+0,Begge kjønn,41-43,Bygge- og anleggsvirksomhet,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,6.5
+0,Begge kjønn,41-43,Bygge- og anleggsvirksomhet,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.0
+0,Begge kjønn,41-43,Bygge- og anleggsvirksomhet,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,5.4
+0,Begge kjønn,45-47,"Varehandel, reparasjon av motorvogner",Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,6.3
+0,Begge kjønn,45-47,"Varehandel, reparasjon av motorvogner",E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.0
+0,Begge kjønn,45-47,"Varehandel, reparasjon av motorvogner",L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,5.2
+0,Begge kjønn,49-53,Transport og lagring,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,7.4
+0,Begge kjønn,49-53,Transport og lagring,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.1
+0,Begge kjønn,49-53,Transport og lagring,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,6.3
+0,Begge kjønn,55-56,Overnattings- og serveringsvirksomhet,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,6.3
+0,Begge kjønn,55-56,Overnattings- og serveringsvirksomhet,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,0.9
+0,Begge kjønn,55-56,Overnattings- og serveringsvirksomhet,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,5.4
+0,Begge kjønn,58-63,Informasjon og kommunikasjon,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,4.2
+0,Begge kjønn,58-63,Informasjon og kommunikasjon,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.1
+0,Begge kjønn,58-63,Informasjon og kommunikasjon,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,3.1
+0,Begge kjønn,64-66,Finansiering og forsikring,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,4.6
+0,Begge kjønn,64-66,Finansiering og forsikring,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,0.9
+0,Begge kjønn,64-66,Finansiering og forsikring,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,3.7
+0,Begge kjønn,68-75,"Teknisk tjenesteyting, eiendomsdrift",Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,4.7
+0,Begge kjønn,68-75,"Teknisk tjenesteyting, eiendomsdrift",E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.0
+0,Begge kjønn,68-75,"Teknisk tjenesteyting, eiendomsdrift",L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,3.7
+0,Begge kjønn,77-82,Forretningsmessig tjenesteyting,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,7.1
+0,Begge kjønn,77-82,Forretningsmessig tjenesteyting,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.0
+0,Begge kjønn,77-82,Forretningsmessig tjenesteyting,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,6.0
+0,Begge kjønn,84,"Off.adm., forsvar, sosialforsikring",Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,5.8
+0,Begge kjønn,84,"Off.adm., forsvar, sosialforsikring",E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.2
+0,Begge kjønn,84,"Off.adm., forsvar, sosialforsikring",L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,4.6
+0,Begge kjønn,85,Undervisning,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,6.7
+0,Begge kjønn,85,Undervisning,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.2
+0,Begge kjønn,85,Undervisning,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,5.5
+0,Begge kjønn,86-88,Helse- og sosialtjenester,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,9.6
+0,Begge kjønn,86-88,Helse- og sosialtjenester,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.6
+0,Begge kjønn,86-88,Helse- og sosialtjenester,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,8.1
+0,Begge kjønn,90-99,Personlig tjenesteyting,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,6.1
+0,Begge kjønn,90-99,Personlig tjenesteyting,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,1.0
+0,Begge kjønn,90-99,Personlig tjenesteyting,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,5.1
+0,Begge kjønn,00,Uoppgitt,Alt,Egenmeldt og legemeldt,Sykdom,Sykefraværsprosent,2025,2025,3.8
+0,Begge kjønn,00,Uoppgitt,E,Egenmeldt,Sykdom,Sykefraværsprosent,2025,2025,0.0
+0,Begge kjønn,00,Uoppgitt,L,Legemeldt,Sykdom,Sykefraværsprosent,2025,2025,3.8
