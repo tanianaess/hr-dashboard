@@ -32,6 +32,12 @@ holder det tilbake («:»), typisk for små næringer i lønnstabellen.
   2-sifrede næringer og summer av dem. `finn_grupper()` i `selskapsnotat.py` velger den mest
   spesifikke gruppen selskapets næringskode hører til, og går videre til en bredere gruppe
   når tallet mangler.
+- **To standarder:** Enhetsregisteret bruker SN2025 (gyldig fra 1.1.2025, f.eks. 62.100
+  Dataprogrammeringstjenester), mens SSB-tabellene bruker SN2007 (62.010
+  Programmeringstjenester). Verifisert i SSB Klass, klassifikasjon 6
+  (<https://data.ssb.no/api/klass/v1/classifications/6>), 21.10.2026. Koblingen går på de to
+  første sifrene (næringen), som i hovedsak er like i de to standardene. Notatet skriver
+  hvilken SSB-gruppe som er brukt, så den kan kontrolleres.
 - **Månedslønn** (SSB): gjennomsnittlig månedslønn per heltidsekvivalent, slik SSB definerer
   den i tabell 11656. I regnestykkene ganges den med 12 for å få en årslønn.
 

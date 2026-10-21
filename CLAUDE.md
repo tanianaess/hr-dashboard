@@ -682,9 +682,12 @@ Ingen AI: teksten er regelbasert, som innsiktene på forsiden.
   `python lag_selskapsnotat.py --last-ned` fra PxWebApi v2 (`data.ssb.no/api/pxwebapi/v2`).
   `kilder.json` er fasiten (tittel, adresse, siste periode, datoer), og README der forklarer
   tabellene. Kjøres på nytt når SSB har publisert et nytt kvartal.
-- Næringskoden fra Enhetsregisteret (f.eks. 62.010) kobles til den mest spesifikke gruppen i
-  hver SSB-tabell (`finn_grupper()`, etter SN2007), og til en bredere gruppe når tallet
-  mangler.
+- Næringskoden fra Enhetsregisteret kobles til den mest spesifikke gruppen i hver SSB-tabell
+  (`finn_grupper()`), og til en bredere gruppe når tallet mangler. Enhetsregisteret bruker
+  SN2025 (fra 1.1.2025, f.eks. 62.100 Dataprogrammeringstjenester), SSB-tabellene SN2007
+  (62.010 Programmeringstjenester), verifisert i SSB Klass 21.10.2026. Koblingen går på de
+  to første sifrene, som i hovedsak er like i de to standardene. Notatet skriver hvilken
+  SSB-gruppe som er brukt, så den kan kontrolleres mot det selskapet driver med.
 - `data/eksempel_selskap/`: oppdiktet selskap (Nordvind Logistikk AS, med et
   organisasjonsnummer som ikke kan være ekte) til `--eksempel`, som kjører helt uten nett.
 - `notater/`: ferdige notater (`.md` og `.html`).

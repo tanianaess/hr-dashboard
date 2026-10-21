@@ -215,7 +215,8 @@ def test_tolk_ssb_kode():
 
 
 @pytest.mark.parametrize("nace, kvartal, aar, lonn", [
-    ("62.010", "61-63", "58-63", "62"),         # programmering: IKT-virksomhet
+    ("62.010", "61-63", "58-63", "62"),         # programmering (SN2007): IKT-virksomhet
+    ("62.100", "61-63", "58-63", "62"),         # samme næring slik Enhetsregisteret skriver den (SN2025)
     ("49.410", "49", "49-53", "49"),            # godstransport på vei
     ("84.110", "O", "84", "84"),                # offentlig administrasjon: bare hovedområdet i 12440
     ("70.220", "69-71", "68-75", "70"),         # bedriftsrådgivning
