@@ -180,6 +180,40 @@ utgangspunktet ikke er personopplysninger.
 kontrollere tallene mot dagens rapporter, og gå gjennom dashbordet med ledergruppen og
 justere.
 
+**Selskapsnotat på fem minutter.** Før et første møte lager jeg en halv side om selskapet,
+bygget bare på offentlige tall: «Tre spørsmål til \<selskap\>». Slik:
+
+1. Finn organisasjonsnummeret (står på selskapets nettside eller i Brønnøysundregistrene).
+2. Les årsberetningen, og skriv tallene selskapet selv oppgir (sykefravær, årsverk og
+   eventuelt turnover) inn i en liten JSON-fil med kilde, f.eks.
+   `notater/912345678-aarsberetning.json`. Malen er
+   [`data/eksempel_selskap/aarsberetning.json`](data/eksempel_selskap/aarsberetning.json).
+   Tall som ikke står i årsberetningen, settes til `null`. Aldri anslag.
+3. Kjør skriptet:
+
+   ```bash
+   python lag_selskapsnotat.py 912345678 --aarsberetning notater/912345678-aarsberetning.json
+   ```
+
+   Det henter navn, næringskode og antall ansatte fra Enhetsregisteret (åpent API, ingen
+   nøkkel), finner næringens sykefravær og månedslønn i de lagrede SSB-tabellene
+   (`data/eksterne/`, med kilder og datoer), og lagrer notatet i `notater/<selskap>.md` og
+   `.html`. HTML-siden åpnes i nettleseren, kan skrives ut til PDF og legges ved en e-post.
+4. Les notatet. Kontrollene i skriptet sjekker at hvert tall har kilde og at tekstreglene
+   holdes, men teksten leses som om den skulle sendes, for det skal den.
+
+Notatet har fire deler: selskapets sykefravær mot næringen (med kilde og kvartal, og en
+merknad om at SSBs og selskapets tall ikke er regnet ut på samme måte), hva det kan bety i
+kroner med de samme forsiktige antakelsene som dashbordet (regnestykke, ikke prognose), tre
+spørsmål til ledergruppen tilpasset næringen, og to setninger om hvordan dashbordet ville
+brukt deres egne tall. Nederst står kildene med dato. Notatet bygger bare på offentlige tall
+og det selskapet selv har publisert, og sier ingenting om enkeltpersoner. Et eksempel med et
+oppdiktet selskap ligger i
+[`notater/eksempel-nordvind-logistikk-as.md`](notater/eksempel-nordvind-logistikk-as.md)
+(`python lag_selskapsnotat.py --eksempel`, kjører uten nett). Notater om ekte selskaper
+holdes utenfor repoet. Når SSB har publisert et nytt kvartal:
+`python lag_selskapsnotat.py --last-ned`.
+
 ## Kjør selv
 
 Krever **Python 3.12** eller nyere (testet med 3.12 og 3.14). Velg Python 3.12 også
@@ -232,12 +266,17 @@ sider/6_Utvikling.py      Utviklingssiden (opplæring, 1:1 og intern mobilitet)
 sider/7_Om.py             Om dashbordet (valgene, AI-historien, hva som trengs med ekte data)
 lederbrief.py             Lederbrief (AI): instruksen, grunnlaget, kontrollene og lesing av data/lederbrief.json
 lag_lederbrief.py         Lager lederbriefen med Claude (bare på egen maskin, med API-nøkkel)
+selskapsnotat.py          Selskapsnotat: Enhetsregisteret, SSB-tabellene, næringsgruppe, regnestykke, Markdown og HTML
+lag_selskapsnotat.py      Lager et selskapsnotat for ett organisasjonsnummer (eller eksempelet, uten nett)
 beregninger.py            Alle formler (brukes av alle sider)
 filtre.py                 Felles filtre for periode og team, sidestiene (SIDER) og spørsmålene per side
 .github/workflows/        Kjører testene automatisk på GitHub (GitHub Actions)
 datalasting.py            Felles innlesing av data (lest én gang, deles av alle sider)
 lag_syntetiske_data.py    Genererer de syntetiske dataene
 data/                     CSV-filer: ansatte, fravær, engasjement, bemanningsplan, opplæring, 1:1, stillingsendringer, og lederbrief.json (AI)
+data/eksterne/            SSB-tabeller (sykefravær og månedslønn per næring) med kilder.json og README
+data/eksempel_selskap/    Oppdiktet selskap til eksempelnotatet (offline)
+notater/                  Ferdige selskapsnotater (bare eksempelet ligger i repoet)
 static/                   Skriften Inter (woff2, selvhostet) med lisens, og ordmerket i menyen (wordmark.svg)
 kontroller_mot_excel.py   Sjekker Python-formlene mot en Excel-fasit
 tests/                    Automatiske tester (pytest)
@@ -249,7 +288,8 @@ CLAUDE.md                 Prosjektregler, datamodell og definisjoner
 
 Automatiske tester (pytest) sjekker nøkkeltallene, personvernreglene, tekstreglene,
 lederbriefen (bare tall fra forsiden, bare team som nevnes der, vises bare når den er
-godkjent) og at alle sidene kjører for alle filtervalg. De kjører også automatisk på GitHub ved hver
+godkjent), selskapsnotatet (eksempelet kjører uten nett, hvert tall har kilde, kildene står
+i teksten) og at alle sidene kjører for alle filtervalg. De kjører også automatisk på GitHub ved hver
 push (GitHub Actions, se merket øverst). Slik kjører du dem selv:
 
 ```bash

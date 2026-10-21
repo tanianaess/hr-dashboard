@@ -646,6 +646,55 @@ nøkternt, ingen superlativer.
 Kontrollene er grovsjekker: tall skrevet med ord fanges ikke opp. Den viktigste
 kontrollen er mennesket som leser.
 
+## Selskapsnotat («Tre spørsmål til <selskap>»)
+
+En halv side om ett selskap Tania søker jobb hos, til å legge ved e-posten, så de åpner.
+Dashbordet er beviset bak, notatet er døråpneren. Lages av `lag_selskapsnotat.py` (skriptet)
+og `selskapsnotat.py` (henting, regning og tekst), bare med pandas og standardbiblioteket.
+Ingen AI: teksten er regelbasert, som innsiktene på forsiden.
+
+### Regler (gjelder alltid)
+- **Bare offentlige tall:** Enhetsregisteret (navn, næringskode, antall ansatte), SSBs
+  statistikkbank (sykefravær og månedslønn per næring) og tall selskapet selv har publisert
+  i årsberetningen, skrevet inn for hånd i en JSON-fil med kilde. Ingenting annet, og aldri
+  anslag: et tall som ikke finnes, sies å mangle.
+- **Kilde alltid:** hvert tall i notatet skal kunne spores til inndataene, de lagrede
+  tabellene eller regnestykket (`lovlige_tall()` og `kontroller()`), og kildene står
+  nederst med tabellnummer, siste periode, SSBs oppdateringsdato og nedlastingsdato. Notatet
+  sier også at SSBs og selskapets tall ikke er regnet ut på samme måte (`METODEMERKNAD`,
+  verifisert mot SSBs «Om statistikken»).
+- **Ingen påstander om selskapet** utover det Enhetsregisteret og selskapet selv har
+  publisert. Regnestykkene i kroner er ren aritmetikk på næringens gjennomsnittstall, med
+  dashbordets antakelser (260 arbeidsdager i et årsverk, 75 % av en årslønn per avgang,
+  arbeidsgiverperioden på 16 dager), og merkes «regnestykke, ikke prognose». Spørsmålene er
+  spørsmål, ikke råd, og sier ikke hvordan selskapet er organisert. Det tredje spørsmålet
+  velges etter hovedområdet i næringen (`TREDJE_SPORSMAL`).
+- **Ingen personopplysninger:** notatet bygger på tall om næringen og selskapet som helhet.
+  Det henter ikke roller, eiere eller adresser, og sier ingenting om enkeltpersoner (siste
+  linje i notatet sier det). Notater om ekte selskaper og årsberetningsfiler holdes utenfor
+  repoet (`.gitignore`); bare eksempelet med det oppdiktede selskapet er med.
+- Tekstreglene i «Presentasjon i dashbordet» gjelder. HTML-siden bruker samme stil som
+  lederbriefen (`html_side()` i `lederbrief.py`).
+
+### Kilder og filer
+- `data/eksterne/`: SSB-tabellene 12440 (sykefravær per næring og kvartal), 12441 (per år)
+  og 11656 (månedslønn per næring og kvartal), lastet ned med
+  `python lag_selskapsnotat.py --last-ned` fra PxWebApi v2 (`data.ssb.no/api/pxwebapi/v2`).
+  `kilder.json` er fasiten (tittel, adresse, siste periode, datoer), og README der forklarer
+  tabellene. Kjøres på nytt når SSB har publisert et nytt kvartal.
+- Næringskoden fra Enhetsregisteret (f.eks. 62.010) kobles til den mest spesifikke gruppen i
+  hver SSB-tabell (`finn_grupper()`, etter SN2007), og til en bredere gruppe når tallet
+  mangler.
+- `data/eksempel_selskap/`: oppdiktet selskap (Nordvind Logistikk AS, med et
+  organisasjonsnummer som ikke kan være ekte) til `--eksempel`, som kjører helt uten nett.
+- `notater/`: ferdige notater (`.md` og `.html`).
+
+### Tester
+- Eksempelet kjører offline, og alle tall i det står i inndataene, i de lagrede tabellene,
+  eller er regnet ut med formlene over.
+- Kildene står i teksten, med datoer. Tekstreglene holdes. HTML-siden er selvstendig.
+- Næringskoder finner riktig SSB-gruppe, og «Alle næringer» er siste utvei.
+
 ## Publisering (Streamlit Community Cloud)
 
 - Appen oppdateres av seg selv fra `main` på GitHub.
